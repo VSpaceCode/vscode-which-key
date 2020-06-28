@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.0] - 2017-06-23
+## [0.5.1] - 2020-06-28
+## Added
+- Use webpack to reduce extension size
+
+## [0.5.0] - 2020-06-23
 ### Added
 - Split which-key menu function from VSpaceCode of`v0.4.0`
