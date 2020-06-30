@@ -3,11 +3,16 @@ import { BindingItem, OverrideBindingItem } from "./BindingItem";
 import { createQuickPick } from "./menu/menu";
 import WhichKeyMenuItem from "./menu/whichKeyMenuItem";
 import { WhichKeyConfig } from "./whichKeyConfig";
+import KeyListener from "./keyListener";
 
 export default class WhichKeyCommand {
+    private keyListener: KeyListener;
     private items?: WhichKeyMenuItem[];
     private config?: WhichKeyConfig;
     private onConfigChangeListener?: Disposable;
+    constructor(keyListener: KeyListener) {
+        this.keyListener = keyListener;
+    }
 
     register(config: WhichKeyConfig) {
         this.unregister();
@@ -50,14 +55,14 @@ export default class WhichKeyCommand {
 
     show(): Thenable<unknown> {
         if (this.items) {
-            return createQuickPick(this.items, this.config?.title);
+            return createQuickPick(this.keyListener, this.items, this.config?.title);
         } else {
             return window.showErrorMessage("No bindings is available");
         }
     }
 
-    static show(bindings: BindingItem[]) {
+    static show(bindings: BindingItem[], keyWatcher: KeyListener) {
         const items = WhichKeyMenuItem.createItems(bindings);
-        return createQuickPick(items);
+        return createQuickPick(keyWatcher, items);
     }
 }

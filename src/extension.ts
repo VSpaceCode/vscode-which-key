@@ -1,18 +1,21 @@
-import { commands, ExtensionContext } from 'vscode';
+import { commands, ExtensionContext, Event, Disposable, EventEmitter } from 'vscode';
 import { toBindingItem } from './BindingItem';
 import WhichKeyCommand from './whichKeyCommand';
 import { defaultWhichKeyConfig, getFullSection, toWhichKeyConfig } from './whichKeyConfig';
-import { whichKeyRegister, whichKeyShow } from './constants';
+import { whichKeyRegister, whichKeyShow, whichKeyTab } from './constants';
+import KeyListener from './keyListener';
 
 const registered: Record<string, WhichKeyCommand> = {};
+const keyListener = new KeyListener();
 
 export function activate(context: ExtensionContext) {
+    context.subscriptions.push(commands.registerCommand(whichKeyTab, keyListener.trigger.bind(keyListener)));
     context.subscriptions.push(commands.registerCommand(whichKeyRegister, (args: any[]) => {
         const config = toWhichKeyConfig(args);
         if (config) {
             const key = getFullSection(config.bindings);
             if (!(key in registered)) {
-                registered[key] = new WhichKeyCommand();
+                registered[key] = new WhichKeyCommand(keyListener);
             }
 
             registered[key].register(config);
@@ -28,7 +31,7 @@ export function activate(context: ExtensionContext) {
                 return value !== null && value !== undefined;
             }
             const bindings = args.map(toBindingItem).filter(notEmpty);
-            await WhichKeyCommand.show(bindings);
+            await WhichKeyCommand.show(bindings, keyListener);
         } else {
             const key = getFullSection(defaultWhichKeyConfig.bindings);
             if (!(key in registered)) {
@@ -43,4 +46,5 @@ export function deactivate() {
     Object.keys(registered).forEach(k => {
         registered[k].unregister();
     });
+    keyListener.dispose();
 }

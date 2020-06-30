@@ -1,36 +1,43 @@
-import { window } from "vscode";
+import { window, commands } from "vscode";
 import { MenuItem } from "./menuItem";
+import KeyListener from "../keyListener";
 
-export function createQuickPick(items: MenuItem[], title?: string) {
+export function createQuickPick(keyListener: KeyListener, items: MenuItem[], title?: string) {
     return new Promise((resolve, reject) => {
         const quickPick = window.createQuickPick<MenuItem>();
         quickPick.title = title;
         quickPick.items = items;
 
-        let resolveOnAction = false;
-        // Select with single key stroke
-        const eventListenerDisposable = quickPick.onDidChangeValue(async () => {
-            const chosenItems = quickPick.items.find(i => i.key === quickPick.value);
+        let resolveAfterAction = false;
+        async function handleValueChanged(value: string) {
+            const chosenItems = quickPick.items.find(i => i.key === value);
             if (chosenItems) {
-                resolveOnAction = true;
-                quickPick.hide();
+                resolveAfterAction = true;
+                await hide();
                 try {
-                    await chosenItems.action();
+                    await chosenItems.action(keyListener);
                     resolve();
                 } catch (error) {
                     reject(error);
                 }
             }
+        }
+
+        // Select with single key stroke
+        const keyWatcherDisposable = keyListener.onDidKeyPressed((s) => {
+            quickPick.value += s;
+            handleValueChanged(quickPick.value);
         });
+        const eventListenerDisposable = quickPick.onDidChangeValue(handleValueChanged);
 
         // Select with arrows + enter
         const acceptListenerDisposable = quickPick.onDidAccept(async () => {
             if (quickPick.activeItems.length > 0) {
                 const chosenItems = quickPick.activeItems[0] as MenuItem;
-                resolveOnAction = true;
-                quickPick.hide();
+                resolveAfterAction = true;
+                await hide();
                 try {
-                    await chosenItems.action();
+                    await chosenItems.action(keyListener);
                     resolve();
                 } catch (error) {
                     reject(error);
@@ -38,21 +45,42 @@ export function createQuickPick(items: MenuItem[], title?: string) {
             }
         });
 
-        const didHideDisposable = quickPick.onDidHide(() => {
-            quickPick.dispose();
+        let isHiding = false;
+        async function handleHidden() {
+            keyWatcherDisposable.dispose();
             eventListenerDisposable.dispose();
             acceptListenerDisposable.dispose();
             didHideDisposable.dispose();
-            if (!resolveOnAction) {
+            quickPick.dispose();
+            await commands.executeCommand("setContext", "whichkeyVisible", false);
+            if (!resolveAfterAction) {
                 resolve();
+            }
+        }
+        function hide() {
+            return new Promise(resolve => {
+                const didHideDisposable = quickPick.onDidHide(async () => {
+                    didHideDisposable.dispose();
+                    await handleHidden();
+                    resolve();
+                });
+                isHiding = true;
+                quickPick.hide();
+            });
+
+        }
+        const didHideDisposable = quickPick.onDidHide(() => {
+            if (!isHiding) {
+                handleHidden();
             }
         });
 
         quickPick.show();
+        commands.executeCommand("setContext", "whichkeyVisible", true);
     });
 }
 
-export function createTransientQuickPick(items: MenuItem[], title?: string) {
+export function createTransientQuickPick(keyWatcher: KeyListener, items: MenuItem[], title?: string) {
     return new Promise((resolve, reject) => {
         const quickPick = window.createQuickPick<MenuItem>();
         quickPick.title = title;
@@ -66,7 +94,7 @@ export function createTransientQuickPick(items: MenuItem[], title?: string) {
                 disposeOnHidden = false;
                 quickPick.hide();
                 try {
-                    await chosenItems.action();
+                    await chosenItems.action(keyWatcher);
                     disposeOnHidden = true;
                     reshowQuickPick();
                 } catch (error) {
@@ -86,7 +114,7 @@ export function createTransientQuickPick(items: MenuItem[], title?: string) {
                 disposeOnHidden = false;
                 quickPick.hide();
                 try {
-                    await chosenItems.action();
+                    await chosenItems.action(keyWatcher);
                     disposeOnHidden = true;
                     reshowQuickPick();
                 } catch (error) {

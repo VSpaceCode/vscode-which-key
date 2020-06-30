@@ -2,6 +2,7 @@ import { commands } from "vscode";
 import { ActionType, BindingItem, OverrideBindingItem } from "../BindingItem";
 import { createQuickPick, createTransientQuickPick } from "./menu";
 import { MenuItem } from "./menuItem";
+import KeyListener from "../keyListener";
 
 export default class WhichKeyMenuItem implements MenuItem {
     name: string;
@@ -27,7 +28,7 @@ export default class WhichKeyMenuItem implements MenuItem {
     }
 
     get label() {
-        return this.key === ' ' ? '␣' : this.key;
+        return this.key.replace(' ', '␣').replace('\t', '↹');
     }
 
     get description() {
@@ -35,13 +36,13 @@ export default class WhichKeyMenuItem implements MenuItem {
         return `\t${this.name}`;
     }
 
-    async action(): Promise<unknown> {
+    async action(keyListener: KeyListener): Promise<unknown> {
         if (this.type === ActionType.Command && this.command) {
             return await executeCommand(this.command, this.args);
         } else if (this.type === ActionType.Commands && this.commands) {
             return await executeCommands(this.commands, this.args);
         } else if (this.type === ActionType.Bindings && this.items) {
-            return await createQuickPick(this.items, this.name);
+            return await createQuickPick(keyListener, this.items, this.name);
         } else if (this.type === ActionType.Transient && this.items) {
             // optionally execute command/s before transient
             if (this.commands) {
@@ -49,7 +50,7 @@ export default class WhichKeyMenuItem implements MenuItem {
             } else if (this.command) {
                 await executeCommand(this.command, this.args);
             }
-            return await createTransientQuickPick(this.items, this.name);
+            return await createTransientQuickPick(keyListener, this.items, this.name);
         }
 
         throw new Error();

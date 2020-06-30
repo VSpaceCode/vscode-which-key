@@ -37,7 +37,19 @@
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
+		"keybindings": [
+			{
+				"key": "tab",
+				"command": "whichkey.triggerKey",
+				"args": "\t",
+				"when": "whichkeyVisible"
+			}
+		],
 		"commands": [
+			{
+				"command": "whichkey.triggerKey",
+				"title": "Trigger special key from keybindings"
+			},
 			{
 				"command": "whichkey.show",
 				"title": "Show a which key menu"
@@ -61,6 +73,15 @@
 								"name": "Commands...",
 								"type": "command",
 								"command": "workbench.action.showCommands"
+							},
+							{
+								"key": "\t",
+								"name": "Last editor",
+								"type": "commands",
+								"commands": [
+									"workbench.action.quickOpenPreviousRecentlyUsedEditorInGroup",
+									"list.select"
+								]
 							},
 							{
 								"key": "b",
@@ -757,12 +778,6 @@
 								"name": "Window...",
 								"type": "bindings",
 								"bindings": [
-									{
-										"key": "w",
-										"name": "Focus next editor group",
-										"type": "command",
-										"command": "workbench.action.focusNextGroup"
-									},
 									{
 										"key": "W",
 										"name": "Focus previous editor group",
