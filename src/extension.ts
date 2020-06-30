@@ -21,16 +21,14 @@ export function activate(context: ExtensionContext) {
         }
     }));
     context.subscriptions.push(commands.registerCommand(whichKeyShow, async (args: any[]) => {
-        if (args) {
-            if (typeof args === 'string') {
-                await registered[args].show();
-            } else if (Array.isArray(args)) {
-                function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
-                    return value !== null && value !== undefined;
-                }
-                const bindings = args.map(toBindingItem).filter(notEmpty);
-                await WhichKeyCommand.show(bindings);
+        if (typeof args === 'string') {
+            await registered[args].show();
+        } else if (Array.isArray(args) && args.length > 0) {
+            function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
+                return value !== null && value !== undefined;
             }
+            const bindings = args.map(toBindingItem).filter(notEmpty);
+            await WhichKeyCommand.show(bindings);
         } else {
             const key = getFullSection(defaultWhichKeyConfig.bindings);
             if (!(key in registered)) {
