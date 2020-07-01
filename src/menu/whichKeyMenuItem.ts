@@ -19,10 +19,10 @@ export default class WhichKeyMenuItem implements MenuItem {
         this.command = item.command;
         this.commands = item.commands;
         this.args = item.args;
-        if (this.type === ActionType.Bindings && item.bindings) {
-            this.items = WhichKeyMenuItem.createItems(item.bindings);
-        } else if (this.type === ActionType.Transient && item.bindings) {
-            this.items = WhichKeyMenuItem.createItems(item.bindings);
+        if (this.type === ActionType.Bindings) {
+            this.items = WhichKeyMenuItem.createItems(item.bindings ?? []);
+        } else if (this.type === ActionType.Transient) {
+            this.items = WhichKeyMenuItem.createItems(item.bindings ?? []);
         }
     }
 
