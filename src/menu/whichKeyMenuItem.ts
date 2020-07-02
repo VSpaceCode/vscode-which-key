@@ -52,7 +52,7 @@ export default class WhichKeyMenuItem implements MenuItem {
             return await createTransientQuickPick(this.items, this.name);
         }
 
-        return Promise.reject();
+        throw new Error();
     }
 
     static createItems(items: BindingItem[]) {

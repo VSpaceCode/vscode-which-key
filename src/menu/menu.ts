@@ -67,6 +67,7 @@ export function createTransientQuickPick(items: MenuItem[], title?: string) {
                 quickPick.hide();
                 try {
                     await chosenItems.action();
+                    disposeOnHidden = true;
                     reshowQuickPick();
                 } catch (error) {
                     dispose(false);
@@ -86,6 +87,7 @@ export function createTransientQuickPick(items: MenuItem[], title?: string) {
                 quickPick.hide();
                 try {
                     await chosenItems.action();
+                    disposeOnHidden = true;
                     reshowQuickPick();
                 } catch (error) {
                     dispose(false);
