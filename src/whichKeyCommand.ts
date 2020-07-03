@@ -1,13 +1,13 @@
 import { Disposable, window, workspace } from "vscode";
 import { BindingItem, OverrideBindingItem } from "./BindingItem";
-import { createQuickPick } from "./menu/menu";
-import WhichKeyMenuItem from "./menu/whichKeyMenuItem";
-import { WhichKeyConfig } from "./whichKeyConfig";
 import KeyListener from "./keyListener";
+import { WhichKeyMenu } from "./menu/menu";
+import MenuItem from "./menu/menuItem";
+import { WhichKeyConfig } from "./whichKeyConfig";
 
 export default class WhichKeyCommand {
     private keyListener: KeyListener;
-    private items?: WhichKeyMenuItem[];
+    private items?: MenuItem[];
     private config?: WhichKeyConfig;
     private onConfigChangeListener?: Disposable;
     constructor(keyListener: KeyListener) {
@@ -22,7 +22,7 @@ export default class WhichKeyCommand {
             .getConfiguration(config.bindings[0])
             .get<BindingItem[]>(config.bindings[1]);
         if (bindings) {
-            this.items = WhichKeyMenuItem.createItems(bindings);
+            this.items = MenuItem.createItems(bindings);
         } else {
             this.items = undefined;
         }
@@ -31,7 +31,7 @@ export default class WhichKeyCommand {
             const overrides = workspace
                 .getConfiguration(config.overrides[0])
                 .get<OverrideBindingItem[]>(config.overrides[1]);
-            WhichKeyMenuItem.overrideItems(this.items, overrides);
+            MenuItem.overrideItems(this.items, overrides);
         }
 
         this.onConfigChangeListener = workspace.onDidChangeConfiguration((e) => {
@@ -55,14 +55,14 @@ export default class WhichKeyCommand {
 
     show(): Thenable<unknown> {
         if (this.items) {
-            return createQuickPick(this.keyListener, this.items, this.config?.title);
+            return WhichKeyMenu.show(this.keyListener, this.items, false, this.config?.title);
         } else {
             return window.showErrorMessage("No bindings is available");
         }
     }
 
     static show(bindings: BindingItem[], keyWatcher: KeyListener) {
-        const items = WhichKeyMenuItem.createItems(bindings);
-        return createQuickPick(keyWatcher, items);
+        const items = MenuItem.createItems(bindings);
+        return WhichKeyMenu.show(keyWatcher, items, false);
     }
 }

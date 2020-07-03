@@ -10,6 +10,10 @@ export enum CommandKey {
 	Register = 'register',
 	Trigger = 'triggerKey',
 }
+
+export enum ContextKey {
+	Active = 'whichkeyActive'
+}
 export const whichKeyShow = `${contributePrefix}.${CommandKey.Show}`;
 export const whichKeyRegister = `${contributePrefix}.${CommandKey.Register}`;
-export const whichKeyTab = `${contributePrefix}.${CommandKey.Trigger}`;
+export const whichKeyTrigger = `${contributePrefix}.${CommandKey.Trigger}`;

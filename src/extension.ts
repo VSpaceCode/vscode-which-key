@@ -1,15 +1,15 @@
-import { commands, ExtensionContext, Event, Disposable, EventEmitter } from 'vscode';
+import { commands, ExtensionContext } from 'vscode';
 import { toBindingItem } from './BindingItem';
+import { whichKeyRegister, whichKeyShow, whichKeyTrigger } from './constants';
+import KeyListener from './keyListener';
 import WhichKeyCommand from './whichKeyCommand';
 import { defaultWhichKeyConfig, getFullSection, toWhichKeyConfig } from './whichKeyConfig';
-import { whichKeyRegister, whichKeyShow, whichKeyTab } from './constants';
-import KeyListener from './keyListener';
 
 const registered: Record<string, WhichKeyCommand> = {};
 const keyListener = new KeyListener();
 
 export function activate(context: ExtensionContext) {
-    context.subscriptions.push(commands.registerCommand(whichKeyTab, keyListener.trigger.bind(keyListener)));
+    context.subscriptions.push(commands.registerCommand(whichKeyTrigger, keyListener.trigger.bind(keyListener)));
     context.subscriptions.push(commands.registerCommand(whichKeyRegister, (args: any[]) => {
         const config = toWhichKeyConfig(args);
         if (config) {
