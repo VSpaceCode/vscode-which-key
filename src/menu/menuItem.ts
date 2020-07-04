@@ -25,7 +25,7 @@ export default class MenuItem implements QuickPickItem {
     }
 
     get label() {
-        return this.key.replace(' ', '␣').replace('\t', '↹');
+        return convertToMenuLabel(this.key);
     }
 
     get description() {
@@ -106,4 +106,8 @@ function createMenuItem(o: OverrideBindingItem, key: string) {
     } else {
         throw new Error('name or type of the override is undefined');
     }
+}
+
+export function convertToMenuLabel(s: string) {
+    return s.replace(' ', '␣').replace('\t', '↹');
 }

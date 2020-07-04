@@ -2,7 +2,7 @@ import { commands, Disposable, QuickPick, window } from "vscode";
 import { ActionType } from "../BindingItem";
 import { ContextKey } from "../constants";
 import KeyListener from "../keyListener";
-import MenuItem from "./menuItem";
+import MenuItem, { convertToMenuLabel } from "./menuItem";
 
 export class WhichKeyMenu {
     private keyListener: KeyListener;
@@ -15,6 +15,7 @@ export class WhichKeyMenu {
     private resolve: (value?: void | PromiseLike<void>) => void;
     private reject: (reason?: any) => void;
     private isHiding: boolean;
+    private keyHistory: string[];
 
     constructor(keyListener: KeyListener, items: MenuItem[], isTransient: boolean, title?: string) {
         this.keyListener = keyListener;
@@ -34,6 +35,7 @@ export class WhichKeyMenu {
             this.quickPick.onDidHide(this.onDidHide.bind(this))
         ];
         this.isHiding = false;
+        this.keyHistory = [];
     }
 
     private onDidKeyPressed(value: string) {
@@ -50,6 +52,11 @@ export class WhichKeyMenu {
             }
         } else {
             await this.hide();
+            const keyCombo = this.keyHistory
+                .concat(value)
+                .map(convertToMenuLabel)
+                .join(' ');
+            window.setStatusBarMessage(`${keyCombo} is undefined`, 2000);
             this.dispose();
             this.resolve();
         }
@@ -119,6 +126,9 @@ export class WhichKeyMenu {
         } else {
             throw new Error();
         }
+
+        // Add to the key history only when it is not a transient
+        this.keyHistory.push(item.key);
     }
 
     private async selectActionTransient(item: MenuItem) {
