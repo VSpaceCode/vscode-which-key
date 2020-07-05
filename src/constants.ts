@@ -2,6 +2,7 @@ export const extensionId = 'vscode-which-key';
 export const publisherId = 'VSpaceCode';
 export const contributePrefix = 'whichkey';
 export enum ConfigKey {
+	Delay = "delay",
 	Bindings = "bindings",
 	Overrides = "bindingOverrides",
 }

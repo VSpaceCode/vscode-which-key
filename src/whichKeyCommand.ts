@@ -1,9 +1,10 @@
-import { Disposable, window, workspace } from "vscode";
+import { Disposable, window, workspace, commands } from "vscode";
 import { BindingItem, OverrideBindingItem } from "./BindingItem";
 import KeyListener from "./keyListener";
 import { WhichKeyMenu } from "./menu/menu";
 import MenuItem from "./menu/menuItem";
 import { WhichKeyConfig } from "./whichKeyConfig";
+import { ContextKey, contributePrefix, ConfigKey } from "./constants";
 
 export default class WhichKeyCommand {
     private keyListener: KeyListener;
@@ -53,9 +54,9 @@ export default class WhichKeyCommand {
         this.onConfigChangeListener?.dispose();
     }
 
-    show(): Thenable<unknown> {
+    show() {
         if (this.items) {
-            return WhichKeyMenu.show(this.keyListener, this.items, false, this.config?.title);
+            return showMenu(this.keyListener, this.items, false, this.config?.title);
         } else {
             return window.showErrorMessage("No bindings is available");
         }
@@ -63,6 +64,20 @@ export default class WhichKeyCommand {
 
     static show(bindings: BindingItem[], keyWatcher: KeyListener) {
         const items = MenuItem.createItems(bindings);
-        return WhichKeyMenu.show(keyWatcher, items, false);
+        return showMenu(keyWatcher, items, false);
+    }
+}
+
+function setContext(key: string, value: any) {
+    return commands.executeCommand("setContext", key, value);
+}
+
+async function showMenu(keyListener: KeyListener, items: MenuItem[], isTransient: boolean, title?: string) {
+    try {
+        const delay = workspace.getConfiguration(contributePrefix).get<number>(ConfigKey.Delay) ?? 0;
+        await setContext(ContextKey.Active, true);
+        await WhichKeyMenu.show(keyListener, items, isTransient, delay, title);
+    } finally {
+        await setContext(ContextKey.Active, false);
     }
 }

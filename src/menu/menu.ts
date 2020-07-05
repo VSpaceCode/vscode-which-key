@@ -1,6 +1,5 @@
 import { commands, Disposable, QuickPick, window } from "vscode";
 import { ActionType } from "../BindingItem";
-import { ContextKey } from "../constants";
 import KeyListener from "../keyListener";
 import MenuItem, { convertToMenuLabel } from "./menuItem";
 
@@ -9,26 +8,36 @@ export class WhichKeyMenu {
     private items: MenuItem[];
     private title?: string;
     private isTransient: boolean;
+
     private quickPick: QuickPick<MenuItem>;
-    private disposable: Disposable[];
-    private promise: Promise<void>;
-    private resolve: (value?: void | PromiseLike<void>) => void;
-    private reject: (reason?: any) => void;
+    private disposables: Disposable[];
     private isHiding: boolean;
     private keyHistory: string[];
 
-    constructor(keyListener: KeyListener, items: MenuItem[], isTransient: boolean, title?: string) {
+    // Promise related properties for the promise returned by show()
+    private promise: Promise<void>;
+    private resolve!: (value?: void | PromiseLike<void>) => void;
+    private reject!: (reason?: any) => void;
+
+    // Delay related properties
+    private delay: number;
+    private timeoutId?: NodeJS.Timeout;
+    // This is the currently entered value in delay mode
+    // so we can display the chain of keys that's been entered
+    private enteredValue = '';
+
+    constructor(keyListener: KeyListener, items: MenuItem[], isTransient: boolean, delay: number, title?: string) {
         this.keyListener = keyListener;
         this.items = items;
         this.isTransient = isTransient;
+        this.delay = delay;
         this.title = title;
         this.quickPick = window.createQuickPick<MenuItem>();
-        this.resolve = this.reject = () => { }; // Needed for ts warning
         this.promise = new Promise<void>((resolve, reject) => {
             this.resolve = resolve;
             this.reject = reject;
         });
-        this.disposable = [
+        this.disposables = [
             this.keyListener.onDidKeyPressed(this.onDidKeyPressed.bind(this)),
             this.quickPick.onDidChangeValue(this.onDidChangeValue.bind(this)),
             this.quickPick.onDidAccept(this.onDidAccept.bind(this)),
@@ -44,8 +53,19 @@ export class WhichKeyMenu {
     }
 
     private async onDidChangeValue(value: string) {
-        const chosenItem = this.quickPick.items.find(i => i.key === value);
-        const hasSeq = this.quickPick.items.find(i => value.startsWith(i.key));
+        if (this.timeoutId) {
+            // When the menu is in the delay display mode
+            if (value.startsWith(this.enteredValue)) {
+                value = value.substring(this.enteredValue.length);
+            } else {
+                // Disallow user from removing entered value when in delay
+                this.quickPick.value = this.enteredValue;
+                return;
+            }
+        }
+
+        const chosenItem = this.items.find(i => i.key === value);
+        const hasSeq = this.items.find(i => value.startsWith(i.key));
         if (hasSeq) {
             if (chosenItem) {
                 await this.select(chosenItem);
@@ -56,7 +76,7 @@ export class WhichKeyMenu {
                 .concat(value)
                 .map(convertToMenuLabel)
                 .join(' ');
-            window.setStatusBarMessage(`${keyCombo} is undefined`, 2000);
+            window.setStatusBarMessage(`${keyCombo} is undefined`, 5000);
             this.dispose();
             this.resolve();
         }
@@ -69,20 +89,20 @@ export class WhichKeyMenu {
         }
     }
 
-    private async onDidHide() {
+    private onDidHide() {
+        this.clearDelay();
         if (!this.isHiding) {
-            // handle when it's not manually hiding
-            await setContext(ContextKey.Active, false);
+            // Dispose correctly when it is not manually hiding
             this.dispose();
             this.resolve();
         }
     }
 
+    // Manually hide the menu
     private hide() {
-        return new Promise(r => {
+        return new Promise<void>(r => {
             this.isHiding = true;
-            const disposable = this.quickPick.onDidHide(async () => {
-                await setContext(ContextKey.Active, false);
+            const disposable = this.quickPick.onDidHide(() => {
                 this.isHiding = false;
                 disposable.dispose();
                 r();
@@ -97,6 +117,7 @@ export class WhichKeyMenu {
                 ? this.selectActionTransient(item)
                 : this.selectAction(item));
         } catch (e) {
+            this.dispose();
             this.reject(e);
         }
     }
@@ -113,7 +134,8 @@ export class WhichKeyMenu {
             this.dispose();
             this.resolve();
         } else if (item.type === ActionType.Bindings && item.items) {
-            await this.update(item.items, false, item.name);
+            this.updateState(item.items, false, item.name);
+            this.show();
         } else if (item.type === ActionType.Transient && item.items) {
             await this.hide();
             // optionally execute command/s before transient
@@ -122,7 +144,8 @@ export class WhichKeyMenu {
             } else if (item.command) {
                 await executeCommand(item.command, item.args);
             }
-            await this.update(item.items, true, item.name);
+            this.updateState(item.items, true, item.name);
+            this.show();
         } else {
             throw new Error();
         }
@@ -139,7 +162,7 @@ export class WhichKeyMenu {
         } else if (item.type === ActionType.Commands && item.commands) {
             await executeCommands(item.commands, item.args);
         } else if (item.type === ActionType.Bindings && item.items) {
-            await this.update(item.items, false, item.name);
+            this.updateState(item.items, false, item.name);
         } else if (item.type === ActionType.Transient && item.items) {
             // optionally execute command/s before transient
             if (item.commands) {
@@ -147,48 +170,65 @@ export class WhichKeyMenu {
             } else if (item.command) {
                 await executeCommand(item.command, item.args);
             }
-            await this.update(item.items, true, item.name);
+            this.updateState(item.items, true, item.name);
         } else {
             throw new Error();
         }
 
-        await this.show();
+        this.show();
     }
 
-    private async update(items: MenuItem[], isTransient: boolean, title?: string) {
+    private updateState(items: MenuItem[], isTransient: boolean, title?: string) {
         this.items = items;
         this.isTransient = isTransient;
         this.title = title;
-
-        await this.show();
     }
 
-    private async show() {
-        // change whichkeyVisible to whichkeyActive
-        await setContext(ContextKey.Active, true);
-        this.quickPick.items = this.items;
-        this.quickPick.title = this.title;
-        this.quickPick.value = '';
+    private clearDelay() {
+        if (this.timeoutId) {
+            clearTimeout(this.timeoutId);
+            this.timeoutId = undefined;
+        }
+    }
+
+    private show() {
+        const updateQuickPick = () => {
+            this.quickPick.busy = false;
+            this.enteredValue = '';
+            this.quickPick.value = '';
+            this.quickPick.title = this.title;
+            this.quickPick.items = this.items;
+        };
+
+        if (!this.isTransient && this.delay > 0) {
+            this.clearDelay(); // clear old delay
+            this.enteredValue = this.quickPick.value;
+            this.quickPick.busy = true;
+            this.quickPick.items = [];
+            this.timeoutId = setTimeout(() => {
+                this.clearDelay();
+                updateQuickPick();
+            }, this.delay);
+        } else {
+            updateQuickPick();
+        }
+
         this.quickPick.show();
     }
 
     private dispose() {
-        for (const d of this.disposable) {
+        for (const d of this.disposables) {
             d.dispose();
         }
 
         this.quickPick.dispose();
     }
 
-    static show(keyListener: KeyListener, items: MenuItem[], isTransient: boolean, title?: string) {
-        const menu = new WhichKeyMenu(keyListener, items, isTransient, title);
+    static show(keyListener: KeyListener, items: MenuItem[], isTransient: boolean, delay: number, title?: string) {
+        const menu = new WhichKeyMenu(keyListener, items, isTransient, delay, title);
         menu.show();
         return menu.promise;
     }
-}
-
-export function setContext(key: string, value: any) {
-    return commands.executeCommand("setContext", key, value);
 }
 
 function executeCommand(cmd: string, args: any) {

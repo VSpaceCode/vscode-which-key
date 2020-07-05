@@ -64,6 +64,11 @@
 				"title": "Which Key",
 				"type": "object",
 				"properties": {
+					"whichkey.delay": {
+						"type": "number",
+						"markdownDescription": "Delay (in milliseconds) for which-key menu to display.",
+						"default": 0
+					},
 					"whichkey.bindings": {
 						"type": "array",
 						"markdownDescription": "The bindings of the which key menu",
