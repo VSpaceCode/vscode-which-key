@@ -147,7 +147,7 @@ export class WhichKeyMenu {
             this.updateState(item.items, true, item.name);
             this.show();
         } else {
-            throw new Error();
+            throw new Error(`Incorrect properties of type ${item.type} for ${item.name}`);
         }
 
         // Add to the key history only when it is not a transient
@@ -172,7 +172,7 @@ export class WhichKeyMenu {
             }
             this.updateState(item.items, true, item.name);
         } else {
-            throw new Error();
+            throw new Error(`Incorrect properties of type ${item.type} for ${item.name}`);
         }
 
         this.show();
