@@ -1,5 +1,5 @@
 import { commands, Disposable, QuickPick, window } from "vscode";
-import { ActionType } from "../BindingItem";
+import { ActionType } from "../bindingItem";
 import KeyListener from "../keyListener";
 import MenuItem, { convertToMenuLabel } from "./menuItem";
 

@@ -1,5 +1,5 @@
 import { Disposable, window, workspace, commands } from "vscode";
-import { BindingItem, OverrideBindingItem } from "./BindingItem";
+import { BindingItem, OverrideBindingItem } from "./bindingItem";
 import KeyListener from "./keyListener";
 import { WhichKeyMenu } from "./menu/menu";
 import MenuItem from "./menu/menuItem";

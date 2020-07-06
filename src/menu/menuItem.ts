@@ -1,5 +1,5 @@
 import { QuickPickItem } from 'vscode';
-import { ActionType, BindingItem, OverrideBindingItem } from "../BindingItem";
+import { ActionType, BindingItem, OverrideBindingItem } from "../bindingItem";
 
 export default class MenuItem implements QuickPickItem {
     name: string;

@@ -1,5 +1,5 @@
 import { commands, ExtensionContext } from 'vscode';
-import { toBindingItem } from './BindingItem';
+import { toBindingItem } from './bindingItem';
 import { whichKeyRegister, whichKeyShow, whichKeyTrigger } from './constants';
 import KeyListener from './keyListener';
 import WhichKeyCommand from './whichKeyCommand';
