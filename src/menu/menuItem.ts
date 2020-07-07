@@ -10,7 +10,16 @@ export default class MenuItem implements QuickPickItem {
     items?: MenuItem[];
     args?: any;
 
-    constructor(item: BindingItem) {
+    private constructor(item: {
+        name: string,
+        key: string,
+        type: ActionType,
+        bindings?: BindingItem[],
+        command?: string,
+        commands?: string[],
+        items?: MenuItem[],
+        args?: any,
+    }) {
         this.name = item.name;
         this.key = item.key;
         this.type = item.type;
@@ -61,7 +70,7 @@ export default class MenuItem implements QuickPickItem {
                     const index = menuItems.findIndex(i => i.key === key);
 
                     if (o.position === undefined) {
-                        const newItem = createMenuItem(o, key);
+                        const newItem = MenuItem.createFromOverride(o, key);
                         if (index !== -1) {
                             // replace the current item
                             menuItems.splice(index, 1, newItem);
@@ -80,7 +89,7 @@ export default class MenuItem implements QuickPickItem {
                             if (index !== -1) {
                                 menuItems.splice(index, 1);
                             }
-                            const newItem = createMenuItem(o, key);
+                            const newItem = MenuItem.createFromOverride(o, key);
                             menuItems.splice(o.position, 0, newItem);
                         }
                     }
@@ -90,21 +99,25 @@ export default class MenuItem implements QuickPickItem {
             }
         });
     }
-}
 
-function createMenuItem(o: OverrideBindingItem, key: string) {
-    if (o.name !== undefined && o.type !== undefined) {
-        return new MenuItem({
-            key: key,
-            name: o.name,
-            type: o.type,
-            command: o.command,
-            commands: o.commands,
-            args: o.args,
-            bindings: o.bindings,
-        });
-    } else {
-        throw new Error('name or type of the override is undefined');
+    static createFromBinding(item: BindingItem) {
+        return new MenuItem(item);
+    }
+
+    static createFromOverride(o: OverrideBindingItem, key: string) {
+        if (o.name !== undefined && o.type !== undefined) {
+            return new MenuItem({
+                key: key,
+                name: o.name,
+                type: o.type,
+                command: o.command,
+                commands: o.commands,
+                args: o.args,
+                bindings: o.bindings,
+            });
+        } else {
+            throw new Error('name or type of the override is undefined');
+        }
     }
 }
 
