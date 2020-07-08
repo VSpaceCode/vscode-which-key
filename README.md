@@ -232,6 +232,28 @@ commands.executeCommand("whichkey.show", [
 ]);
 ```
 
+
+
+## Extra
+This section config extra settings that pertain to both Standalone or With extension.
+
+### Use non-character keys
+This section describes a way to use non-character keys in which-key menu like `<tab>` or `Control+D`. `<tab>` is supported out of the box. Follow the following instruction to add support for keys other than `<tab>`.
+
+Merge the following json to your `keybindings.json`.
+```json
+{
+  "key": "ctrl+x",
+  "command": "whichkey.triggerKey",
+  "args": "C-x",
+  "when": "whichkeyActive"
+}
+```
+Once you've done that, you can use `C-x` in the `key` value of the which-key config. Effectively, the above keybinding will enter `C-x` in the QuickPick input box when `ctrl+x` is pressed when the which key is focused.
+
+### Display menu with a delay
+You can set `whichkey.delay` in `settings.json` to value in millisecond to delay the display of the menu.
+
 ## Release Notes
 
 See [CHANGELOG.md](CHANGELOG.md)

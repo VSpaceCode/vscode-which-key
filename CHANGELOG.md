@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Implement an a way to use non-character key like `<tab>` and `<ctrl>` in which-key menu
+- Implement a way to delay menu display with a configurable timeout in settings
+- Add better error message when executing binding with incorrect properties
 
 ## [0.5.3] - 2020-07-02
 ### Fixed
