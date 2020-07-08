@@ -12,7 +12,7 @@ export class WhichKeyMenu {
     private quickPick: QuickPick<MenuItem>;
     private disposables: Disposable[];
     private isHiding: boolean;
-    private keyHistory: string[];
+    private itemHistory: MenuItem[];
 
     // Promise related properties for the promise returned by show()
     private promise: Promise<void>;
@@ -44,7 +44,7 @@ export class WhichKeyMenu {
             this.quickPick.onDidHide(this.onDidHide.bind(this))
         ];
         this.isHiding = false;
-        this.keyHistory = [];
+        this.itemHistory = [];
     }
 
     private onDidKeyPressed(value: string) {
@@ -72,14 +72,19 @@ export class WhichKeyMenu {
             }
         } else {
             await this.hide();
-            const keyCombo = this.keyHistory
-                .concat(value)
-                .map(convertToMenuLabel)
-                .join(' ');
+            const keyCombo = this.getHistoryString(value);
             window.setStatusBarMessage(`${keyCombo} is undefined`, 5000);
             this.dispose();
             this.resolve();
         }
+    }
+
+    private getHistoryString(currentKey?: string) {
+        let keyCombo = this.itemHistory.map(i => i.key);
+        if (currentKey) {
+            keyCombo = keyCombo.concat(currentKey);
+        }
+        return keyCombo.map(convertToMenuLabel).join(' ');
     }
 
     private onDidAccept() {
@@ -135,6 +140,7 @@ export class WhichKeyMenu {
             this.resolve();
         } else if (item.type === ActionType.Bindings && item.items) {
             this.updateState(item.items, false, item.name);
+            this.itemHistory.push(item);
             this.show();
         } else if (item.type === ActionType.Transient && item.items) {
             await this.hide();
@@ -145,13 +151,12 @@ export class WhichKeyMenu {
                 await executeCommand(item.command, item.args);
             }
             this.updateState(item.items, true, item.name);
+            this.itemHistory.push(item);
             this.show();
         } else {
-            throw new Error(`Incorrect properties of type ${item.type} for ${item.name}`);
+            const keyCombo = this.getHistoryString(item.key);
+            throw new ActionError(item.type, keyCombo);
         }
-
-        // Add to the key history only when it is not a transient
-        this.keyHistory.push(item.key);
     }
 
     private async selectActionTransient(item: MenuItem) {
@@ -163,6 +168,7 @@ export class WhichKeyMenu {
             await executeCommands(item.commands, item.args);
         } else if (item.type === ActionType.Bindings && item.items) {
             this.updateState(item.items, false, item.name);
+            this.itemHistory.push(item);
         } else if (item.type === ActionType.Transient && item.items) {
             // optionally execute command/s before transient
             if (item.commands) {
@@ -171,12 +177,15 @@ export class WhichKeyMenu {
                 await executeCommand(item.command, item.args);
             }
             this.updateState(item.items, true, item.name);
+            this.itemHistory.push(item);
         } else {
-            throw new Error(`Incorrect properties of type ${item.type} for ${item.name}`);
+            const keyCombo = this.getHistoryString(item.key);
+            throw new ActionError(item.type, keyCombo);
         }
 
         this.show();
     }
+
 
     private updateState(items: MenuItem[], isTransient: boolean, title?: string) {
         this.items = items;
@@ -249,5 +258,11 @@ async function executeCommands(cmds: string[], args: any) {
         const cmd = cmds[i];
         const arg = args?.[i];
         await executeCommand(cmd, arg);
+    }
+}
+
+class ActionError extends Error {
+    constructor(itemType: string, keyCombo: string) {
+        super(`Incorrect properties for ${itemType} type with the key combination of ${keyCombo}`);
     }
 }
