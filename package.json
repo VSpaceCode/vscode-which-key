@@ -22,7 +22,6 @@
 	"keywords": [
 		"which-key"
 	],
-	
 	"extensionKind": [
 		"ui",
 		"workspace"
