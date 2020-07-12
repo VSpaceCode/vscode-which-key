@@ -22,6 +22,11 @@
 	"keywords": [
 		"which-key"
 	],
+	
+	"extensionKind": [
+		"ui",
+		"workspace"
+	],
 	"license": "SEE LICENSE IN LICENSE.txt",
 	"homepage": "https://github.com/VSpaceCode/vscode-which-key",
 	"repository": {

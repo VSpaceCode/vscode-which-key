@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Add `<spc> b H/J/K/L` for directional editor moving
+- Support running this extension locally with VSCode Remote
 
 ## [0.6.0] - 2020-07-09
 ### Added
