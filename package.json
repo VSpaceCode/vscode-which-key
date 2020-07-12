@@ -53,7 +53,7 @@
 		"commands": [
 			{
 				"command": "whichkey.show",
-				"title": "Show Which Key Menu"
+				"title": "Which Key: Show Menu"
 			}
 		],
 		"configuration": [
