@@ -52,16 +52,8 @@
 		],
 		"commands": [
 			{
-				"command": "whichkey.triggerKey",
-				"title": "Trigger special key from keybindings"
-			},
-			{
 				"command": "whichkey.show",
-				"title": "Show a which key menu"
-			},
-			{
-				"command": "whichkey.register",
-				"title": "Register a which key menu"
+				"title": "Show Which Key Menu"
 			}
 		],
 		"configuration": [
