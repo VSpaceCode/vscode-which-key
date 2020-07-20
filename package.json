@@ -595,7 +595,7 @@
 									},
 									{
 										"key": "h",
-										"name": "Hightlight symbol",
+										"name": "Highlight symbol",
 										"type": "transient",
 										"command": "editor.action.wordHighlight.trigger",
 										"bindings": [
@@ -750,13 +750,13 @@
 								"bindings": [
 									{
 										"key": "b",
-										"name": "Toggle side bar visbility",
+										"name": "Toggle side bar visibility",
 										"type": "command",
 										"command": "workbench.action.toggleSidebarVisibility"
 									},
 									{
 										"key": "j",
-										"name": "Toggle panel visbility",
+										"name": "Toggle panel visibility",
 										"type": "command",
 										"command": "workbench.action.togglePanel"
 									},
@@ -1019,13 +1019,13 @@
 										"bindings": [
 											{
 												"key": "s",
-												"name": "Sort lines ascendingly",
+												"name": "Sort lines in ascending order",
 												"type": "command",
 												"command": "editor.action.sortLinesAscending"
 											},
 											{
 												"key": "S",
-												"name": "Sort lines descendingly",
+												"name": "Sort lines in descending order",
 												"type": "command",
 												"command": "editor.action.sortLinesDescending"
 											},
