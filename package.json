@@ -635,6 +635,12 @@
 										"command": "workbench.action.gotoSymbol"
 									},
 									{
+										"key": "J",
+										"name": "Jump to symbol in workspace",
+										"type": "command",
+										"command": "workbench.action.showAllSymbols"
+									},
+									{
 										"key": "p",
 										"name": "Search in a project",
 										"type": "command",
