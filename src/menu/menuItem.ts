@@ -122,5 +122,5 @@ export default class MenuItem implements QuickPickItem {
 }
 
 export function convertToMenuLabel(s: string) {
-    return s.replace(' ', '␣').replace('\t', '↹');
+    return s.replace(/ /g, '␣').replace(/\t/g, '↹');
 }

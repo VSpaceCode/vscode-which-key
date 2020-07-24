@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fix a bug where only the first occurrence of ␣ and ↹ will be replaced
+
 ## [0.7.3] - 2020-07-23
 ### Added
 - Add `<spc> s r` to search reference
