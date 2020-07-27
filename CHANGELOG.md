@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.4] - 2020-07-27
 ### Changed
 - Change the command `whichkey.show` to be non-blocking
 
