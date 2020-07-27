@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Change the command `whichkey.show` to be non-blocking
+
 ### Fixed
 - Fix a bug where only the first occurrence of ␣ and ↹ will be replaced
 
