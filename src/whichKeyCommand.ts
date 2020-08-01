@@ -35,7 +35,10 @@ export default class WhichKeyCommand {
             MenuItem.overrideMenuItems(this.items, overrides);
         }
 
-        sortMenuItems(this.items);
+        const sortOrder = workspace
+            .getConfiguration(contributePrefix)
+            .get<SortOrder>(ConfigKey.SortOrder) ?? SortOrder.None;
+        MenuItem.sortMenuItems(this.items, sortOrder);
 
         this.onConfigChangeListener = workspace.onDidChangeConfiguration((e) => {
             if (
@@ -63,7 +66,6 @@ export default class WhichKeyCommand {
 
     static show(bindings: BindingItem[], keyWatcher: KeyListener) {
         const items = MenuItem.createMenuItems(bindings);
-        sortMenuItems(items);
         return showMenu(keyWatcher, items, false);
     }
 }
@@ -72,12 +74,6 @@ function setContext(key: string, value: any) {
     return commands.executeCommand("setContext", key, value);
 }
 
-function sortMenuItems(items: MenuItem[] | undefined) {
-    const sortOrder = workspace
-        .getConfiguration(contributePrefix)
-        .get<SortOrder>(ConfigKey.SortOrder) ?? SortOrder.None;
-    MenuItem.sortMenuItems(items, sortOrder);
-}
 
 async function showMenu(keyListener: KeyListener, items: MenuItem[], isTransient: boolean, title?: string) {
     try {
