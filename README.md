@@ -257,6 +257,14 @@ You can set `whichkey.delay` in `settings.json` to value in millisecond to delay
 ### Display menu items alphabetically
 You can set `whichkey.sortOrder` in `settings.json` to `alphabetically` to always display the menu items alphabetically.
 
+### Unclear selection
+Selected text can be hard to see when which-key menu is active. This could be due to the `inactiveSelectionBackground` config of your current theme. You can selectively override that color in your `settings.json` like the following example.
+```json
+"workbench.colorCustomizations": {
+    "editor.inactiveSelectionBackground": "color that works better",
+},
+```
+
 ## Release Notes
 
 See [CHANGELOG.md](CHANGELOG.md)
