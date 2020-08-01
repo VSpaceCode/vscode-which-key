@@ -3,6 +3,7 @@ export const publisherId = 'VSpaceCode';
 export const contributePrefix = 'whichkey';
 export enum ConfigKey {
 	Delay = "delay",
+	SortOrder = "sortOrder",
 	Bindings = "bindings",
 	Overrides = "bindingOverrides",
 }
@@ -10,6 +11,11 @@ export enum CommandKey {
 	Show = 'show',
 	Register = 'register',
 	Trigger = 'triggerKey',
+}
+
+export enum SortOrder {
+	None = 'none',
+	Alphabetically = 'alphabetically',
 }
 
 export enum ContextKey {

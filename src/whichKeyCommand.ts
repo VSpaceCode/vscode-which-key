@@ -1,10 +1,10 @@
-import { Disposable, window, workspace, commands } from "vscode";
+import { commands, Disposable, workspace } from "vscode";
 import { BindingItem, OverrideBindingItem } from "./bindingItem";
+import { ConfigKey, ContextKey, contributePrefix, SortOrder } from "./constants";
 import KeyListener from "./keyListener";
 import { WhichKeyMenu } from "./menu/menu";
 import MenuItem from "./menu/menuItem";
 import { WhichKeyConfig } from "./whichKeyConfig";
-import { ContextKey, contributePrefix, ConfigKey } from "./constants";
 
 export default class WhichKeyCommand {
     private keyListener: KeyListener;
@@ -23,7 +23,7 @@ export default class WhichKeyCommand {
             .getConfiguration(config.bindings[0])
             .get<BindingItem[]>(config.bindings[1]);
         if (bindings) {
-            this.items = MenuItem.createItems(bindings);
+            this.items = MenuItem.createMenuItems(bindings);
         } else {
             this.items = undefined;
         }
@@ -32,21 +32,20 @@ export default class WhichKeyCommand {
             const overrides = workspace
                 .getConfiguration(config.overrides[0])
                 .get<OverrideBindingItem[]>(config.overrides[1]);
-            MenuItem.overrideItems(this.items, overrides);
+            MenuItem.overrideMenuItems(this.items, overrides);
         }
 
+        sortMenuItems(this.items);
+
         this.onConfigChangeListener = workspace.onDidChangeConfiguration((e) => {
-            if (e.affectsConfiguration(config.bindings[0])) {
+            if (
+                e.affectsConfiguration(`${contributePrefix}.${ConfigKey.SortOrder}`) ||
+                e.affectsConfiguration(`${config.bindings[0]}.${config.bindings[1]}`) ||
+                (config.overrides && e.affectsConfiguration(`${config.overrides[0]}.${config.overrides[1]}`))
+            ) {
                 this.register(config);
             }
-
-            // Only if the sections are different to avoid re-register
-            if (config.overrides && config.overrides[0] !== config.bindings[0]) {
-                if (e.affectsConfiguration(config.bindings[0])) {
-                    this.register(config);
-                }
-            }
-        });
+        }, this);
     }
 
     unregister() {
@@ -63,13 +62,21 @@ export default class WhichKeyCommand {
     }
 
     static show(bindings: BindingItem[], keyWatcher: KeyListener) {
-        const items = MenuItem.createItems(bindings);
+        const items = MenuItem.createMenuItems(bindings);
+        sortMenuItems(items);
         return showMenu(keyWatcher, items, false);
     }
 }
 
 function setContext(key: string, value: any) {
     return commands.executeCommand("setContext", key, value);
+}
+
+function sortMenuItems(items: MenuItem[] | undefined) {
+    const sortOrder = workspace
+        .getConfiguration(contributePrefix)
+        .get<SortOrder>(ConfigKey.SortOrder) ?? SortOrder.None;
+    MenuItem.sortMenuItems(items, sortOrder);
 }
 
 async function showMenu(keyListener: KeyListener, items: MenuItem[], isTransient: boolean, title?: string) {

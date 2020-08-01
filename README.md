@@ -254,6 +254,9 @@ Once you've done that, you can use `C-x` in the `key` value of the which-key con
 ### Display menu with a delay
 You can set `whichkey.delay` in `settings.json` to value in millisecond to delay the display of the menu.
 
+### Display menu items alphabetically
+You can set `whichkey.sortOrder` in `settings.json` to `alphabetically` to always display the menu items alphabetically.
+
 ## Release Notes
 
 See [CHANGELOG.md](CHANGELOG.md)

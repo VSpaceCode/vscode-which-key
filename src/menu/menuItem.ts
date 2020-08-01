@@ -1,5 +1,6 @@
 import { QuickPickItem } from 'vscode';
 import { ActionType, BindingItem, OverrideBindingItem } from "../bindingItem";
+import { SortOrder } from '../constants';
 
 export default class MenuItem implements QuickPickItem {
     name: string;
@@ -27,9 +28,9 @@ export default class MenuItem implements QuickPickItem {
         this.commands = item.commands;
         this.args = item.args;
         if (this.type === ActionType.Bindings && item.bindings) {
-            this.items = MenuItem.createItems(item.bindings);
+            this.items = MenuItem.createMenuItems(item.bindings);
         } else if (this.type === ActionType.Transient && item.bindings) {
-            this.items = MenuItem.createItems(item.bindings);
+            this.items = MenuItem.createMenuItems(item.bindings);
         }
     }
 
@@ -42,11 +43,11 @@ export default class MenuItem implements QuickPickItem {
         return `\t${this.name}`;
     }
 
-    static createItems(items: BindingItem[]) {
-        return items.map(i => new MenuItem(i));
+    static createMenuItems(bindingItems: BindingItem[]) {
+        return bindingItems.map(i => new MenuItem(i));
     }
 
-    static overrideItems(
+    static overrideMenuItems(
         items?: MenuItem[],
         overrides?: OverrideBindingItem[]) {
         overrides?.forEach(o => {
@@ -98,6 +99,17 @@ export default class MenuItem implements QuickPickItem {
                 console.error(e);
             }
         });
+    }
+
+    static sortMenuItems(items: MenuItem[] | undefined, order: SortOrder) {
+        const sort = order === SortOrder.Alphabetically;
+        if (items && sort) {
+            items.sort((a, b) => a.key.localeCompare(b.key));
+
+            for (const item of items) {
+                MenuItem.sortMenuItems(item.items, order);
+            }
+        }
     }
 
     static createFromBinding(item: BindingItem) {

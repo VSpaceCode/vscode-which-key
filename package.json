@@ -65,6 +65,16 @@
 						"markdownDescription": "Delay (in milliseconds) for which-key menu to display.",
 						"default": 0
 					},
+					"whichkey.sortOrder": {
+						"type": "string",
+						"default": "none",
+						"enum": ["none", "alphabetically"],
+						"enumDescriptions": [
+							"Menu items are not sorted.",
+							"Menu items are sorted in alphabetical order."
+						],
+						"markdownDescription": "Controls the sorting order of the which-key menu items."
+					},
 					"whichkey.bindings": {
 						"type": "array",
 						"markdownDescription": "The bindings of the which key menu",
