@@ -7,7 +7,7 @@
 	"author": {
 		"name": "Steven Guh"
 	},
-	"version": "0.7.4",
+	"version": "0.7.5",
 	"engines": {
 		"vscode": "^1.45.0"
 	},
@@ -68,7 +68,10 @@
 					"whichkey.sortOrder": {
 						"type": "string",
 						"default": "none",
-						"enum": ["none", "alphabetically"],
+						"enum": [
+							"none",
+							"alphabetically"
+						],
 						"enumDescriptions": [
 							"Menu items are not sorted.",
 							"Menu items are sorted in alphabetical order."
