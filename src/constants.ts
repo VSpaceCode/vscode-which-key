@@ -16,6 +16,7 @@ export enum CommandKey {
 export enum SortOrder {
 	None = 'none',
 	Alphabetically = 'alphabetically',
+	NonNumberFirst = 'nonNumberFirst',
 }
 
 export enum ContextKey {

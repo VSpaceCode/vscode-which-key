@@ -70,11 +70,13 @@
 						"default": "none",
 						"enum": [
 							"none",
-							"alphabetically"
+							"alphabetically",
+							"nonNumberFirst"
 						],
 						"enumDescriptions": [
 							"Menu items are not sorted.",
-							"Menu items are sorted in alphabetical order."
+							"Menu items are sorted in alphabetical order.",
+							"Menu items are sorted in alphabetical order with non-number first."
 						],
 						"markdownDescription": "Controls the sorting order of the which-key menu items."
 					},

@@ -102,9 +102,23 @@ export default class MenuItem implements QuickPickItem {
     }
 
     static sortMenuItems(items: MenuItem[] | undefined, order: SortOrder) {
-        const sort = order === SortOrder.Alphabetically;
-        if (items && sort) {
-            items.sort((a, b) => a.key.localeCompare(b.key));
+        if (items && order !== SortOrder.None) {
+
+            if (order === SortOrder.Alphabetically) {
+                items.sort((a, b) => a.key.localeCompare(b.key));
+            } else if (order === SortOrder.NonNumberFirst) {
+                items.sort((a, b) => {
+                    const regex = /^[0-9]/;
+                    const aStartsWithNumber = regex.test(a.key);
+                    const bStartsWithNumber = regex.test(b.key);
+                    if (aStartsWithNumber !== bStartsWithNumber) {
+                        // Sort non-number first
+                        return aStartsWithNumber ? 1 : -1;
+                    } else {
+                        return a.key.localeCompare(b.key);
+                    }
+                });
+            }
 
             for (const item of items) {
                 MenuItem.sortMenuItems(item.items, order);
