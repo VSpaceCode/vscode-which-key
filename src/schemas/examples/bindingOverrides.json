@@ -1,0 +1,18 @@
+{
+    "$schema": "../bindingOverrides.json",
+    "bindingOverrides": [
+        {
+            "keys": "g",
+            "name": "Go...",
+            "type": "bindings",
+            "bindings": [
+                {
+                    "key": "s",
+                    "name": "Go to",
+                    "type": "command",
+                    "command": "workbench.action.gotoLine"
+                }
+            ]
+        }
+    ]
+}

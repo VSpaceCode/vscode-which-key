@@ -1,0 +1,77 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Bindings",
+    "type": "object",
+    "additionalProperties": false,
+    "definitions": {
+        "bindingItem": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "definitions.json#/definitions/bindingType"
+                },
+                "command": {
+                    "$ref": "definitions.json#/definitions/command"
+                },
+                "commands": {
+                    "$ref": "definitions.json#/definitions/commands"
+                },
+                "args": {
+                    "$ref": "definitions.json#/definitions/args"
+                },
+                "bindings": {
+                    "$ref": "definitions.json#/definitions/bindings"
+                }
+            },
+            "required": [
+                "key",
+                "name",
+                "type"
+            ]
+        },
+        "bindingType": {
+            "type": "string",
+            "enum": [
+                "command",
+                "commands",
+                "bindings",
+                "transient"
+            ]
+        },
+        "command": {
+            "type": "string"
+        },
+        "commands": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "args": {
+            "anyOf": [
+                {
+                    "type": "object"
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object"
+                    }
+                }
+            ]
+        },
+        "bindings": {
+            "type": "array",
+            "items": {
+                "$ref": "definitions.json#/definitions/bindingItem"
+            }
+        }
+    }
+}

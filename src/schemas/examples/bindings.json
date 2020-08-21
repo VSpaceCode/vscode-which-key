@@ -1,0 +1,37 @@
+{
+    "$schema": "../bindings.json",
+    "bindings": [
+        {
+            "key": "f",
+            "name": "File...",
+            "type": "bindings",
+            "bindings": [
+                {
+                    "key": "f",
+                    "name": "Open file",
+                    "type": "command",
+                    "command": "workbench.action.files.openFileFolder"
+                },
+                {
+                    "key": "i",
+                    "name": "Indentation...",
+                    "type": "bindings",
+                    "bindings": [
+                        {
+                            "key": "i",
+                            "name": "Change indentation",
+                            "type": "command",
+                            "command": "changeEditorIndentation"
+                        },
+                        {
+                            "key": "d",
+                            "name": "Detect indentation",
+                            "type": "command",
+                            "command": "editor.action.detectIndentation"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

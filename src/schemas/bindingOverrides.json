@@ -1,0 +1,178 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Binding Overrides",
+    "type": "object",
+    "additionalProperties": false,
+    "definitions": {
+        "bindingOverride": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "keys": {
+                    "anyOf": [
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "position": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "definitions.json#/definitions/bindingType"
+                },
+                "command": {
+                    "$ref": "definitions.json#/definitions/command"
+                },
+                "commands": {
+                    "$ref": "definitions.json#/definitions/commands"
+                },
+                "args": {
+                    "$ref": "definitions.json#/definitions/args"
+                },
+                "bindings": {
+                    "$ref": "definitions.json#/definitions/bindings"
+                }
+            },
+            "required": [
+                "keys"
+            ],
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "position": {
+                                "minimum": 0
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": [
+                            "name",
+                            "type"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "anyOf": [
+                            {
+                                "properties": {
+                                    "type": {
+                                        "const": "command"
+                                    }
+                                }
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "properties": {
+                                            "type": {
+                                                "const": "transient"
+                                            }
+                                        },
+                                        "not": {
+                                            "required": [
+                                                "commands"
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "then": {
+                        "required": [
+                            "command"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "anyOf": [
+                            {
+                                "properties": {
+                                    "type": {
+                                        "const": "commands"
+                                    }
+                                }
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "properties": {
+                                            "type": {
+                                                "const": "transient"
+                                            }
+                                        },
+                                        "not": {
+                                            "required": [
+                                                "command"
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "then": {
+                        "required": [
+                            "commands"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "commands"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "args": {
+                                "type": "array"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "bindings"
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": [
+                            "bindings"
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "properties": {
+        "$schema": {
+            "type": "string",
+            "description": "uri to schema"
+        },
+        "bindingOverrides": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/bindingOverride"
+            }
+        }
+    }
+}

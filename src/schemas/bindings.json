@@ -1,0 +1,21 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Bindings",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {
+            "type": "string",
+            "description": "uri to schema"
+        },
+        "bindings": {
+            "type": "array",
+            "items": {
+                "$ref": "definitions.json#/definitions/bindingItem"
+            }
+        }
+    },
+    "required": [
+        "bindings"
+    ]
+}
