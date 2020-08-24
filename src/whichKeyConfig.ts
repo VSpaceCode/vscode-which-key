@@ -1,10 +1,13 @@
 import { ConfigKey, contributePrefix } from "./constants";
 
+type ConfigSections = [string, string];
+
 export interface WhichKeyConfig {
-    bindings: [string, string],
-    overrides?: [string, string],
+    bindings: ConfigSections,
+    overrides?: ConfigSections,
     title?: string,
 }
+
 
 export function toWhichKeyConfig(o: any) {
     if (typeof o === "object") {
@@ -19,7 +22,7 @@ export function toWhichKeyConfig(o: any) {
     return undefined;
 }
 
-export function getFullSection(sections: [string, string]) {
+export function getFullSection(sections: ConfigSections) {
     return `${sections[0]}.${sections[1]}`;
 } 
 
