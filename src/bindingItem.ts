@@ -38,6 +38,7 @@ export interface OverrideBindingItem {
 
 export interface ConditionalBindingItem {
     type: ConditionalActionType,
+    name?: string,
     command?: string,
     commands?: string[],
     args?: any,

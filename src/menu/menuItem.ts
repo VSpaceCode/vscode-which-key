@@ -56,7 +56,7 @@ export default class MenuItem implements QuickPickItem {
             if (menu) {
                 // Lazy creation of conditional menu
                 return new MenuItem({
-                    name: this.name,
+                    name: menu.name ?? this.name,
                     key: this.key,
                     type: menu.type as unknown as ActionType,
                     command: menu.command,
