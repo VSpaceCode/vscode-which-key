@@ -3,6 +3,7 @@ import { ActionType } from "../bindingItem";
 import KeyListener from "../keyListener";
 import { setStatusBarMessage } from "../statusBar";
 import MenuItem, { convertToMenuLabel } from "./menuItem";
+import { ContextKey, ConfigKey } from "../constants";
 
 export class WhichKeyMenu {
     private keyListener: KeyListener;
@@ -98,8 +99,9 @@ export class WhichKeyMenu {
         }
     }
 
-    private onDidHide() {
+    private async onDidHide() {
         this.clearDelay();
+        await setContext(ContextKey.Visible, false);
         if (!this.isHiding) {
             // Dispose correctly when it is not manually hiding
             this.dispose();
@@ -132,6 +134,14 @@ export class WhichKeyMenu {
     }
 
     private async selectAction(item: MenuItem) {
+        if (item.type === ActionType.Conditionals) {
+            const languageId = window.activeTextEditor?.document.languageId;
+            const menu = item.getConditionalMenu(this.when, languageId);
+            if (menu) {
+                item = menu;
+            }
+        }
+
         if (item.type === ActionType.Command && item.command) {
             await this.hide();
             await executeCommand(item.command, item.args);
@@ -145,7 +155,7 @@ export class WhichKeyMenu {
         } else if (item.type === ActionType.Bindings && item.items) {
             this.updateState(item.items, false, item.name);
             this.itemHistory.push(item);
-            this.show();
+            await this.show();
         } else if (item.type === ActionType.Transient && item.items) {
             await this.hide();
             // optionally execute command/s before transient
@@ -156,7 +166,7 @@ export class WhichKeyMenu {
             }
             this.updateState(item.items, true, item.name);
             this.itemHistory.push(item);
-            this.show();
+            await this.show();
         } else {
             const keyCombo = this.getHistoryString(item.key);
             throw new ActionError(item.type, keyCombo);
@@ -166,6 +176,14 @@ export class WhichKeyMenu {
     private async selectActionTransient(item: MenuItem) {
         await this.hide();
 
+        if (item.type === ActionType.Conditionals) {
+            const languageId = window.activeTextEditor?.document.languageId;
+            const menu = item.getConditionalMenu(this.when, languageId);
+            if (menu) {
+                item = menu;
+            }
+        }
+
         if (item.type === ActionType.Command && item.command) {
             await executeCommand(item.command, item.args);
         } else if (item.type === ActionType.Commands && item.commands) {
@@ -187,7 +205,7 @@ export class WhichKeyMenu {
             throw new ActionError(item.type, keyCombo);
         }
 
-        this.show();
+        await this.show();
     }
 
 
@@ -204,7 +222,7 @@ export class WhichKeyMenu {
         }
     }
 
-    private show() {
+    private async show() {
         const updateQuickPick = () => {
             this.quickPick.busy = false;
             this.enteredValue = '';
@@ -226,6 +244,7 @@ export class WhichKeyMenu {
             updateQuickPick();
         }
 
+        await setContext(ContextKey.Visible, true);
         this.quickPick.show();
     }
 
@@ -237,11 +256,20 @@ export class WhichKeyMenu {
         this.quickPick.dispose();
     }
 
-    static show(keyListener: KeyListener, items: MenuItem[], isTransient: boolean, delay: number, title?: string) {
-        const menu = new WhichKeyMenu(keyListener, items, isTransient, delay, title);
-        menu.show();
-        return menu.promise;
+    static async show(keyListener: KeyListener, items: MenuItem[], isTransient: boolean, delay: number, title?: string) {
+        try {
+            const menu = new WhichKeyMenu(keyListener, items, isTransient, delay, title);
+            await setContext(ContextKey.Active, true);
+            await menu.show();
+            return await menu.promise;
+        } finally {
+            await setContext(ContextKey.Active, false);
+        }
     }
+}
+
+function setContext(key: string, value: any) {
+    return commands.executeCommand("setContext", key, value);
 }
 
 function executeCommand(cmd: string, args: any) {

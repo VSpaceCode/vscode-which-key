@@ -1,5 +1,5 @@
 import { QuickPickItem } from 'vscode';
-import { ActionType, BindingItem, OverrideBindingItem } from "../bindingItem";
+import { ActionType, BindingItem, OverrideBindingItem, ConditionalBindingItem } from "../bindingItem";
 import { SortOrder } from '../constants';
 
 export default class MenuItem implements QuickPickItem {
@@ -10,6 +10,7 @@ export default class MenuItem implements QuickPickItem {
     commands?: string[];
     items?: MenuItem[];
     args?: any;
+    private conditionals?: ConditionalBindingItem[];
 
     private constructor(item: {
         name: string,
@@ -18,8 +19,8 @@ export default class MenuItem implements QuickPickItem {
         bindings?: BindingItem[],
         command?: string,
         commands?: string[],
-        items?: MenuItem[],
         args?: any,
+        conditionals?: ConditionalBindingItem[],
     }) {
         this.name = item.name;
         this.key = item.key;
@@ -27,11 +28,45 @@ export default class MenuItem implements QuickPickItem {
         this.command = item.command;
         this.commands = item.commands;
         this.args = item.args;
+        this.conditionals = item.conditionals;
         if (this.type === ActionType.Bindings && item.bindings) {
             this.items = MenuItem.createMenuItems(item.bindings);
         } else if (this.type === ActionType.Transient && item.bindings) {
             this.items = MenuItem.createMenuItems(item.bindings);
         }
+    }
+
+    getConditionalMenu(when?: string, languageId?: string) {
+        if (this.conditionals) {
+            let menu = this.conditionals.find(c => {
+                if (c.condition) {
+                    let result = true;
+                    if (c.condition.when) {
+                        result = result && (c.condition.when === when);
+                    }
+                    if (c.condition.languageId) {
+                        result = result && (c.condition.languageId === languageId);
+                    }
+                    return result;
+                }
+                return false;
+            });
+            // Not match, find the first empty condition as else
+            menu = menu ?? this.conditionals.find(c => c.condition === undefined);
+            if (menu) {
+                // Lazy creation of conditional menu
+                return new MenuItem({
+                    name: this.name,
+                    key: this.key,
+                    type: menu.type as unknown as ActionType,
+                    command: menu.command,
+                    commands: menu.commands,
+                    args: menu.args,
+                    bindings: menu.bindings,
+                });
+            }
+        }
+        return undefined;
     }
 
     get label() {
@@ -140,6 +175,7 @@ export default class MenuItem implements QuickPickItem {
                 commands: o.commands,
                 args: o.args,
                 bindings: o.bindings,
+                conditionals: o.conditionals
             });
         } else {
             throw new Error('name or type of the override is undefined');

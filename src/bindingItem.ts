@@ -1,8 +1,16 @@
+export const enum ConditionalActionType {
+    Command = "command",
+    Commands = "commands",
+    Bindings = "bindings",
+    Transient = "transient",
+}
+
 export const enum ActionType {
     Command = "command",
     Commands = "commands",
     Bindings = "bindings",
     Transient = "transient",
+    Conditionals = "conditionals",
 }
 
 export interface BindingItem {
@@ -13,6 +21,7 @@ export interface BindingItem {
     commands?: string[],
     args?: any,
     bindings?: BindingItem[],
+    conditionals?: ConditionalBindingItem[],
 }
 
 export interface OverrideBindingItem {
@@ -24,7 +33,23 @@ export interface OverrideBindingItem {
     commands?: string[],
     args?: any,
     bindings?: BindingItem[],
+    conditionals?: ConditionalBindingItem[],
 }
+
+export interface ConditionalBindingItem {
+    type: ConditionalActionType,
+    command?: string,
+    commands?: string[],
+    args?: any,
+    bindings?: BindingItem[],
+    condition?: Condition,
+}
+
+export type Condition = {
+    when?: string,
+    languageId?: string,
+};
+
 
 export function toBindingItem(o: any) {
     if (typeof o === "object") {
