@@ -1,12 +1,20 @@
 import { EventEmitter } from "vscode";
 
+export interface KeybindingArgs {
+    key: string,
+    when?: string,
+}
+
 export default class KeyListener {
-    emitter: EventEmitter<string>;
+    emitter: EventEmitter<KeybindingArgs>;
     constructor() {
-        this.emitter = new EventEmitter<string>();
+        this.emitter = new EventEmitter<KeybindingArgs>();
     }
 
-    trigger(key: string) {
+    trigger(key: string | KeybindingArgs) {
+        if (typeof key === "string") {
+            key = { key };
+        }
         this.emitter.fire(key);
     }
 

@@ -26,6 +26,8 @@ export class WhichKeyMenu {
     // This is the currently entered value in delay mode
     // so we can display the chain of keys that's been entered
     private enteredValue = '';
+    // This used to stored the last when condition from the key listener
+    private when?: string;
 
     constructor(keyListener: KeyListener, items: MenuItem[], isTransient: boolean, delay: number, title?: string) {
         this.keyListener = keyListener;
@@ -48,12 +50,13 @@ export class WhichKeyMenu {
         this.itemHistory = [];
     }
 
-    private onDidKeyPressed(value: string) {
-        this.quickPick.value += value;
-        this.onDidChangeValue(this.quickPick.value);
+    private onDidKeyPressed(value: KeybindingArgs) {
+        this.quickPick.value += value.key;
+        this.onDidChangeValue(this.quickPick.value, value.when);
     }
 
-    private async onDidChangeValue(value: string) {
+    private async onDidChangeValue(value: string, when?: string) {
+        this.when = when;
         if (this.timeoutId) {
             // When the menu is in the delay display mode
             if (value.startsWith(this.enteredValue)) {
