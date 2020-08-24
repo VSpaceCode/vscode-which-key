@@ -4,7 +4,7 @@ import { ConfigKey, ContextKey, contributePrefix, SortOrder } from "./constants"
 import KeyListener from "./keyListener";
 import { WhichKeyMenu } from "./menu/menu";
 import MenuItem from "./menu/menuItem";
-import { WhichKeyConfig } from "./whichKeyConfig";
+import { WhichKeyConfig, getFullSection } from "./whichKeyConfig";
 
 export default class WhichKeyCommand {
     private keyListener: KeyListener;
@@ -70,17 +70,7 @@ export default class WhichKeyCommand {
     }
 }
 
-function setContext(key: string, value: any) {
-    return commands.executeCommand("setContext", key, value);
-}
-
-
 async function showMenu(keyListener: KeyListener, items: MenuItem[], isTransient: boolean, title?: string) {
-    try {
-        const delay = workspace.getConfiguration(contributePrefix).get<number>(ConfigKey.Delay) ?? 0;
-        await setContext(ContextKey.Active, true);
-        await WhichKeyMenu.show(keyListener, items, isTransient, delay, title);
-    } finally {
-        await setContext(ContextKey.Active, false);
-    }
+    const delay = workspace.getConfiguration(contributePrefix).get<number>(ConfigKey.Delay) ?? 0;
+    await WhichKeyMenu.show(keyListener, items, isTransient, delay, title);
 }

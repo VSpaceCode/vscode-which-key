@@ -20,7 +20,8 @@ export enum SortOrder {
 }
 
 export enum ContextKey {
-	Active = 'whichkeyActive'
+	Active = 'whichkeyActive',
+	Visible = 'whichkeyVisible'
 }
 export const whichKeyShow = `${contributePrefix}.${CommandKey.Show}`;
 export const whichKeyRegister = `${contributePrefix}.${CommandKey.Register}`;
