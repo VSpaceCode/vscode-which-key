@@ -42,10 +42,10 @@ export default class WhichKeyCommand {
 
         this.onConfigChangeListener = workspace.onDidChangeConfiguration((e) => {
             if (
-                e.affectsConfiguration(`${contributePrefix}.${ConfigKey.SortOrder}`) ||
-                e.affectsConfiguration(`${config.bindings[0]}.${config.bindings[1]}`) ||
-                (config.overrides && e.affectsConfiguration(`${config.overrides[0]}.${config.overrides[1]}`))
-            ) {
+                e.affectsConfiguration(getFullSection([contributePrefix, ConfigKey.SortOrder])) ||
+                    e.affectsConfiguration(getFullSection(config.bindings)) ||
+                    (config.overrides && e.affectsConfiguration(getFullSection(config.overrides)))
+                ) {
                 this.register(config);
             }
         }, this);
