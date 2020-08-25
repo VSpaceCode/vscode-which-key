@@ -1,14 +1,14 @@
-import { commands, Disposable, workspace } from "vscode";
+import { Disposable, workspace } from "vscode";
 import { BindingItem, OverrideBindingItem } from "./bindingItem";
-import { ConfigKey, ContextKey, contributePrefix, SortOrder } from "./constants";
+import { ConfigKey, contributePrefix, SortOrder } from "./constants";
 import KeyListener from "./keyListener";
 import { WhichKeyMenu } from "./menu/menu";
-import MenuItem from "./menu/menuItem";
-import { WhichKeyConfig, getFullSection } from "./whichKeyConfig";
+import { BaseMenuItem, RootMenuItem } from "./menu/menuItem";
+import { getFullSection, WhichKeyConfig } from "./whichKeyConfig";
 
 export default class WhichKeyCommand {
     private keyListener: KeyListener;
-    private items?: MenuItem[];
+    private root?: RootMenuItem;
     private config?: WhichKeyConfig;
     private onConfigChangeListener?: Disposable;
     constructor(keyListener: KeyListener) {
@@ -23,54 +23,53 @@ export default class WhichKeyCommand {
             .getConfiguration(config.bindings[0])
             .get<BindingItem[]>(config.bindings[1]);
         if (bindings) {
-            this.items = MenuItem.createMenuItems(bindings);
-        } else {
-            this.items = undefined;
+            this.root = new RootMenuItem(bindings);
         }
 
         if (config.overrides) {
             const overrides = workspace
                 .getConfiguration(config.overrides[0])
-                .get<OverrideBindingItem[]>(config.overrides[1]);
-            MenuItem.overrideMenuItems(this.items, overrides);
+                .get<OverrideBindingItem[]>(config.overrides[1]) ?? [];
+            this.root?.override(overrides);
         }
 
         const sortOrder = workspace
             .getConfiguration(contributePrefix)
             .get<SortOrder>(ConfigKey.SortOrder) ?? SortOrder.None;
-        MenuItem.sortMenuItems(this.items, sortOrder);
+        this.root?.sortItems(sortOrder);
 
         this.onConfigChangeListener = workspace.onDidChangeConfiguration((e) => {
             if (
                 e.affectsConfiguration(getFullSection([contributePrefix, ConfigKey.SortOrder])) ||
-                    e.affectsConfiguration(getFullSection(config.bindings)) ||
-                    (config.overrides && e.affectsConfiguration(getFullSection(config.overrides)))
-                ) {
+                e.affectsConfiguration(getFullSection(config.bindings)) ||
+                (config.overrides && e.affectsConfiguration(getFullSection(config.overrides)))
+            ) {
                 this.register(config);
             }
         }, this);
     }
 
     unregister() {
-        this.items = undefined;
+        this.root = undefined;
         this.onConfigChangeListener?.dispose();
     }
 
     show() {
-        if (this.items) {
-            return showMenu(this.keyListener, this.items, false, this.config?.title);
+        const items = this.root?.select().items;
+        if (items) {
+            return showMenu(this.keyListener, items, false, this.config?.title);
         } else {
             throw new Error("No bindings is available");
         }
     }
 
     static show(bindings: BindingItem[], keyWatcher: KeyListener) {
-        const items = MenuItem.createMenuItems(bindings);
+        const items = new RootMenuItem(bindings).select().items!;
         return showMenu(keyWatcher, items, false);
     }
 }
 
-async function showMenu(keyListener: KeyListener, items: MenuItem[], isTransient: boolean, title?: string) {
+async function showMenu(keyListener: KeyListener, items: BaseMenuItem[], isTransient: boolean, title?: string) {
     const delay = workspace.getConfiguration(contributePrefix).get<number>(ConfigKey.Delay) ?? 0;
     await WhichKeyMenu.show(keyListener, items, isTransient, delay, title);
 }
