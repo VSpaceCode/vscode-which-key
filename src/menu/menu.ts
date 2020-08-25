@@ -1,20 +1,19 @@
 import { commands, Disposable, QuickPick, window } from "vscode";
-import { ActionType } from "../bindingItem";
-import KeyListener from "../keyListener";
+import { ContextKey } from "../constants";
+import KeyListener, { KeybindingArgs } from "../keyListener";
 import { setStatusBarMessage } from "../statusBar";
-import MenuItem, { convertToMenuLabel } from "./menuItem";
-import { ContextKey, ConfigKey } from "../constants";
+import { BaseMenuItem, convertToMenuLabel } from "./menuItem";
 
 export class WhichKeyMenu {
     private keyListener: KeyListener;
-    private items: MenuItem[];
+    private items: BaseMenuItem[];
     private title?: string;
     private isTransient: boolean;
 
-    private quickPick: QuickPick<MenuItem>;
+    private quickPick: QuickPick<BaseMenuItem>;
     private disposables: Disposable[];
     private isHiding: boolean;
-    private itemHistory: MenuItem[];
+    private itemHistory: BaseMenuItem[];
 
     // Promise related properties for the promise returned by show()
     private promise: Promise<void>;
@@ -30,13 +29,13 @@ export class WhichKeyMenu {
     // This used to stored the last when condition from the key listener
     private when?: string;
 
-    constructor(keyListener: KeyListener, items: MenuItem[], isTransient: boolean, delay: number, title?: string) {
+    constructor(keyListener: KeyListener, items: BaseMenuItem[], isTransient: boolean, delay: number, title?: string) {
         this.keyListener = keyListener;
         this.items = items;
         this.isTransient = isTransient;
         this.delay = delay;
         this.title = title;
-        this.quickPick = window.createQuickPick<MenuItem>();
+        this.quickPick = window.createQuickPick<BaseMenuItem>();
         this.promise = new Promise<void>((resolve, reject) => {
             this.resolve = resolve;
             this.reject = reject;
@@ -49,6 +48,14 @@ export class WhichKeyMenu {
         ];
         this.isHiding = false;
         this.itemHistory = [];
+    }
+
+    private get condition() {
+        const languageId = window.activeTextEditor?.document.languageId;
+        return {
+            when: this.when,
+            languageId
+        };
     }
 
     private onDidKeyPressed(value: KeybindingArgs) {
@@ -94,7 +101,7 @@ export class WhichKeyMenu {
 
     private onDidAccept() {
         if (this.quickPick.activeItems.length > 0) {
-            const chosenItems = this.quickPick.activeItems[0] as MenuItem;
+            const chosenItems = this.quickPick.activeItems[0] as BaseMenuItem;
             this.select(chosenItems);
         }
     }
@@ -122,7 +129,7 @@ export class WhichKeyMenu {
         });
     }
 
-    private async select(item: MenuItem) {
+    private async select(item: BaseMenuItem) {
         try {
             await ((this.isTransient)
                 ? this.selectActionTransient(item)
@@ -133,83 +140,60 @@ export class WhichKeyMenu {
         }
     }
 
-    private async selectAction(item: MenuItem) {
-        if (item.type === ActionType.Conditionals) {
-            const languageId = window.activeTextEditor?.document.languageId;
-            const menu = item.getConditionalMenu(this.when, languageId);
-            if (menu) {
-                item = menu;
-            }
-        }
-
-        if (item.type === ActionType.Command && item.command) {
+    private async selectAction(item: BaseMenuItem) {
+        const result = item.select(this.condition);
+        if (result.commands && !result.items) {
+            // Commands only, hide, execute and dispose
             await this.hide();
-            await executeCommand(item.command, item.args);
+            await executeCommands(result.commands, result.args);
             this.dispose();
             this.resolve();
-        } else if (item.type === ActionType.Commands && item.commands) {
-            await this.hide();
-            await executeCommands(item.commands, item.args);
-            this.dispose();
-            this.resolve();
-        } else if (item.type === ActionType.Bindings && item.items) {
-            this.updateState(item.items, false, item.name);
+        } else if (!result.commands && result.items) {
+            // Bindings only, update and show
+            this.updateState(result.items, !!result.isTransient, item.name);
             this.itemHistory.push(item);
             await this.show();
-        } else if (item.type === ActionType.Transient && item.items) {
+        } else if (result.commands && result.items) {
+            // Have both bindings and commands
+            // Hide execute, and 
             await this.hide();
-            // optionally execute command/s before transient
-            if (item.commands) {
-                await executeCommands(item.commands, item.args);
-            } else if (item.command) {
-                await executeCommand(item.command, item.args);
-            }
-            this.updateState(item.items, true, item.name);
+            await executeCommands(result.commands, result.args);
+            this.updateState(result.items, !!result.isTransient, item.name);
             this.itemHistory.push(item);
             await this.show();
         } else {
             const keyCombo = this.getHistoryString(item.key);
-            throw new ActionError(item.type, keyCombo);
+            throw new ActionError(keyCombo);
         }
     }
 
-    private async selectActionTransient(item: MenuItem) {
+    private async selectActionTransient(item: BaseMenuItem) {
         await this.hide();
 
-        if (item.type === ActionType.Conditionals) {
-            const languageId = window.activeTextEditor?.document.languageId;
-            const menu = item.getConditionalMenu(this.when, languageId);
-            if (menu) {
-                item = menu;
-            }
-        }
-
-        if (item.type === ActionType.Command && item.command) {
-            await executeCommand(item.command, item.args);
-        } else if (item.type === ActionType.Commands && item.commands) {
-            await executeCommands(item.commands, item.args);
-        } else if (item.type === ActionType.Bindings && item.items) {
-            this.updateState(item.items, false, item.name);
+        const result = item.select(this.condition);
+        if (result.commands && !result.items) {
+            await executeCommands(result.commands, result.args);
+        } else if (!result.commands && result.items) {
+            // Bindings only, update and show
+            this.updateState(result.items, !!result.isTransient, item.name);
             this.itemHistory.push(item);
-        } else if (item.type === ActionType.Transient && item.items) {
-            // optionally execute command/s before transient
-            if (item.commands) {
-                await executeCommands(item.commands, item.args);
-            } else if (item.command) {
-                await executeCommand(item.command, item.args);
-            }
-            this.updateState(item.items, true, item.name);
+        } else if (result.commands && result.items) {
+            // Have both bindings and commands
+            // Hide execute, and 
+            await this.hide();
+            await executeCommands(result.commands, result.args);
+            this.updateState(result.items, !!result.isTransient, item.name);
             this.itemHistory.push(item);
         } else {
             const keyCombo = this.getHistoryString(item.key);
-            throw new ActionError(item.type, keyCombo);
+            throw new ActionError(keyCombo);
         }
 
         await this.show();
     }
 
 
-    private updateState(items: MenuItem[], isTransient: boolean, title?: string) {
+    private updateState(items: BaseMenuItem[], isTransient: boolean, title?: string) {
         this.items = items;
         this.isTransient = isTransient;
         this.title = title;
@@ -256,7 +240,7 @@ export class WhichKeyMenu {
         this.quickPick.dispose();
     }
 
-    static async show(keyListener: KeyListener, items: MenuItem[], isTransient: boolean, delay: number, title?: string) {
+    static async show(keyListener: KeyListener, items: BaseMenuItem[], isTransient: boolean, delay: number, title?: string) {
         try {
             const menu = new WhichKeyMenu(keyListener, items, isTransient, delay, title);
             await setContext(ContextKey.Active, true);
@@ -294,7 +278,7 @@ async function executeCommands(cmds: string[], args: any) {
 }
 
 class ActionError extends Error {
-    constructor(itemType: string, keyCombo: string) {
-        super(`Incorrect properties for ${itemType} type with the key combination of ${keyCombo}`);
+    constructor(keyCombo: string) {
+        super(`Failed to select key with a combination of ${keyCombo}`);
     }
 }

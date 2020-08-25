@@ -1,10 +1,3 @@
-export const enum ConditionalActionType {
-    Command = "command",
-    Commands = "commands",
-    Bindings = "bindings",
-    Transient = "transient",
-}
-
 export const enum ActionType {
     Command = "command",
     Commands = "commands",
@@ -12,6 +5,11 @@ export const enum ActionType {
     Transient = "transient",
     Conditionals = "conditionals",
 }
+
+export type ConditionalActionType = ActionType.Bindings
+    | ActionType.Command
+    | ActionType.Commands
+    | ActionType.Transient;
 
 export interface BindingItem {
     key: string;
