@@ -41,7 +41,6 @@ async function showWhichKey(args: any[]) {
 }
 
 function showWhichKeyCommand(args: any[]) {
-    window.activeTextEditor?.document.languageId
     // Not awaiting to fix the issue where executing show key which can freeze vim
     showWhichKey(args).catch(e => window.showErrorMessage(e.toString()));
 }
