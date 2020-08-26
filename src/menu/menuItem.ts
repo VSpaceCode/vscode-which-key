@@ -1,6 +1,7 @@
 import { QuickPickItem } from "vscode";
 import { Condition, OverrideBindingItem, BindingItem, ActionType } from "../bindingItem";
 import { SortOrder } from "../constants";
+import { URLSearchParams } from "url";
 
 export interface MenuSelectionResult {
     items?: BaseMenuItem[],
@@ -187,6 +188,59 @@ class ConditionalsMenuItem extends BaseMenuItem {
     sortItems(order: SortOrder): void {
         for (const i of this.conditionalItems) {
             i.item.sortItems(order);
+        }
+    }
+
+    overrideItem(o: OverrideBindingItem) {
+        const keys = (typeof o.keys === 'string') ? o.keys.split('.') : o.keys;
+        const key = keys[keys.length - 1];
+        let condition: Condition | undefined;
+        if (key && key.length > 0) {
+            let params = new URLSearchParams(key);
+            condition = {
+                when: params.get("when") ?? undefined,
+                languageId: params.get("languageId") ?? undefined,
+            };
+        }
+
+        const index = this.conditionalItems.findIndex(i => evalCondition(i, condition));
+        const createItem = () => (
+            {
+                condition,
+                item: createMenuItem({
+                    name: o.name ?? this.name,
+                    key: this.key,
+                    type: o.type as unknown as ActionType,
+                    command: o.command,
+                    commands: o.commands,
+                    args: o.args,
+                    bindings: o.bindings
+                })
+            }
+        );
+        if (o.position === undefined) {
+            const newItem = createItem();
+            if (index !== -1) {
+                // replace the current item
+                this.conditionalItems.splice(index, 1, newItem);
+            } else {
+                // append if there isn't an existing binding
+                this.conditionalItems.push(newItem);
+            }
+        } else {
+            if (o.position < 0) {
+                // negative position, attempt to remove
+                if (index !== -1) {
+                    this.conditionalItems.splice(index, 1);
+                }
+            } else {
+                // Remove and replace
+                if (index !== -1) {
+                    this.conditionalItems.splice(index, 1);
+                }
+                const newItem = createItem();
+                this.conditionalItems.splice(o.position, 0, newItem);
+            }
         }
     }
 }
