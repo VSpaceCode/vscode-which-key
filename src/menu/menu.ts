@@ -99,10 +99,10 @@ export class WhichKeyMenu {
         return keyCombo.map(convertToMenuLabel).join(' ');
     }
 
-    private onDidAccept() {
+    private async onDidAccept() {
         if (this.quickPick.activeItems.length > 0) {
             const chosenItems = this.quickPick.activeItems[0] as BaseMenuItem;
-            this.select(chosenItems);
+            await this.select(chosenItems);
         }
     }
 
