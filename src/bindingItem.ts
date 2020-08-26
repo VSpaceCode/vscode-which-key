@@ -3,7 +3,7 @@ export const enum ActionType {
     Commands = "commands",
     Bindings = "bindings",
     Transient = "transient",
-    Conditionals = "conditionals",
+    Conditional = "conditional",
 }
 
 export type ConditionalActionType = ActionType.Bindings
@@ -19,7 +19,6 @@ export interface BindingItem {
     commands?: string[],
     args?: any,
     bindings?: BindingItem[],
-    conditionals?: ConditionalBindingItem[],
 }
 
 export interface OverrideBindingItem {
@@ -31,17 +30,6 @@ export interface OverrideBindingItem {
     commands?: string[],
     args?: any,
     bindings?: BindingItem[],
-    conditionals?: ConditionalBindingItem[],
-}
-
-export interface ConditionalBindingItem {
-    type: ConditionalActionType,
-    name?: string,
-    command?: string,
-    commands?: string[],
-    args?: any,
-    bindings?: BindingItem[],
-    condition?: Condition,
 }
 
 export type Condition = {
