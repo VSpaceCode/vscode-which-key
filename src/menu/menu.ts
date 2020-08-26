@@ -142,28 +142,18 @@ export class WhichKeyMenu {
 
     private async selectAction(item: BaseMenuItem) {
         const result = item.select(this.condition);
-        if (result.commands && !result.items) {
-            // Commands only, hide, execute and dispose
+        if (result.commands) {
             await this.hide();
             await executeCommands(result.commands, result.args);
-            this.dispose();
-            this.resolve();
-        } else if (!result.commands && result.items) {
-            // Bindings only, update and show
-            this.updateState(result.items, !!result.isTransient, item.name);
-            this.itemHistory.push(item);
-            await this.show();
-        } else if (result.commands && result.items) {
-            // Have both bindings and commands
-            // Hide execute, and 
-            await this.hide();
-            await executeCommands(result.commands, result.args);
+        }
+
+        if (result.items) {
             this.updateState(result.items, !!result.isTransient, item.name);
             this.itemHistory.push(item);
             await this.show();
         } else {
-            const keyCombo = this.getHistoryString(item.key);
-            throw new ActionError(keyCombo);
+            this.dispose();
+            this.resolve();
         }
     }
 
@@ -171,22 +161,13 @@ export class WhichKeyMenu {
         await this.hide();
 
         const result = item.select(this.condition);
-        if (result.commands && !result.items) {
+        if (result.commands) {
             await executeCommands(result.commands, result.args);
-        } else if (!result.commands && result.items) {
-            // Bindings only, update and show
+        }
+
+        if (result.items) {
             this.updateState(result.items, !!result.isTransient, item.name);
             this.itemHistory.push(item);
-        } else if (result.commands && result.items) {
-            // Have both bindings and commands
-            // Hide execute, and 
-            await this.hide();
-            await executeCommands(result.commands, result.args);
-            this.updateState(result.items, !!result.isTransient, item.name);
-            this.itemHistory.push(item);
-        } else {
-            const keyCombo = this.getHistoryString(item.key);
-            throw new ActionError(keyCombo);
         }
 
         await this.show();
@@ -274,11 +255,5 @@ async function executeCommands(cmds: string[], args: any) {
         const cmd = cmds[i];
         const arg = args?.[i];
         await executeCommand(cmd, arg);
-    }
-}
-
-class ActionError extends Error {
-    constructor(keyCombo: string) {
-        super(`Failed to select key with a combination of ${keyCombo}`);
     }
 }
