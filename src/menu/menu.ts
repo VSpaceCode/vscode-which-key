@@ -41,10 +41,10 @@ export class WhichKeyMenu {
             this.reject = reject;
         });
         this.disposables = [
-            this.keyListener.onDidKeyPressed(this.onDidKeyPressed.bind(this)),
-            this.quickPick.onDidChangeValue(this.onDidChangeValue.bind(this)),
-            this.quickPick.onDidAccept(this.onDidAccept.bind(this)),
-            this.quickPick.onDidHide(this.onDidHide.bind(this))
+            this.keyListener.onDidKeyPressed(this.onDidKeyPressed, this),
+            this.quickPick.onDidChangeValue(this.onDidChangeValue, this),
+            this.quickPick.onDidAccept(this.onDidAccept, this),
+            this.quickPick.onDidHide(this.onDidHide, this)
         ];
         this.isHiding = false;
         this.itemHistory = [];
