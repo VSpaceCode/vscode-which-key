@@ -1,7 +1,6 @@
 import { QuickPickItem } from "vscode";
-import { Condition, OverrideBindingItem, BindingItem, ActionType } from "../bindingItem";
+import { ActionType, BindingItem, Condition, OverrideBindingItem } from "../bindingItem";
 import { SortOrder } from "../constants";
-import { URLSearchParams } from "url";
 
 export interface MenuSelectionResult {
     items?: BaseMenuItem[],
@@ -150,26 +149,35 @@ function evalCondition(item: ConditionalMenuItem, condition?: Condition) {
     return false;
 }
 
+function getCondition(key: string): Condition | undefined {
+    if (key.length === 0) {
+        return undefined;
+    }
+
+    const props = key.split(",");
+    const r = props.reduce((result, prop) => {
+        const [key, value] = prop.split(":");
+        result[key] = value;
+        return result;
+    }, {} as Record<string, string>);
+    return {
+        when: r["when"],
+        languageId: r["languageId"]
+    };
+}
+
 class ConditionalsMenuItem extends BaseMenuItem {
     private conditionalItems: ConditionalMenuItem[];
 
     constructor(item: BindingItem) {
         super(item.key, item.name);
-        if (!item.conditionals) {
-            throw new Error("Property conditionals is not defined for type conditionals");
+        if (!item.bindings) {
+            throw new Error("Property bindings is not defined for type conditional");
         }
 
-        this.conditionalItems = item.conditionals.map(c => ({
-            condition: c.condition,
-            item: createMenuItem({
-                name: c.name ?? this.name,
-                key: this.key,
-                type: c.type as unknown as ActionType,
-                command: c.command,
-                commands: c.commands,
-                args: c.args,
-                bindings: c.bindings
-            })
+        this.conditionalItems = item.bindings.map(b => ({
+            condition: getCondition(b.key),
+            item: createMenuItem(b)
         }));
     }
 
@@ -194,28 +202,13 @@ class ConditionalsMenuItem extends BaseMenuItem {
     overrideItem(o: OverrideBindingItem) {
         const keys = (typeof o.keys === 'string') ? o.keys.split('.') : o.keys;
         const key = keys[keys.length - 1];
-        let condition: Condition | undefined;
-        if (key && key.length > 0) {
-            let params = new URLSearchParams(key);
-            condition = {
-                when: params.get("when") ?? undefined,
-                languageId: params.get("languageId") ?? undefined,
-            };
-        }
+        let condition = getCondition(key);
 
         const index = this.conditionalItems.findIndex(i => evalCondition(i, condition));
         const createItem = () => (
             {
                 condition,
-                item: createMenuItem({
-                    name: o.name ?? this.name,
-                    key: this.key,
-                    type: o.type as unknown as ActionType,
-                    command: o.command,
-                    commands: o.commands,
-                    args: o.args,
-                    bindings: o.bindings
-                })
+                item: createMenuItemFromOverrides(o, key)
             }
         );
         if (o.position === undefined) {
@@ -341,7 +334,7 @@ function createMenuItem(bindingItem: BindingItem): BaseMenuItem {
             return new BindingsMenuItem(bindingItem);
         case ActionType.Transient:
             return new TransientMenuItem(bindingItem);
-        case ActionType.Conditionals:
+        case ActionType.Conditional:
             return new ConditionalsMenuItem(bindingItem);
         default:
             throw new Error(`type ${bindingItem.type} not recognized`);
@@ -379,7 +372,6 @@ function createMenuItemFromOverrides(o: OverrideBindingItem, key: string) {
             commands: o.commands,
             args: o.args,
             bindings: o.bindings,
-            conditionals: o.conditionals
         });
     } else {
         throw new Error('name or type of the override is undefined');
