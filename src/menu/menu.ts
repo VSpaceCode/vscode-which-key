@@ -1,6 +1,7 @@
 import { commands, Disposable, QuickPick, window } from "vscode";
 import { ActionType } from "../bindingItem";
 import KeyListener from "../keyListener";
+import { setStatusBarMessage } from "../statusBar";
 import MenuItem, { convertToMenuLabel } from "./menuItem";
 
 export class WhichKeyMenu {
@@ -73,7 +74,7 @@ export class WhichKeyMenu {
         } else {
             await this.hide();
             const keyCombo = this.getHistoryString(value);
-            window.setStatusBarMessage(`${keyCombo} is undefined`, 5000);
+            setStatusBarMessage(`${keyCombo} is undefined`, 5000, true);
             this.dispose();
             this.resolve();
         }
