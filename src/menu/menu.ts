@@ -108,12 +108,12 @@ export class WhichKeyMenu {
 
     private async onDidHide() {
         this.clearDelay();
-        await setContext(ContextKey.Visible, false);
         if (!this.isHiding) {
             // Dispose correctly when it is not manually hiding
             this.dispose();
             this.resolve();
         }
+        await setContext(ContextKey.Visible, false);
     }
 
     // Manually hide the menu
