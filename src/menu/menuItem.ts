@@ -154,7 +154,7 @@ function getCondition(key: string): Condition | undefined {
         return undefined;
     }
 
-    const props = key.split(",");
+    const props = key.split(";");
     const r = props.reduce((result, prop) => {
         const [key, value] = prop.split(":");
         result[key] = value;
