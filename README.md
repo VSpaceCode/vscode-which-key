@@ -265,6 +265,137 @@ Selected text can be hard to see when which-key menu is active. This could be du
 },
 ```
 
+### Conditional bindings (experimental)
+
+> This is marked as experimental and the config is subjected to change.
+
+This allow conditional execution of bindings. Currently, it only supports condition on the `when` passed from shortcut and `languageId` of the active editor. It reuse the similar structure as the `bindings` type. The property `key` in a binding item is reused to present the condition. The condition can be thought of as a key-value pair serialized into a string.
+
+As an example, a condition in json like
+```json
+{
+  "languageId": "javascript",
+  "when": "sideBarVisible"
+}
+```
+can be serialized into `languageId:javascript;when:sideBarVisible`. The string representation can then be use as the value of the binding key.
+
+A concrete example of a binding with that condition is as follow:
+```json
+{
+  "whichkey.bindings": [
+    {
+      "key": "m",
+      "name": "Major...",
+      "type": "conditional",
+      "bindings": [
+        {
+          "key": "languageId:javascript;when:sideBarVisible",
+          "name": "Open file",
+          "type": "command",
+          "command": "workbench.action.files.openFileFolder"
+        },
+        {
+          "key": "",
+          "name": "Buffers",
+          "type": "bindings",
+          "bindings": [
+            {
+              "key": "b",
+              "name": "Show all buffers/editors",
+              "type": "command",
+              "command": "workbench.action.showAllEditors"
+            }
+          ]
+        },
+      ]
+    }
+  ]
+}
+```
+In this example, when `m` click, it will find the first item that matches the current contrition. If no configured key matches the current condition, a default item showing a buffer menu will be use. Any item that has invalid key will be default item.
+
+#### Overrides
+This is again similar with the `bindings` type.
+
+To override the condition binding item completely, the following config will overrides the `m` completely with the provided bindings.
+```json
+{
+  "whichkey.bindingOverrides": [
+    {
+      "keys": "m",
+      "name": "Major",
+      "type": "conditional",
+      "bindings": [
+        {
+          "key": "languageId:javascript",
+          "name": "Go to",
+          "type": "command",
+          "command": "workbench.action.gotoLine",   
+        }
+      ]
+    }
+  ]
+}
+```
+You also also choose to modify existing conditional bindings like adding and removal. The following will add a key of `languageId:javascript` to the existing conditional binding of `m`.
+```json
+{
+  "whichkey.bindingOverrides": [
+    {
+      "keys": ["m", "languageId:javascript"],
+      "name": "Go to",
+      "type": "command",
+      "command": "workbench.action.gotoLine",   
+    }
+  ]
+}
+```
+Negative `position` property can also be used to remove conditional bindings.
+
+#### when
+Since VSCode doesn't allow reading of the context, which is the condition of used in the `when` in shortcuts. In order to get around that, for every when condition, you will need to set up a shortcut to evaluate that specific condition.
+
+For example, the following keybindings will pass both `key` and `when` for which-key handle for key `t`.
+`keybindings.json`
+```json
+{
+  "key": "t",
+  "command": "whichkey.triggerKey",
+  "args": {
+    "key": "t",
+    "when": "sideBarVisible && explorerViewletVisible"
+  },
+  "when": "whichkeyVisible && sideBarVisible && explorerViewletVisible"
+}
+```
+
+You can then define the follow bindings that uses that specific `key` and `when`.
+```json
+{
+  "key": "t",
+  "name": "Show tree/explorer view",
+  "type": "conditional",
+  "bindings": [
+    {
+      "key": "",
+      "name": "default",
+      "type": "command",
+      "command": "workbench.view.explorer"
+    },
+    {
+      "key": "when:sideBarVisible && explorerViewletVisible",
+      "name": "Hide explorer",
+      "type": "command",
+      "command": "workbench.action.toggleSidebarVisibility"
+    }
+  ]
+}
+```
+
+#### languageId
+This is language id of the active editor. The language id can be found in language selection menu inside the parenthesis next to the language name.
+
 ## Release Notes
 
 See [CHANGELOG.md](CHANGELOG.md)

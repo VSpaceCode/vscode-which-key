@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Add color on the status bar message when key binding entered is not defined
+- Add support for a new conditional type binding, which allows conditional binding execution. See README for more information on how to use it.
 
 ## [0.7.6] - 2020-08-03
 ### Added
