@@ -26,3 +26,5 @@ export enum ContextKey {
 export const whichKeyShow = `${contributePrefix}.${CommandKey.Show}`;
 export const whichKeyRegister = `${contributePrefix}.${CommandKey.Register}`;
 export const whichKeyTrigger = `${contributePrefix}.${CommandKey.Trigger}`;
+
+export const defaultStatusBarTimeout = 5000;

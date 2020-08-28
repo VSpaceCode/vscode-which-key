@@ -37,7 +37,6 @@ export type Condition = {
     languageId?: string,
 };
 
-
 export function toBindingItem(o: any) {
     if (typeof o === "object") {
         const config = o as Partial<BindingItem>;

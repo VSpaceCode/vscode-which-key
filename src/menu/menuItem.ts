@@ -1,6 +1,7 @@
-import { QuickPickItem } from "vscode";
+import { QuickPickItem, window } from "vscode";
 import { ActionType, BindingItem, Condition, OverrideBindingItem } from "../bindingItem";
-import { SortOrder } from "../constants";
+import { defaultStatusBarTimeout, SortOrder } from "../constants";
+import { setStatusBarMessage } from "../statusBar";
 
 export interface MenuSelectionResult {
     items?: BaseMenuItem[],
@@ -213,7 +214,10 @@ class ConditionalsMenuItem extends BaseCollectionMenuItem {
             return match.select(args);
         }
 
-        throw new Error("No conditions match!");
+        const msg = "No conditions matched";
+        console.warn(`${msg};key=${this.key};name=${this.name}`);
+        setStatusBarMessage(msg, defaultStatusBarTimeout, true);
+        return {};
     }
 }
 
