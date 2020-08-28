@@ -59,7 +59,7 @@ export default class WhichKeyCommand {
         if (items) {
             return showMenu(this.keyListener, items, false, this.config?.title);
         } else {
-            throw new Error("No bindings is available");
+            throw new Error("No bindings are available");
         }
     }
 

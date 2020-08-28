@@ -94,7 +94,7 @@ abstract class BaseCollectionMenuItem extends BaseMenuItem {
 class BindingsMenuItem extends BaseCollectionMenuItem {
     constructor(item: BindingItem) {
         if (!item.bindings) {
-            throw new Error("Property bindings is not defined for type bindings");
+            throw new MissingPropertyError("bindings", ActionType.Bindings);
         }
         const items = createMenuItems(item.bindings);
         super(item.key, item.name, items);
@@ -114,7 +114,7 @@ class CommandsMenuItem extends BaseMenuItem {
 
     constructor(item: BindingItem) {
         if (!item.commands) {
-            throw new Error("Property commands is not defined for type commands");
+            throw new MissingPropertyError("commands", ActionType.Commands);
         }
 
         super(item.key, item.name);
@@ -172,7 +172,7 @@ class ConditionalsMenuItem extends BaseMenuItem {
     constructor(item: BindingItem) {
         super(item.key, item.name);
         if (!item.bindings) {
-            throw new Error("Property bindings is not defined for type conditional");
+            throw new MissingPropertyError("bindings", ActionType.Conditional);
         }
 
         this.conditionalItems = item.bindings.map(b => ({
@@ -244,7 +244,7 @@ class CommandMenuItem extends BaseMenuItem {
 
     constructor(item: BindingItem) {
         if (!item.command) {
-            throw new Error("Property command is not defined for type command");
+            throw new MissingPropertyError("command", ActionType.Command);
         }
 
         super(item.key, item.name);
@@ -266,7 +266,7 @@ class TransientMenuItem extends BaseCollectionMenuItem {
 
     constructor(item: BindingItem) {
         if (!item.bindings) {
-            throw new Error("Property bindings is not defined for type transient");
+            throw new MissingPropertyError("bindings", ActionType.Transient);
         }
         const items = createMenuItems(item.bindings);
 
@@ -337,7 +337,7 @@ function createMenuItem(bindingItem: BindingItem): BaseMenuItem {
         case ActionType.Conditional:
             return new ConditionalsMenuItem(bindingItem);
         default:
-            throw new Error(`type ${bindingItem.type} not recognized`);
+            throw new Error(`type ${bindingItem.type} is not supported`);
     }
 }
 
@@ -384,4 +384,12 @@ function createMenuItems(bindingItems: BindingItem[]) {
 
 export function convertToMenuLabel(s: string) {
     return s.replace(/ /g, '␣').replace(/\t/g, '↹');
+}
+
+class MissingPropertyError extends Error {
+    name: string;
+    constructor(propertyName: string, typeName: string) {
+        super();
+        this.name = `Property ${propertyName} is not defined for type ${typeName}`;
+    }
 }
