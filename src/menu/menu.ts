@@ -1,5 +1,5 @@
 import { commands, Disposable, QuickPick, window } from "vscode";
-import { ContextKey } from "../constants";
+import { ContextKey, defaultStatusBarTimeout } from "../constants";
 import KeyListener, { KeybindingArgs } from "../keyListener";
 import { setStatusBarMessage } from "../statusBar";
 import { BaseMenuItem, convertToMenuLabel } from "./menuItem";
@@ -85,7 +85,7 @@ export class WhichKeyMenu {
         } else {
             await this.hide();
             const keyCombo = this.getHistoryString(value);
-            setStatusBarMessage(`${keyCombo} is undefined`, 5000, true);
+            setStatusBarMessage(`${keyCombo} is undefined`, defaultStatusBarTimeout, true);
             this.dispose();
             this.resolve();
         }
