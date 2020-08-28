@@ -46,7 +46,7 @@
 				"key": "tab",
 				"command": "whichkey.triggerKey",
 				"args": "\t",
-				"when": "whichkeyActive"
+				"when": "whichkeyVisible"
 			}
 		],
 		"commands": [

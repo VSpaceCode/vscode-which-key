@@ -145,7 +145,8 @@ function evalCondition(stored?: Condition, evaluatee?: Condition) {
         }
         return result;
     }
-    return false;
+    // For if they are both undefined or null
+    return stored === evaluatee;
 }
 
 function isConditionEqual(condition1?: Condition, condition2?: Condition) {
@@ -171,10 +172,15 @@ function getCondition(key?: string): Condition | undefined {
             result[key] = value;
             return result;
         }, {} as Record<string, string>);
-        return {
-            when: r["when"],
-            languageId: r["languageId"]
-        };
+
+        // Check to make sure at least the one property so we don't create
+        // { when: undefined, languagedId: undefined }
+        if ("when" in r || "languageId" in r) {
+            return {
+                when: r["when"],
+                languageId: r["languageId"]
+            };
+        }
     }
     return undefined;
 }
