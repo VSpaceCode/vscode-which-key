@@ -31,7 +31,7 @@ export abstract class BaseMenuItem implements QuickPickItem {
         // Nothing to sort
     }
 
-    get(_id: string): BaseMenuItem | undefined {
+    get(_key: string): BaseMenuItem | undefined {
         return undefined;
     }
 
@@ -55,14 +55,18 @@ abstract class BaseCollectionMenuItem extends BaseMenuItem {
         }
     }
 
-    get(id: string) {
-        return this.items.find(i => i.key === id);
+    get(key: string) {
+        return this.items.find(i => i.key === key);
+    }
+
+    protected getIndex(key: string) {
+        return this.items.findIndex(i => i.key === key);
     }
 
     overrideItem(o: OverrideBindingItem) {
         const keys = (typeof o.keys === 'string') ? o.keys.split('.') : o.keys;
         const key = keys[keys.length - 1];
-        const index = this.items.findIndex(i => i.key === key);
+        const index = this.getIndex(key);
 
         if (o.position === undefined) {
             const newItem = createMenuItemFromOverrides(o, key);
@@ -130,111 +134,80 @@ class CommandsMenuItem extends BaseMenuItem {
     }
 }
 
-type ConditionalMenuItem = {
-    condition: Condition | undefined,
-    item: BaseMenuItem,
-};
-
-function evalCondition(item: ConditionalMenuItem, condition?: Condition) {
-    if (condition && item.condition) {
+function evalCondition(stored?: Condition, evaluatee?: Condition) {
+    if (evaluatee && stored) {
         let result = true;
-        if (item.condition.when) {
-            result = result && (item.condition.when === condition.when);
+        if (stored.when) {
+            result = result && (stored.when === evaluatee.when);
         }
-        if (item.condition.languageId) {
-            result = result && (item.condition.languageId === condition.languageId);
+        if (stored.languageId) {
+            result = result && (stored.languageId === evaluatee.languageId);
         }
         return result;
     }
     return false;
 }
 
-function getCondition(key: string): Condition | undefined {
-    if (key.length === 0) {
-        return undefined;
-    }
-
-    const props = key.split(";");
-    const r = props.reduce((result, prop) => {
-        const [key, value] = prop.split(":");
-        result[key] = value;
+function isConditionEqual(condition1?: Condition, condition2?: Condition) {
+    if (condition1 && condition2) {
+        let result = true;
+        result = result && (condition1.when === condition2.when);
+        result = result && (condition1.languageId === condition2.languageId);
         return result;
-    }, {} as Record<string, string>);
-    return {
-        when: r["when"],
-        languageId: r["languageId"]
-    };
+    }
+    // For if they are both undefined or null
+    return condition1 === condition2;
 }
 
-class ConditionalsMenuItem extends BaseMenuItem {
-    private conditionalItems: ConditionalMenuItem[];
+function isConditionKeyEqual(key1?: string, key2?: string) {
+    return isConditionEqual(getCondition(key1), getCondition(key2));
+}
 
+function getCondition(key?: string): Condition | undefined {
+    if (key && key.length > 0) {
+        const props = key.split(";");
+        const r = props.reduce((result, prop) => {
+            const [key, value] = prop.split(":");
+            result[key] = value;
+            return result;
+        }, {} as Record<string, string>);
+        return {
+            when: r["when"],
+            languageId: r["languageId"]
+        };
+    }
+    return undefined;
+}
+
+class ConditionalsMenuItem extends BaseCollectionMenuItem {
     constructor(item: BindingItem) {
-        super(item.key, item.name);
         if (!item.bindings) {
             throw new MissingPropertyError("bindings", ActionType.Conditional);
         }
+        const items = createMenuItems(item.bindings);
+        super(item.key, item.name, items);
+    }
 
-        this.conditionalItems = item.bindings.map(b => ({
-            condition: getCondition(b.key),
-            item: createMenuItem(b)
-        }));
+    get(key: string) {
+        return this.items.find(i => isConditionKeyEqual(key, i.key));
+    }
+
+    protected getIndex(key: string) {
+        return this.items.findIndex(i => isConditionKeyEqual(key, i.key));
+    }
+
+    eval(condition?: Condition) {
+        return this.items.find(i => evalCondition(getCondition(i.key), condition));
     }
 
     select(args?: Condition): MenuSelectionResult {
-        let match = this.conditionalItems.find(c => evalCondition(c, args));
-
-        // No matches, find the first empty condition as else
-        match = match ?? this.conditionalItems.find(c => c.condition === undefined);
+        // Search the condition first. If no matches, find the first empty condition as else
+        let match = this.eval(args) ?? this.eval(undefined);
         if (match) {
-            return match.item.select(args);
+            return match.select(args);
         }
 
         throw new Error("No conditions match!");
-    }
-
-    sortItems(order: SortOrder): void {
-        for (const i of this.conditionalItems) {
-            i.item.sortItems(order);
-        }
-    }
-
-    overrideItem(o: OverrideBindingItem) {
-        const keys = (typeof o.keys === 'string') ? o.keys.split('.') : o.keys;
-        const key = keys[keys.length - 1];
-        let condition = getCondition(key);
-
-        const index = this.conditionalItems.findIndex(i => evalCondition(i, condition));
-        const createItem = () => (
-            {
-                condition,
-                item: createMenuItemFromOverrides(o, key)
-            }
-        );
-        if (o.position === undefined) {
-            const newItem = createItem();
-            if (index !== -1) {
-                // replace the current item
-                this.conditionalItems.splice(index, 1, newItem);
-            } else {
-                // append if there isn't an existing binding
-                this.conditionalItems.push(newItem);
-            }
-        } else {
-            if (o.position < 0) {
-                // negative position, attempt to remove
-                if (index !== -1) {
-                    this.conditionalItems.splice(index, 1);
-                }
-            } else {
-                // Remove and replace
-                if (index !== -1) {
-                    this.conditionalItems.splice(index, 1);
-                }
-                const newItem = createItem();
-                this.conditionalItems.splice(o.position, 0, newItem);
-            }
-        }
     }
 }
 
