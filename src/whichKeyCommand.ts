@@ -69,7 +69,7 @@ export default class WhichKeyCommand {
     }
 }
 
-async function showMenu(keyListener: KeyListener, items: BaseMenuItem[], isTransient: boolean, title?: string) {
+function showMenu(keyListener: KeyListener, items: BaseMenuItem[], isTransient: boolean, title?: string) {
     const delay = workspace.getConfiguration(contributePrefix).get<number>(ConfigKey.Delay) ?? 0;
-    await WhichKeyMenu.show(keyListener, items, isTransient, delay, title);
+    return WhichKeyMenu.show(keyListener, items, isTransient, delay, title);
 }
