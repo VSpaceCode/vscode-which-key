@@ -267,9 +267,9 @@ Selected text can be hard to see when which-key menu is active. This could be du
 
 ### Conditional bindings (experimental)
 
-> This is marked as experimental and the config is subjected to change.
+> This is marked as experimental and the config is subject to change.
 
-This allow conditional execution of bindings. Currently, it only supports condition on the `when` passed from shortcut and `languageId` of the active editor. It reuse the similar structure as the `bindings` type. The property `key` in a binding item is reused to present the condition. The condition can be thought of as a key-value pair serialized into a string.
+This allows conditional execution of bindings. Currently, it only supports condition on the `when` passed from shortcut and `languageId` of the active editor. It reuses the similar structure to the `bindings` type. The property `key` in a binding item is reused to represent the condition. The condition can be thought of as a key-value pair serialized into a string.
 
 As an example, a condition in json like
 ```json
@@ -313,12 +313,12 @@ A concrete example of a binding with that condition is as follow:
   ]
 }
 ```
-In this example, when `m` click, it will find the first item that matches the current contrition. If no configured key matches the current condition, a default item showing a buffer menu will be use. Any item that has invalid key will be default item.
+In this example, when `m` click, it will find the first item that matches the current contrition. If no configured key matches the current condition, a default item showing a buffer menu will be use. Any item that has invalid key will used as default item.
 
 #### Overrides
 This is again similar with the `bindings` type.
 
-To override the condition binding item completely, the following config will overrides the `m` completely with the provided bindings.
+To override the condition binding item completely, the following config will overrides the `m` binding completely with the provided override.
 ```json
 {
   "whichkey.bindingOverrides": [
@@ -338,7 +338,7 @@ To override the condition binding item completely, the following config will ove
   ]
 }
 ```
-You also also choose to modify existing conditional bindings like adding and removal. The following will add a key of `languageId:javascript` to the existing conditional binding of `m`.
+You also also choose to modify existing conditional bindings like adding and removal. The following will add a key of `languageId:javascript` to the conditional binding if `languageId:javascript` doesn't exist.
 ```json
 {
   "whichkey.bindingOverrides": [
