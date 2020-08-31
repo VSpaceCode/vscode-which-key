@@ -6,11 +6,6 @@ export const enum ActionType {
     Conditional = "conditional",
 }
 
-export type ConditionalActionType = ActionType.Bindings
-    | ActionType.Command
-    | ActionType.Commands
-    | ActionType.Transient;
-
 export interface BindingItem {
     key: string;
     name: string;
@@ -31,11 +26,6 @@ export interface OverrideBindingItem {
     args?: any,
     bindings?: BindingItem[],
 }
-
-export type Condition = {
-    when?: string,
-    languageId?: string,
-};
 
 export function toBindingItem(o: any) {
     if (typeof o === "object") {

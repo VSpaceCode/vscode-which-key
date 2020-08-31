@@ -1,7 +1,12 @@
-import { QuickPickItem, window } from "vscode";
-import { ActionType, BindingItem, Condition, OverrideBindingItem } from "../bindingItem";
+import { QuickPickItem } from "vscode";
+import { ActionType, BindingItem, OverrideBindingItem } from "../bindingItem";
 import { defaultStatusBarTimeout, SortOrder } from "../constants";
 import { setStatusBarMessage } from "../statusBar";
+
+interface Condition {
+    when?: string,
+    languageId?: string,
+}
 
 export interface MenuSelectionResult {
     items?: BaseMenuItem[],
