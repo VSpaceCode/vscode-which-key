@@ -240,6 +240,7 @@ This section config extra settings that pertain to both Standalone or With exten
 This section describes a way to use non-character keys in which-key menu like `<tab>` or `Control+D`. `<tab>` is supported out of the box. Follow the following instruction to add support for keys other than `<tab>`.
 
 Merge the following json to your `keybindings.json`.
+
 ```json
 {
   "key": "ctrl+x",
@@ -248,6 +249,7 @@ Merge the following json to your `keybindings.json`.
   "when": "whichkeyActive"
 }
 ```
+
 Once you've done that, you can use `C-x` in the `key` value of the which-key config. Effectively, the above keybinding will enter `C-x` in the QuickPick input box when `ctrl+x` is pressed when the which key is focused.
 
 ### Display menu with a delay
@@ -258,6 +260,7 @@ You can set `whichkey.sortOrder` in `settings.json` to `alphabetically` to alway
 
 ### Unclear selection
 Selected text can be hard to see when which-key menu is active. This could be due to the `inactiveSelectionBackground` config of your current theme. You can selectively override that color in your `settings.json` like the following example.
+
 ```json
 "workbench.colorCustomizations": {
     "editor.inactiveSelectionBackground": "color that works better",
@@ -271,15 +274,18 @@ Selected text can be hard to see when which-key menu is active. This could be du
 This allows conditional execution of bindings. Currently, it only supports condition on the `when` passed from shortcut and `languageId` of the active editor. It reuses the similar structure to the `bindings` type. The property `key` in a binding item is reused to represent the condition. The condition can be thought of as a key-value pair serialized into a string.
 
 As an example, a condition in json like
+
 ```json
 {
   "languageId": "javascript",
   "when": "sideBarVisible"
 }
 ```
+
 can be serialized into `languageId:javascript;when:sideBarVisible`. The string representation can then be use as the value of the binding key.
 
 A concrete example of a binding with that condition is as follow:
+
 ```json
 {
   "whichkey.bindings": [
@@ -312,12 +318,15 @@ A concrete example of a binding with that condition is as follow:
   ]
 }
 ```
+
 In this example, when `m` click, it will find the first item that matches the current contrition. If no configured key matches the current condition, a default item showing a buffer menu will be use. Any item that has invalid key will used as default item.
 
 #### Overrides
+
 This is again similar with the `bindings` type.
 
 To override the condition binding item completely, the following config will overrides the `m` binding completely with the provided override.
+
 ```json
 {
   "whichkey.bindingOverrides": [
@@ -337,7 +346,9 @@ To override the condition binding item completely, the following config will ove
   ]
 }
 ```
+
 You also also choose to modify existing conditional bindings like adding and removal. The following will add a key of `languageId:javascript` to the conditional binding if `languageId:javascript` doesn't exist.
+
 ```json
 {
   "whichkey.bindingOverrides": [
@@ -350,13 +361,16 @@ You also also choose to modify existing conditional bindings like adding and rem
   ]
 }
 ```
+
 Negative `position` property can also be used to remove conditional bindings.
 
 #### when
+
 Since VSCode doesn't allow reading of the context, which is the condition of used in the `when` in shortcuts. In order to get around that, for every when condition, you will need to set up a shortcut to evaluate that specific condition.
 
 For example, the following keybindings will pass both `key` and `when` for which-key handle for key `t`.
 `keybindings.json`
+
 ```json
 {
   "key": "t",
@@ -370,6 +384,7 @@ For example, the following keybindings will pass both `key` and `when` for which
 ```
 
 You can then define the follow bindings that uses that specific `key` and `when`.
+
 ```json
 {
   "key": "t",
@@ -393,6 +408,7 @@ You can then define the follow bindings that uses that specific `key` and `when`
 ```
 
 #### languageId
+
 This is language id of the active editor. The language id can be found in language selection menu inside the parenthesis next to the language name.
 
 ## Release Notes
