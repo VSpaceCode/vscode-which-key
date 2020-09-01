@@ -271,7 +271,11 @@ Selected text can be hard to see when which-key menu is active. This could be du
 
 > This is marked as experimental and the config is subject to change.
 
-This allows conditional execution of bindings. Currently, it only supports condition on the `when` passed from shortcut and `languageId` of the active editor. It reuses the similar structure to the `bindings` type. The property `key` in a binding item is reused to represent the condition. The condition can be thought of as a key-value pair serialized into a string.
+This allows conditional execution of bindings. Currently, it only supports conditions on the `when` passed from shortcut and `languageId` of the active editor.
+
+- It reuses the similar structure to the `bindings` type.
+- The property `key` in a binding item is reused to represent the condition.
+- The condition can be thought of as a key-value pair serialized into a string.
 
 As an example, a condition in json like
 
@@ -282,7 +286,8 @@ As an example, a condition in json like
 }
 ```
 
-can be serialized into `languageId:javascript;when:sideBarVisible`. The string representation can then be use as the value of the binding key.
+can be serialized into `languageId:javascript;when:sideBarVisible`.
+The string representation can then be used as the value of the binding key.
 
 A concrete example of a binding with that condition is as follow:
 
@@ -319,13 +324,18 @@ A concrete example of a binding with that condition is as follow:
 }
 ```
 
-In this example, when `m` click, it will find the first item that matches the current contrition. If no configured key matches the current condition, a default item showing a buffer menu will be use. Any item that has invalid key will used as default item.
+In this example, when `m` is pressed, it will find the first binding that matches the current condition.
+If no configured key matches the current condition, a default item showing a buffer menu will be used.
+Any item that has an invalid key will be used as default item.
+
+Therefore, in this example, if the language is javascript and the sidebar is visible, `m` will open
+the file browser, otherwise it will show the "buffers" menu.
 
 #### Overrides
 
 This is again similar with the `bindings` type.
 
-To override the condition binding item completely, the following config will overrides the `m` binding completely with the provided override.
+For example, the following config will override the `m` binding completely:
 
 ```json
 {
@@ -347,7 +357,8 @@ To override the condition binding item completely, the following config will ove
 }
 ```
 
-You also also choose to modify existing conditional bindings like adding and removal. The following will add a key of `languageId:javascript` to the conditional binding if `languageId:javascript` doesn't exist.
+You can also choose to add or remove conditions to existing conditional bindings.
+For example, the following will add a key of `languageId:javascript` to the conditional binding if `languageId:javascript` doesn't already exist.
 
 ```json
 {
@@ -366,7 +377,8 @@ Negative `position` property can also be used to remove conditional bindings.
 
 #### when
 
-Since VSCode doesn't allow reading of the context, which is the condition of used in the `when` in shortcuts. In order to get around that, for every when condition, you will need to set up a shortcut to evaluate that specific condition.
+Since VSCode doesn't allow reading of the context, which is the condition used in the `when` in shortcuts,
+for every `when` condition, you will need to set up a shortcut to evaluate that specific condition.
 
 For example, the following keybindings will pass both `key` and `when` for which-key handle for key `t`.
 `keybindings.json`
