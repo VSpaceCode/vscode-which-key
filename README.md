@@ -15,7 +15,7 @@ This extension can be used by itself or be called by other extension.
 
 ### Standalone
 
-This extension comes with a default that didn't have any third-party dependencies. 
+This extension comes with a default that didn't have any third-party dependencies.
 #### Setup: I am using VSCode Vim
 If you want a better default behavior design for VSCode Vim, checkout [VSpaceCode](https://github.com/VSpaceCode/VSpaceCode).
 
@@ -46,7 +46,6 @@ You can also bind a customize menu with Vim directly
   {
     "before": ["<space>"],
     "commands": ["whichkey.show"],
-    
   }
 ]
 ```
@@ -101,7 +100,7 @@ The following example will replace/append the whole `<SPC> g` menu with one bind
           "key": "s",
           "name": "Go to",
           "type": "command",
-          "command": "workbench.action.gotoLine",   
+          "command": "workbench.action.gotoLine",
         }
       ]
     }
@@ -331,7 +330,7 @@ To override the condition binding item completely, the following config will ove
           "key": "languageId:javascript",
           "name": "Go to",
           "type": "command",
-          "command": "workbench.action.gotoLine",   
+          "command": "workbench.action.gotoLine",
         }
       ]
     }
@@ -346,7 +345,7 @@ You also also choose to modify existing conditional bindings like adding and rem
       "keys": ["m", "languageId:javascript"],
       "name": "Go to",
       "type": "command",
-      "command": "workbench.action.gotoLine",   
+      "command": "workbench.action.gotoLine",
     }
   ]
 }
