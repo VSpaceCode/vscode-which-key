@@ -277,7 +277,7 @@ This allows conditional execution of bindings. Currently, it only supports condi
 - The property `key` in a binding item is reused to represent the condition.
 - The condition can be thought of as a key-value pair serialized into a string.
 
-`languageId:javascript;when:sideBarVisible` is an example condition serialized into a string for the `key` that checks if the lanauge id of the currently active editor is javascript and if the side bar is visible (See the `when` section for more detail)
+`languageId:javascript;when:sideBarVisible` is an example condition serialized into a string for the `key` that checks if the language id of the currently active editor is javascript and if the side bar is visible (see the [when](#when) section for more details).
 
 A concrete example of a binding with that condition is as follow:
 
@@ -367,9 +367,10 @@ Negative `position` property can also be used to remove conditional bindings.
 
 #### when
 
-Since VSCode doesn't allow reading of the context, which is the condition used in the `when` in shortcuts, you will need to you will need to set up a shortcut to evaluate that specific condition for every `when` condition used in conditional binding to get around until [vscode/#10471](https://github.com/microsoft/vscode/issues/10471) is implemented.
+Since VSCode doesn't allow reading of the context of a json field, we cannot read the condition used in the `when` in shortcuts.
+For this reason, you will need to repeat every `when` condition used in conditional bindings, at least until [vscode/#10471](https://github.com/microsoft/vscode/issues/10471) is implemented.
 
-For example, the following shortcut in `keybindings.json` will pass both `key` and `when` in the `args` to `which-key`. The outer `when` is the [condition clause](https://code.visualstudio.com/docs/getstarted/keybindings#_when-clause-contexts) for vscode to execute this key, and must contain `whichKeyVisible` which limits this shortcut to be only applicable when the which-key menu is visible. In this case, if a user press key `t` when which-key, sidebar and explorer viewlet is visible, it will execute `whichkey.triggerKey` command and send `which-key` the `args`, which contains the `key`, and `when`.
+For example, the following shortcut in `keybindings.json` will pass both `key` and `when` in the `args` to `which-key`. The outer `when` is the [condition clause](https://code.visualstudio.com/docs/getstarted/keybindings#_when-clause-contexts) for vscode to execute this key, and must contain `whichKeyVisible` which limits this shortcut to be only applicable when the which-key menu is visible. In this case, if a user presses key `t` when which-key, sidebar and explorer viewlet are visible, it will execute `whichkey.triggerKey` command and send the `args` (`key` and `when`) to  `which-key` 
 
 ```json
 {
@@ -383,7 +384,7 @@ For example, the following shortcut in `keybindings.json` will pass both `key` a
 }
 ```
 
-The `args.key` and `args.when` that were sent to `which-key` are then used to find the a binding that matches the key `t` and any conditional binding that matches that condition. The following binding is example that contains a conditional binding that can match shortcut's `args.when`.
+The `args.key` and `args.when` that were sent to `which-key` are then used to find the a binding that matches the key `t` and any conditional binding that matches that condition. The following binding is an example that contains a conditional binding that matches the `args`.
 
 ```json
 {
