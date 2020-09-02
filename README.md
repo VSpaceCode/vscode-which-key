@@ -268,6 +268,8 @@ Selected text can be hard to see when which-key menu is active. This could be du
 ```
 
 ### Conditional bindings (experimental)
+<details>
+  <summary>Click to expand!</summary>
 
 > This is marked as experimental and the config is subject to change.
 
@@ -413,6 +415,8 @@ Unfortunately, if you have another condition binding with a different `key` that
 #### languageId
 
 This is language id of the active editor. The language id can be found in language selection menu inside the parenthesis next to the language name.
+
+</details>
 
 ## Release Notes
 
