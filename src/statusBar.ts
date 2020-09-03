@@ -1,5 +1,6 @@
-import { window, ThemeColor, Disposable } from "vscode";
+import { Disposable, ThemeColor, window } from "vscode";
 
+let lastMessage: Disposable | undefined;
 /**
  * Set a message to the status bar. This is a short hand for the more powerful
  * status bar [items](#window.createStatusBarItem).
@@ -10,13 +11,23 @@ import { window, ThemeColor, Disposable } from "vscode";
  * @return A disposable which hides the status bar message.
  */
 export function setStatusBarMessage(text: string, hideAfterTimeout: number, isError: boolean): Disposable {
+    lastMessage?.dispose();
+
     const item = window.createStatusBarItem();
     item.color = isError ? new ThemeColor('errorForeground') : undefined;
     item.text = text;
     item.show();
-    setTimeout(() => {
+
+    let timeoutId: NodeJS.Timeout;
+    const disposable = new Disposable(() => {
+        clearTimeout(timeoutId);
         item.dispose();
+    });
+
+    timeoutId = setTimeout(() => {
+        disposable.dispose();
     }, hideAfterTimeout);
 
-    return item;
+    lastMessage = disposable;
+    return disposable;
 }
