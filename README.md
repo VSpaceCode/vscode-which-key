@@ -8,14 +8,9 @@ This extension is aimed to provide the standalone which-key function in VScode f
 - The menu key is customizable
 - Extension can bundle this to provide which-key menu
 
+## Documentation
 
-## Usage
-
-See [here](https://vspacecode.github.io/docs/usage).
-
-## Extra
-
-See [here](https://vspacecode.github.io/docs/extra).
+See [here](https://vspacecode.github.io/docs/whichkey/).
 
 ## Release Notes
 
