@@ -1,5 +1,10 @@
 # vscode-which-key (Preview)
 
+[![Docs](https://img.shields.io/website?label=vspacecode.github.io&url=https%3A%2F%2Fvspacecode.github.io)](https://vspacecode.github.io/docs/whichkey)
+[![Version](https://vsmarketplacebadge.apphb.com/version/vspacecode.whichkey.svg)](https://marketplace.visualstudio.com/items?itemName=vspacecode.whichkey)
+[![Installs](https://vsmarketplacebadge.apphb.com/installs/vspacecode.whichkey.svg)](https://marketplace.visualstudio.com/items?itemName=vspacecode.whichkey)
+[![Ratings](https://vsmarketplacebadge.apphb.com/rating/vspacecode.whichkey.svg)](https://marketplace.visualstudio.com/items?itemName=vspacecode.whichkey)
+
 This extension is aimed to provide the standalone which-key function in VScode for both users and extension to bundle.
 
 ## Features
