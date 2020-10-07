@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fix the issue where `<tab>` key can not be use in the editor because the context `whichkeyVisible` is stuck in true if triggerKey command with an invalid key was called before the menu is displayed
 - Fix the issue where key failed to append if the input was selected during the delay. The case was prominent when triggerKey was called before the menu is displayed (The key entered by triggerKey will be selected by the time the menu is displayed).
+- Fix the issue where the key is selected if `triggerKey` is called subsequent to `show` command with vim binding by having `show` command to wait until the QuickPick's show is called.
 
 ## [0.8.1] - 2020-09-02
 ### Fixed

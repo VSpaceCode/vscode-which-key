@@ -228,22 +228,31 @@ export class WhichKeyMenu {
         this.quickPick.dispose();
     }
 
-    static async show(keyListener: KeyListener, items: BaseMenuItem[], isTransient: boolean, delay: number, title?: string) {
-        try {
-            const menu = new WhichKeyMenu(keyListener, items, isTransient, delay, title);
-            await setContext(ContextKey.Active, true);
-            await menu.show();
-            return await menu.promise;
-        } finally {
-            await Promise.all([
-                setContext(ContextKey.Active, false),
-                // We set visible to true before QuickPick is shown (because vscode doesn't provide onShown API)
-                // Visible can be stuck in true if the menu is disposed before it's shown (e.g.
-                // calling show without waiting and triggerKey command in sequence) 
-                // Therefore, we are cleaning up here to make sure it is not stuck.
-                setContext(ContextKey.Visible, false)
-            ]);
-        }
+    static show(keyListener: KeyListener, items: BaseMenuItem[], isTransient: boolean, delay: number, title?: string) {
+        return new Promise(async (resolve) => {
+            try {
+                const menu = new WhichKeyMenu(keyListener, items, isTransient, delay, title);
+                await setContext(ContextKey.Active, true);
+                await menu.show();
+                // Resolve the promise right after show to fix the issue where executing show command which can freeze vim instead of waiting on menu.
+                // In addition, show command waits until we call menu show to allow chaining command of show and triggerKey.
+                // Specifically, when triggerKey called before shown is done. The value will be set before shown, which causes the
+                // value to be selected.
+                resolve();
+                await menu.promise;
+            } catch (e) {
+                window.showErrorMessage(e.toString());
+            } finally {
+                await Promise.all([
+                    setContext(ContextKey.Active, false),
+                    // We set visible to true before QuickPick is shown (because vscode doesn't provide onShown API)
+                    // Visible can be stuck in true if the menu is disposed before it's shown (e.g.
+                    // calling show without waiting and triggerKey command in sequence) 
+                    // Therefore, we are cleaning up here to make sure it is not stuck.
+                    setContext(ContextKey.Visible, false)
+                ]);
+            }
+        });
     }
 }
 

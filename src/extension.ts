@@ -40,15 +40,10 @@ async function showWhichKey(args: any[]) {
     }
 }
 
-function showWhichKeyCommand(args: any[]) {
-    // Not awaiting to fix the issue where executing show key which can freeze vim
-    showWhichKey(args).catch(e => window.showErrorMessage(e.toString()));
-}
-
 export function activate(context: ExtensionContext) {
     context.subscriptions.push(commands.registerCommand(whichKeyTrigger, keyListener.trigger.bind(keyListener)));
     context.subscriptions.push(commands.registerCommand(whichKeyRegister, registerWhichKeyCommand));
-    context.subscriptions.push(commands.registerCommand(whichKeyShow, showWhichKeyCommand));
+    context.subscriptions.push(commands.registerCommand(whichKeyShow, showWhichKey));
 }
 
 export function deactivate() {
