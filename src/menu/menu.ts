@@ -68,11 +68,18 @@ export class WhichKeyMenu {
         if (this.timeoutId) {
             // When the menu is in the delay display mode
             if (value.startsWith(this.enteredValue)) {
+                // Normal case where user enters key while in delay
                 value = value.substring(this.enteredValue.length);
-            } else {
-                // Disallow user from removing entered value when in delay
+            } else if (this.enteredValue.startsWith(value)) {
+                // Disallow user from removing entered value when in delay 
                 this.quickPick.value = this.enteredValue;
                 return;
+            } else {
+                // special case for fixing the quick pick value if trigger key command
+                // was called before the menu is displayed. When the menu is displayed,
+                // quick pick value is then selected. Any subsequent key will remove
+                // the value in the input.
+                this.quickPick.value = this.enteredValue + value;
             }
         }
 
@@ -228,7 +235,14 @@ export class WhichKeyMenu {
             await menu.show();
             return await menu.promise;
         } finally {
-            await setContext(ContextKey.Active, false);
+            await Promise.all([
+                setContext(ContextKey.Active, false),
+                // We set visible to true before QuickPick is shown (because vscode doesn't provide onShown API)
+                // Visible can be stuck in true if the menu is disposed before it's shown (e.g.
+                // calling show without waiting and triggerKey command in sequence) 
+                // Therefore, we are cleaning up here to make sure it is not stuck.
+                setContext(ContextKey.Visible, false)
+            ]);
         }
     }
 }
