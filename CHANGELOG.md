@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.8.2] - 2020-10-06
 ### Fixed
 - Fix the issue where `<tab>` key can not be use in the editor because the context `whichkeyVisible` is stuck in true if triggerKey command with an invalid key was called before the menu is displayed
 - Fix the issue where key failed to append if the input was selected during the delay. The case was prominent when triggerKey was called before the menu is displayed (The key entered by triggerKey will be selected by the time the menu is displayed).
