@@ -216,8 +216,9 @@ export class WhichKeyMenu {
             updateQuickPick();
         }
 
-        await setContext(ContextKey.Visible, true);
+        const thenable = setContext(ContextKey.Visible, true);
         this.quickPick.show();
+        await thenable;
     }
 
     private dispose() {
@@ -232,8 +233,10 @@ export class WhichKeyMenu {
         return new Promise(async (resolve) => {
             try {
                 const menu = new WhichKeyMenu(keyListener, items, isTransient, delay, title);
-                await setContext(ContextKey.Active, true);
-                await menu.show();
+                await Promise.all([
+                    setContext(ContextKey.Active, true),
+                    menu.show()
+                ]);
                 // Resolve the promise right after show to fix the issue where executing show command which can freeze vim instead of waiting on menu.
                 // In addition, show command waits until we call menu show to allow chaining command of show and triggerKey.
                 // Specifically, when triggerKey called before shown is done. The value will be set before shown, which causes the
