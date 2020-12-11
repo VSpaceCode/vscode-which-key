@@ -2,7 +2,7 @@
 	"name": "whichkey",
 	"preview": true,
 	"displayName": "Which Key",
-	"description": "Provide which-key menu in VSCode",
+	"description": "which-key like menu for Visual Studio Code",
 	"publisher": "VSpaceCode",
 	"author": {
 		"name": "Steven Guh"
