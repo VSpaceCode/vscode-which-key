@@ -1,6 +1,6 @@
 import { commands, ExtensionContext, window } from 'vscode';
 import { toBindingItem } from './bindingItem';
-import { whichKeyRegister, whichKeyShow, whichKeyTrigger } from './constants';
+import { whichKeyOpenFile, whichKeyRegister, whichKeyShow, whichKeyTrigger } from './constants';
 import KeyListener from './keyListener';
 import WhichKeyCommand from './whichKeyCommand';
 import { defaultWhichKeyConfig, getFullSection, toWhichKeyConfig } from './whichKeyConfig';
@@ -40,10 +40,21 @@ async function showWhichKey(args: any[]) {
     }
 }
 
+async function openFile() {
+    try {
+        await commands.executeCommand("workbench.action.files.openFile");
+    } catch {
+        // Mac only command
+        // https://github.com/microsoft/vscode/issues/5437#issuecomment-211500871
+        await commands.executeCommand("workbench.action.files.openFileFolder");
+    }
+}
+
 export function activate(context: ExtensionContext) {
     context.subscriptions.push(commands.registerCommand(whichKeyTrigger, keyListener.trigger.bind(keyListener)));
     context.subscriptions.push(commands.registerCommand(whichKeyRegister, registerWhichKeyCommand));
     context.subscriptions.push(commands.registerCommand(whichKeyShow, showWhichKey));
+    context.subscriptions.push(commands.registerCommand(whichKeyOpenFile, openFile));
 }
 
 export function deactivate() {

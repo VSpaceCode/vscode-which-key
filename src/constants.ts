@@ -11,6 +11,7 @@ export enum CommandKey {
 	Show = 'show',
 	Register = 'register',
 	Trigger = 'triggerKey',
+	OpenFile = 'openFile',
 }
 
 export enum SortOrder {
@@ -26,5 +27,6 @@ export enum ContextKey {
 export const whichKeyShow = `${contributePrefix}.${CommandKey.Show}`;
 export const whichKeyRegister = `${contributePrefix}.${CommandKey.Register}`;
 export const whichKeyTrigger = `${contributePrefix}.${CommandKey.Trigger}`;
+export const whichKeyOpenFile = `${contributePrefix}.${CommandKey.OpenFile}`;
 
 export const defaultStatusBarTimeout = 5000;

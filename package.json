@@ -359,7 +359,7 @@
 										"key": "f",
 										"name": "Open file/folder",
 										"type": "command",
-										"command": "workbench.action.files.openFileFolder"
+										"command": "whichkey.openFile"
 									},
 									{
 										"key": "n",
