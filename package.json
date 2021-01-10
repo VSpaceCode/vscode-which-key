@@ -530,7 +530,7 @@
 									},
 									{
 										"key": "s",
-										"name": "Stash",
+										"name": "Status",
 										"type": "command",
 										"command": "workbench.view.scm"
 									},
