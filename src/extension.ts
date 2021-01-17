@@ -1,6 +1,6 @@
-import { commands, ExtensionContext, window } from 'vscode';
+import { commands, ExtensionContext } from 'vscode';
 import { toBindingItem } from './bindingItem';
-import { whichKeyOpenFile, whichKeyRegister, whichKeyShow, whichKeyTrigger } from './constants';
+import { Commands } from './constants';
 import KeyListener from './keyListener';
 import { StatusBar } from './statusBar';
 import WhichKeyCommand from './whichKeyCommand';
@@ -36,7 +36,7 @@ async function showWhichKey(args: any[]) {
     } else {
         const key = getFullSection(defaultWhichKeyConfig.bindings);
         if (!(key in registered)) {
-            await commands.executeCommand(whichKeyRegister, defaultWhichKeyConfig);
+            await commands.executeCommand(Commands.Register, defaultWhichKeyConfig);
         }
         await registered[key].show();
     }
@@ -53,10 +53,10 @@ async function openFile() {
 }
 
 export function activate(context: ExtensionContext) {
-    context.subscriptions.push(commands.registerCommand(whichKeyTrigger, keyListener.trigger.bind(keyListener)));
-    context.subscriptions.push(commands.registerCommand(whichKeyRegister, registerWhichKeyCommand));
-    context.subscriptions.push(commands.registerCommand(whichKeyShow, showWhichKey));
-    context.subscriptions.push(commands.registerCommand(whichKeyOpenFile, openFile));
+    context.subscriptions.push(commands.registerCommand(Commands.Trigger, keyListener.trigger.bind(keyListener)));
+    context.subscriptions.push(commands.registerCommand(Commands.Register, registerWhichKeyCommand));
+    context.subscriptions.push(commands.registerCommand(Commands.Show, showWhichKey));
+    context.subscriptions.push(commands.registerCommand(Commands.OpenFile, openFile));
 }
 
 export function deactivate() {

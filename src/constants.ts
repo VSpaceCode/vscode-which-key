@@ -24,7 +24,17 @@ export enum ContextKey {
 	Active = 'whichkeyActive',
 	Visible = 'whichkeyVisible'
 }
-export const whichKeyShow = `${contributePrefix}.${CommandKey.Show}`;
-export const whichKeyRegister = `${contributePrefix}.${CommandKey.Register}`;
-export const whichKeyTrigger = `${contributePrefix}.${CommandKey.Trigger}`;
-export const whichKeyOpenFile = `${contributePrefix}.${CommandKey.OpenFile}`;
+
+export const Configs = {
+	Delay: `${contributePrefix}.${ConfigKey.Delay}`,
+	SortOrder: `${contributePrefix}.${ConfigKey.SortOrder}`,
+	Bindings: `${contributePrefix}.${ConfigKey.Bindings}`,
+	Overrides: `${contributePrefix}.${ConfigKey.Overrides}`,
+};
+
+export const Commands = {
+	Show: `${contributePrefix}.${CommandKey.Show}`,
+	Register: `${contributePrefix}.${CommandKey.Register}`,
+	Trigger: `${contributePrefix}.${CommandKey.Trigger}`,
+	OpenFile: `${contributePrefix}.${CommandKey.OpenFile}`,
+};
