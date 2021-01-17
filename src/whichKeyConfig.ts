@@ -1,22 +1,56 @@
-import { ConfigKey, contributePrefix } from "./constants";
+import { Configs } from "./constants";
 
 type ConfigSections = [string, string];
-
-export interface WhichKeyConfig {
+export interface OldWhichKeyConfig {
     bindings: ConfigSections,
     overrides?: ConfigSections,
     title?: string,
 }
 
+export interface WhichKeyConfig {
+    bindings: string,
+    overrides?: string,
+    title?: string,
+}
 
-export function toWhichKeyConfig(o: any) {
+function isString(x: any): x is string {
+    return typeof x === "string";
+}
+
+function isConfigSections(x: any): x is ConfigSections {
+    return x && Array.isArray(x) && x.length === 2 && isString(x[0]) && isString(x[1]);
+}
+
+function isOldWhichKeyConfig(config: any): config is OldWhichKeyConfig {
+    return (config.bindings && isConfigSections(config.bindings)) &&
+        (!config.overrides || isConfigSections(config.overrides)) &&
+        (!config.title || isString(config.title));
+}
+
+function isWhichKeyConfig(config: any) {
+    return (config.bindings && isString(config.bindings)) &&
+        (!config.overrides || isString(config.overrides)) &&
+        (!config.title || isString(config.title));
+}
+
+function convertOldWhichKeyConfig(o: OldWhichKeyConfig) {
+    const config: WhichKeyConfig = {
+        bindings: getFullSection(o.bindings),
+        title: o.title
+    };
+    if (o.overrides) {
+        config.overrides = getFullSection(o.overrides);
+    }
+    return config;
+}
+
+export function toWhichKeyConfig(o: any): WhichKeyConfig | undefined {
     if (typeof o === "object") {
-        const config = o as Partial<WhichKeyConfig>;
-        if ((config.bindings && config.bindings.length === 2) &&
-            (!config.overrides || config.overrides.length === 2) &&
-            (!config.title || typeof config.title === 'string')
-        ) {
-            return config as WhichKeyConfig;
+        if (isOldWhichKeyConfig(o)) {
+            return convertOldWhichKeyConfig(o);
+        }
+        if (isWhichKeyConfig(o)) {
+            return o;
         }
     }
     return undefined;
@@ -24,9 +58,9 @@ export function toWhichKeyConfig(o: any) {
 
 export function getFullSection(sections: ConfigSections) {
     return `${sections[0]}.${sections[1]}`;
-} 
+}
 
 export const defaultWhichKeyConfig: WhichKeyConfig = {
-    bindings: [contributePrefix, ConfigKey.Bindings],
-    overrides: [contributePrefix, ConfigKey.Overrides],
+    bindings: Configs.Bindings,
+    overrides: Configs.Overrides
 };

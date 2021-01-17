@@ -22,17 +22,13 @@ export default class WhichKeyCommand {
         this.unregister();
         this.config = config;
 
-        const bindings = workspace
-            .getConfiguration(config.bindings[0])
-            .get<BindingItem[]>(config.bindings[1]);
+        const bindings = getConfig<BindingItem[]>(config.bindings);
         if (bindings) {
             this.root = new RootMenuItem(bindings);
         }
 
         if (config.overrides) {
-            const overrides = workspace
-                .getConfiguration(config.overrides[0])
-                .get<OverrideBindingItem[]>(config.overrides[1]) ?? [];
+            const overrides = getConfig<OverrideBindingItem[]>(config.overrides) ?? [];
             this.root?.override(overrides);
         }
 
@@ -44,8 +40,8 @@ export default class WhichKeyCommand {
         this.onConfigChangeListener = workspace.onDidChangeConfiguration((e) => {
             if (
                 e.affectsConfiguration(getFullSection([contributePrefix, ConfigKey.SortOrder])) ||
-                e.affectsConfiguration(getFullSection(config.bindings)) ||
-                (config.overrides && e.affectsConfiguration(getFullSection(config.overrides)))
+                e.affectsConfiguration(config.bindings) ||
+                (config.overrides && e.affectsConfiguration(config.overrides))
             ) {
                 this.register(config);
             }
@@ -75,4 +71,15 @@ export default class WhichKeyCommand {
 function showMenu(statusBar: IStatusBar, keyListener: KeyListener, items: BaseMenuItem[], isTransient: boolean, title?: string) {
     const delay = workspace.getConfiguration(contributePrefix).get<number>(ConfigKey.Delay) ?? 0;
     return WhichKeyMenu.show(statusBar, keyListener, items, isTransient, delay, title);
+}
+
+function getConfig<T>(section: string) {
+    // Get the minimal scope
+    const idx = section.lastIndexOf('.');
+    if (idx === -1) {
+        return workspace.getConfiguration().get<T>(section);
+    } else {
+        return workspace.getConfiguration(section.substring(0, idx))
+            .get<T>(section.substring(idx + 1));
+    }
 }
