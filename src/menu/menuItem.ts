@@ -1,6 +1,5 @@
 import { QuickPickItem } from "vscode";
 import { ActionType, BindingItem, OverrideBindingItem } from "../bindingItem";
-import { SortOrder } from "../constants";
 
 interface Condition {
     when?: string,
@@ -33,16 +32,9 @@ export abstract class BaseMenuItem implements QuickPickItem {
     }
 
     abstract select(args?: Condition): MenuSelectionResult;
-    sortItems(_order: SortOrder): void {
-        // Nothing to sort
-    }
 
     get(_key: string): BaseMenuItem | undefined {
         return undefined;
-    }
-
-    overrideItem(_overrides: OverrideBindingItem) {
-        // Nothing to override by default
     }
 }
 
@@ -54,50 +46,12 @@ abstract class BaseCollectionMenuItem extends BaseMenuItem {
         this.items = items;
     }
 
-    sortItems(order: SortOrder): void {
-        sortMenuItems(this.items, order);
-        for (const item of this.items) {
-            item.sortItems(order);
-        }
-    }
-
     get(key: string) {
         return this.items.find(i => i.key === key);
     }
 
     protected getIndex(key: string) {
         return this.items.findIndex(i => i.key === key);
-    }
-
-    overrideItem(o: OverrideBindingItem) {
-        const keys = (typeof o.keys === 'string') ? o.keys.split('.') : o.keys;
-        const key = keys[keys.length - 1];
-        const index = this.getIndex(key);
-
-        if (o.position === undefined) {
-            const newItem = createMenuItemFromOverrides(o, key);
-            if (index !== -1) {
-                // replace the current item
-                this.items.splice(index, 1, newItem);
-            } else {
-                // append if there isn't an existing binding
-                this.items.push(newItem);
-            }
-        } else {
-            if (o.position < 0) {
-                // negative position, attempt to remove
-                if (index !== -1) {
-                    this.items.splice(index, 1);
-                }
-            } else {
-                // Remove and replace
-                if (index !== -1) {
-                    this.items.splice(index, 1);
-                }
-                const newItem = createMenuItemFromOverrides(o, key);
-                this.items.splice(o.position, 0, newItem);
-            }
-        }
     }
 }
 
@@ -289,26 +243,6 @@ export class RootMenuItem extends BaseCollectionMenuItem {
             isTransient: false,
         };
     }
-
-    override(overrides: OverrideBindingItem[]) {
-        for (const o of overrides) {
-            try {
-                const keys = (typeof o.keys === 'string') ? o.keys.split('.') : o.keys;
-                let menuItem: BaseMenuItem | undefined = this;
-                for (let i = 0; i < keys.length - 1; i++) {
-                    const key = keys[i];
-                    menuItem = menuItem?.get(key);
-                    if (menuItem === undefined) {
-                        console.warn(`Key ${key} of ${o.keys} not found`);
-                        break;
-                    }
-                }
-                menuItem?.overrideItem(o);
-            } catch (e) {
-                console.error(e);
-            }
-        }
-    }
 }
 
 function createMenuItem(bindingItem: BindingItem): BaseMenuItem {
@@ -325,43 +259,6 @@ function createMenuItem(bindingItem: BindingItem): BaseMenuItem {
             return new ConditionalsMenuItem(bindingItem);
         default:
             throw new Error(`type ${bindingItem.type} is not supported`);
-    }
-}
-
-// sort menu item in-place
-function sortMenuItems(items: BaseMenuItem[], order: SortOrder) {
-    if (order !== SortOrder.None) {
-        if (order === SortOrder.Alphabetically) {
-            items.sort((a, b) => a.key.localeCompare(b.key));
-        } else if (order === SortOrder.NonNumberFirst) {
-            items.sort((a, b) => {
-                const regex = /^[0-9]/;
-                const aStartsWithNumber = regex.test(a.key);
-                const bStartsWithNumber = regex.test(b.key);
-                if (aStartsWithNumber !== bStartsWithNumber) {
-                    // Sort non-number first
-                    return aStartsWithNumber ? 1 : -1;
-                } else {
-                    return a.key.localeCompare(b.key);
-                }
-            });
-        }
-    }
-}
-
-function createMenuItemFromOverrides(o: OverrideBindingItem, key: string) {
-    if (o.name !== undefined && o.type !== undefined) {
-        return createMenuItem({
-            key: key,
-            name: o.name,
-            type: o.type,
-            command: o.command,
-            commands: o.commands,
-            args: o.args,
-            bindings: o.bindings,
-        });
-    } else {
-        throw new Error('name or type of the override is undefined');
     }
 }
 
