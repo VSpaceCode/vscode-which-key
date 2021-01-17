@@ -1,11 +1,12 @@
 import { commands, Disposable, QuickPick, version, window } from "vscode";
-import { ContextKey, defaultStatusBarTimeout } from "../constants";
+import { ContextKey } from "../constants";
 import KeyListener, { KeybindingArgs } from "../keyListener";
-import { setStatusBarMessage } from "../statusBar";
+import { IStatusBar } from "../statusBar";
 import { Version } from "../version";
 import { BaseMenuItem, convertToMenuLabel } from "./menuItem";
 
 export class WhichKeyMenu {
+    private statusBar: IStatusBar;
     private keyListener: KeyListener;
     private items: BaseMenuItem[];
     private title?: string;
@@ -31,7 +32,8 @@ export class WhichKeyMenu {
     // This used to stored the last when condition from the key listener
     private when?: string;
 
-    constructor(keyListener: KeyListener, items: BaseMenuItem[], isTransient: boolean, delay: number, title?: string) {
+    constructor(statusBar: IStatusBar, keyListener: KeyListener, items: BaseMenuItem[], isTransient: boolean, delay: number, title?: string) {
+        this.statusBar = statusBar;
         this.keyListener = keyListener;
         this.items = items;
         this.isTransient = isTransient;
@@ -133,7 +135,7 @@ export class WhichKeyMenu {
         } else {
             await this.hide();
             const keyCombo = this.getHistoryString(value);
-            setStatusBarMessage(`${keyCombo} is undefined`, defaultStatusBarTimeout, true);
+            this.statusBar.setErrorMessage(`${keyCombo} is undefined`);
             this.dispose();
             this.resolve();
         }
@@ -190,6 +192,10 @@ export class WhichKeyMenu {
 
     private async selectAction(item: BaseMenuItem) {
         const result = item.select(this.condition);
+        if (result.error) {
+            this.statusBar.setErrorMessage(result.error);
+        }
+
         if (result.commands) {
             await this.hide();
             await executeCommands(result.commands, result.args);
@@ -209,6 +215,10 @@ export class WhichKeyMenu {
         await this.hide();
 
         const result = item.select(this.condition);
+        if (result.error) {
+            this.statusBar.setErrorMessage(result.error);
+        }
+
         if (result.commands) {
             await executeCommands(result.commands, result.args);
         }
@@ -271,10 +281,10 @@ export class WhichKeyMenu {
         this.quickPick.dispose();
     }
 
-    static show(keyListener: KeyListener, items: BaseMenuItem[], isTransient: boolean, delay: number, title?: string) {
+    static show(statusBar: IStatusBar, keyListener: KeyListener, items: BaseMenuItem[], isTransient: boolean, delay: number, title?: string) {
         return new Promise<void>(async (resolve) => {
             try {
-                const menu = new WhichKeyMenu(keyListener, items, isTransient, delay, title);
+                const menu = new WhichKeyMenu(statusBar, keyListener, items, isTransient, delay, title);
                 await Promise.all([
                     setContext(ContextKey.Active, true),
                     menu.show()

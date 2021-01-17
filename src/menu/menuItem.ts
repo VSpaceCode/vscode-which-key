@@ -1,7 +1,6 @@
 import { QuickPickItem } from "vscode";
 import { ActionType, BindingItem, OverrideBindingItem } from "../bindingItem";
-import { defaultStatusBarTimeout, SortOrder } from "../constants";
-import { setStatusBarMessage } from "../statusBar";
+import { SortOrder } from "../constants";
 
 interface Condition {
     when?: string,
@@ -13,6 +12,7 @@ export interface MenuSelectionResult {
     isTransient?: boolean,
     commands?: string[],
     args?: any,
+    error?: string,
 }
 
 export abstract class BaseMenuItem implements QuickPickItem {
@@ -118,9 +118,9 @@ class BindingsMenuItem extends BaseCollectionMenuItem {
     }
 }
 
-class CommandsMenuItem extends BaseMenuItem {
-    private commands: string[];
-    private args?: any;
+export class CommandsMenuItem extends BaseMenuItem {
+    public commands: string[];
+    public args?: any;
 
     constructor(item: BindingItem) {
         if (!item.commands) {
@@ -221,14 +221,13 @@ class ConditionalsMenuItem extends BaseCollectionMenuItem {
 
         const msg = "No conditions matched";
         console.warn(`${msg};key=${this.key};name=${this.name}`);
-        setStatusBarMessage(msg, defaultStatusBarTimeout, true);
-        return {};
+        return { error: msg };
     }
 }
 
-class CommandMenuItem extends BaseMenuItem {
-    private command: string;
-    private args?: any;
+export class CommandMenuItem extends BaseMenuItem {
+    public command: string;
+    public args?: any;
 
     constructor(item: BindingItem) {
         if (!item.command) {

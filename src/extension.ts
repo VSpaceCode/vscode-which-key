@@ -2,18 +2,20 @@ import { commands, ExtensionContext, window } from 'vscode';
 import { toBindingItem } from './bindingItem';
 import { whichKeyOpenFile, whichKeyRegister, whichKeyShow, whichKeyTrigger } from './constants';
 import KeyListener from './keyListener';
+import { StatusBar } from './statusBar';
 import WhichKeyCommand from './whichKeyCommand';
 import { defaultWhichKeyConfig, getFullSection, toWhichKeyConfig } from './whichKeyConfig';
 
 const registered: Record<string, WhichKeyCommand> = {};
 const keyListener = new KeyListener();
+const statusBar = new StatusBar();
 
 function registerWhichKeyCommand(args: any[]) {
     const config = toWhichKeyConfig(args);
     if (config) {
         const key = getFullSection(config.bindings);
         if (!(key in registered)) {
-            registered[key] = new WhichKeyCommand(keyListener);
+            registered[key] = new WhichKeyCommand(statusBar, keyListener);
         }
 
         registered[key].register(config);
@@ -30,7 +32,7 @@ async function showWhichKey(args: any[]) {
             return value !== null && value !== undefined;
         }
         const bindings = args.map(toBindingItem).filter(notEmpty);
-        await WhichKeyCommand.show(bindings, keyListener);
+        await WhichKeyCommand.show(bindings, statusBar, keyListener);
     } else {
         const key = getFullSection(defaultWhichKeyConfig.bindings);
         if (!(key in registered)) {
