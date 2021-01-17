@@ -1,33 +1,69 @@
-import { Disposable, ThemeColor, window } from "vscode";
+import { Disposable, StatusBarItem, ThemeColor, window } from "vscode";
 
-let lastMessage: Disposable | undefined;
-/**
- * Set a message to the status bar. This is a short hand for the more powerful
- * status bar [items](#window.createStatusBarItem).
- *
- * @param text The message to show, supports icon substitution as in status bar [items](#StatusBarItem.text).
- * @param hideAfterTimeout Timeout in milliseconds after which the message will be disposed.
- * @param isError the message foreground will be ThemeColor of "errorForeground" if this is true.
- * @return A disposable which hides the status bar message.
- */
-export function setStatusBarMessage(text: string, hideAfterTimeout: number, isError: boolean): Disposable {
-    lastMessage?.dispose();
+type StatusBarColor = string | ThemeColor | undefined;
 
-    const item = window.createStatusBarItem();
-    item.color = isError ? new ThemeColor('errorForeground') : undefined;
-    item.text = text;
-    item.show();
+export interface IStatusBar extends Disposable {
+    timeout: number;
+    setMessage(text: string): void;
+    setErrorMessage(text: string): void;
+    show(): void;
+    hide(): void;
 
-    let timeoutId: NodeJS.Timeout;
-    const disposable = new Disposable(() => {
-        clearTimeout(timeoutId);
-        item.dispose();
-    });
+}
+export class StatusBar implements IStatusBar {
+    static DEFAULT_TIMEOUT = 3000;
 
-    timeoutId = setTimeout(() => {
-        disposable.dispose();
-    }, hideAfterTimeout);
+    private _timeout: number;
+    private _item: StatusBarItem;
+    private _timerId?: NodeJS.Timer;
 
-    lastMessage = disposable;
-    return disposable;
+    constructor() {
+        this._item = window.createStatusBarItem();
+        this._timeout = StatusBar.DEFAULT_TIMEOUT;
+    }
+
+    get timeout() {
+        return this._timeout;
+    }
+
+    set timeout(ms: number) {
+        this._timeout = ms;
+    }
+
+    private _setMessage(text: string, color: StatusBarColor) {
+        this.clearTimeout();
+        this._item.color = color;
+        this._item.text = text;
+        this.show();
+    }
+
+    private clearTimeout() {
+        if (this._timerId) {
+            clearTimeout(this._timerId);
+            this._timerId = undefined;
+        }
+    }
+
+    setMessage(text: string) {
+        this._setMessage(text, undefined);
+    }
+
+    setErrorMessage(text: string) {
+        this._setMessage(text, new ThemeColor('errorForeground'));
+    }
+
+    show() {
+        this._item.show();
+        this._timerId = setTimeout(this.hide.bind(this), this._timeout);
+    }
+
+    hide() {
+        this.clearTimeout();
+        this._item.hide();
+    }
+
+    dispose() {
+        this.clearTimeout();
+        this._item.dispose();
+    }
 }

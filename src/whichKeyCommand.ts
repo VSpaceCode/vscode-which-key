@@ -4,15 +4,18 @@ import { ConfigKey, contributePrefix, SortOrder } from "./constants";
 import KeyListener from "./keyListener";
 import { WhichKeyMenu } from "./menu/menu";
 import { BaseMenuItem, RootMenuItem } from "./menu/menuItem";
+import { IStatusBar } from "./statusBar";
 import { getFullSection, WhichKeyConfig } from "./whichKeyConfig";
 
 export default class WhichKeyCommand {
+    private statusBar: IStatusBar;
     private keyListener: KeyListener;
     private root?: RootMenuItem;
     private config?: WhichKeyConfig;
     private onConfigChangeListener?: Disposable;
-    constructor(keyListener: KeyListener) {
+    constructor(statusBar: IStatusBar, keyListener: KeyListener) {
         this.keyListener = keyListener;
+        this.statusBar = statusBar;
     }
 
     register(config: WhichKeyConfig) {
@@ -57,19 +60,19 @@ export default class WhichKeyCommand {
     show() {
         const items = this.root?.select().items;
         if (items) {
-            return showMenu(this.keyListener, items, false, this.config?.title);
+            return showMenu(this.statusBar, this.keyListener, items, false, this.config?.title);
         } else {
             throw new Error("No bindings are available");
         }
     }
 
-    static show(bindings: BindingItem[], keyWatcher: KeyListener) {
+    static show(bindings: BindingItem[], statusBar: IStatusBar, keyWatcher: KeyListener) {
         const items = new RootMenuItem(bindings).select().items!;
-        return showMenu(keyWatcher, items, false);
+        return showMenu(statusBar, keyWatcher, items, false);
     }
 }
 
-function showMenu(keyListener: KeyListener, items: BaseMenuItem[], isTransient: boolean, title?: string) {
+function showMenu(statusBar: IStatusBar, keyListener: KeyListener, items: BaseMenuItem[], isTransient: boolean, title?: string) {
     const delay = workspace.getConfiguration(contributePrefix).get<number>(ConfigKey.Delay) ?? 0;
-    return WhichKeyMenu.show(keyListener, items, isTransient, delay, title);
+    return WhichKeyMenu.show(statusBar, keyListener, items, isTransient, delay, title);
 }
