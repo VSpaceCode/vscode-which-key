@@ -1,7 +1,8 @@
-import { commands, Disposable, QuickPick, version, window } from "vscode";
+import { Disposable, QuickPick, version, window } from "vscode";
 import { ContextKey } from "../constants";
 import KeyListener, { KeybindingArgs } from "../keyListener";
 import { IStatusBar } from "../statusBar";
+import { executeCommands, setContext } from "../utils";
 import { Version } from "../version";
 import { BaseMenuItem, convertToMenuLabel } from "./menuItem";
 
@@ -308,30 +309,5 @@ export class WhichKeyMenu {
                 ]);
             }
         });
-    }
-}
-
-function setContext(key: string, value: any) {
-    return commands.executeCommand("setContext", key, value);
-}
-
-function executeCommand(cmd: string, args: any) {
-    if (Array.isArray(args)) {
-        const arr = args as any[];
-        return commands.executeCommand(cmd, ...arr);
-    } else if (args) {
-        // undefined from the object chainning/indexing or
-        // null from the json deserialization
-        return commands.executeCommand(cmd, args);
-    } else {
-        return commands.executeCommand(cmd);
-    }
-}
-
-async function executeCommands(cmds: string[], args: any) {
-    for (let i = 0; i < cmds.length; i++) {
-        const cmd = cmds[i];
-        const arg = args?.[i];
-        await executeCommand(cmd, arg);
     }
 }
