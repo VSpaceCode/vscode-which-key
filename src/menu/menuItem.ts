@@ -1,5 +1,6 @@
 import { QuickPickItem } from "vscode";
 import { ActionType, BindingItem, OverrideBindingItem } from "../bindingItem";
+import { specializeBindingKey } from "../utils";
 
 interface Condition {
     when?: string,
@@ -23,7 +24,7 @@ export abstract class BaseMenuItem implements QuickPickItem {
     }
 
     get label() {
-        return convertToMenuLabel(this.key);
+        return specializeBindingKey(this.key);
     }
 
     get description() {
@@ -264,10 +265,6 @@ function createMenuItem(bindingItem: BindingItem): BaseMenuItem {
 
 function createMenuItems(bindingItems: BindingItem[]) {
     return bindingItems.map(createMenuItem);
-}
-
-export function convertToMenuLabel(s: string) {
-    return s.replace(/ /g, '␣').replace(/\t/g, '↹');
 }
 
 class MissingPropertyError extends Error {

@@ -24,3 +24,7 @@ export async function executeCommands(cmds: string[], args: any) {
         await executeCommand(cmd, arg);
     }
 }
+
+export function specializeBindingKey(s: string) {
+    return s.replace(/ /g, '␣').replace(/\t/g, '↹');
+}
