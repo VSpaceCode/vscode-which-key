@@ -4,9 +4,6 @@ import KeyListener from './keyListener';
 import { StatusBar } from './statusBar';
 import { WhichKeyRegistry } from './whichKeyRegistry';
 
-const statusBar = new StatusBar();
-const keyListener = new KeyListener();
-const registry = new WhichKeyRegistry(statusBar, keyListener);
 
 async function openFile() {
     try {
@@ -19,15 +16,19 @@ async function openFile() {
 }
 
 export function activate(context: ExtensionContext) {
-    context.subscriptions.push(commands.registerCommand(Commands.Trigger, keyListener.trigger, keyListener));
-    context.subscriptions.push(commands.registerCommand(Commands.Register, registry.register, registry));
-    context.subscriptions.push(commands.registerCommand(Commands.Show, registry.show, registry));
-    context.subscriptions.push(commands.registerCommand(Commands.ShowBindings, registry.showBindings, registry));
-    context.subscriptions.push(commands.registerCommand(Commands.OpenFile, openFile));
+    const statusBar = new StatusBar();
+    const keyListener = new KeyListener();
+    const registry = new WhichKeyRegistry(statusBar, keyListener);
+
+    context.subscriptions.push(
+        commands.registerCommand(Commands.Trigger, keyListener.trigger, keyListener),
+        commands.registerCommand(Commands.Register, registry.register, registry),
+        commands.registerCommand(Commands.Show, registry.show, registry),
+        commands.registerCommand(Commands.ShowBindings, registry.showBindings, registry),
+        commands.registerCommand(Commands.OpenFile, openFile),
+    );
+
+    context.subscriptions.push(registry, keyListener, statusBar);
 }
 
-export function deactivate() {
-    registry.dispose();
-    keyListener.dispose();
-    statusBar.dispose();
-}
+export function deactivate() { }
