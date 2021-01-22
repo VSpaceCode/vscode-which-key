@@ -1,6 +1,7 @@
 import { commands, ExtensionContext } from 'vscode';
 import { Commands } from './constants';
 import KeyListener from './keyListener';
+import { showTransientMenu } from './menu/transientMenu';
 import { StatusBar } from './statusBar';
 import { WhichKeyRegistry } from './whichKeyRegistry';
 
@@ -25,6 +26,7 @@ export function activate(context: ExtensionContext) {
         commands.registerCommand(Commands.Register, registry.register, registry),
         commands.registerCommand(Commands.Show, registry.show, registry),
         commands.registerCommand(Commands.ShowBindings, registry.showBindings, registry),
+        commands.registerCommand(Commands.ShowTransient, showTransientMenu.bind(registry, statusBar, keyListener)),
         commands.registerCommand(Commands.OpenFile, openFile),
     );
 
