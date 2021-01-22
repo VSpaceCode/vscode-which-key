@@ -12,6 +12,9 @@ class TransientMenu extends BaseWhichKeyMenu<ITransientMenuItem> {
 
     constructor(statusBar: IStatusBar, keyListener: KeyListener) {
         super(keyListener);
+        this.disposables.push(
+            keyListener.onDidToggleZenMode(this.toggleZenMode, this)
+        );
         this.statusBar = statusBar;
         this.isInZenMode = false;
     }
@@ -59,6 +62,7 @@ class TransientMenu extends BaseWhichKeyMenu<ITransientMenuItem> {
 
     enterZenMode() {
         this.quickPick.items = [];
+        this.quickPick.title = "";
         this.isInZenMode = true;
     }
 

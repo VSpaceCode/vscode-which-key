@@ -6,23 +6,34 @@ export interface KeybindingArgs {
 }
 
 export default class KeyListener {
-    emitter: EventEmitter<KeybindingArgs>;
+    private keyEmitter: EventEmitter<KeybindingArgs>;
+    private zenModeEmitter: EventEmitter<void>;
     constructor() {
-        this.emitter = new EventEmitter<KeybindingArgs>();
+        this.keyEmitter = new EventEmitter<KeybindingArgs>();
+        this.zenModeEmitter = new EventEmitter<void>();
     }
 
-    trigger(key: string | KeybindingArgs) {
+    triggerKey(key: string | KeybindingArgs) {
         if (typeof key === "string") {
             key = { key };
         }
-        this.emitter.fire(key);
+        this.keyEmitter.fire(key);
     }
 
     get onDidKeyPressed() {
-        return this.emitter.event;
+        return this.keyEmitter.event;
+    }
+
+    toggleZenMode() {
+        this.zenModeEmitter.fire();
+    }
+
+    get onDidToggleZenMode() {
+        return this.zenModeEmitter.event;
     }
 
     dispose() {
-        this.emitter.dispose();
+        this.keyEmitter.dispose();
+        this.zenModeEmitter.dispose();
     }
 }

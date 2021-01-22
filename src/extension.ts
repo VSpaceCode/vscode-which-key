@@ -22,11 +22,12 @@ export function activate(context: ExtensionContext) {
     const registry = new WhichKeyRegistry(statusBar, keyListener);
 
     context.subscriptions.push(
-        commands.registerCommand(Commands.Trigger, keyListener.trigger, keyListener),
+        commands.registerCommand(Commands.Trigger, keyListener.triggerKey, keyListener),
         commands.registerCommand(Commands.Register, registry.register, registry),
         commands.registerCommand(Commands.Show, registry.show, registry),
         commands.registerCommand(Commands.ShowBindings, registry.showBindings, registry),
         commands.registerCommand(Commands.ShowTransient, showTransientMenu.bind(registry, statusBar, keyListener)),
+        commands.registerCommand(Commands.ToggleZen, keyListener.toggleZenMode, keyListener),
         commands.registerCommand(Commands.OpenFile, openFile),
     );
 
