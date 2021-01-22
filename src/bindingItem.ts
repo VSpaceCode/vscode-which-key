@@ -27,6 +27,19 @@ export interface OverrideBindingItem {
     bindings?: BindingItem[],
 }
 
+export interface TransientBindingItem {
+    key: string,
+    name: string,
+    commands?: string[],
+    args?: any,
+    exit?: boolean,
+}
+
+export interface TransientMenuConfig {
+    title?: string,
+    bindings: TransientBindingItem[]
+}
+
 export function toBindingItem(o: any) {
     if (typeof o === "object") {
         const config = o as Partial<BindingItem>;

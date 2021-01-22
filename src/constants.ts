@@ -12,6 +12,7 @@ export enum CommandKey {
 	Register = 'register',
 	Trigger = 'triggerKey',
 	ShowBindings = 'showBindings',
+	ShowTransient = 'showTransient',
 	OpenFile = 'openFile',
 }
 
@@ -23,7 +24,8 @@ export enum SortOrder {
 
 export enum ContextKey {
 	Active = 'whichkeyActive',
-	Visible = 'whichkeyVisible'
+	Visible = 'whichkeyVisible',
+	TransientVisible = 'transientVisible'
 }
 
 export const Configs = {
@@ -38,5 +40,6 @@ export const Commands = {
 	Register: `${contributePrefix}.${CommandKey.Register}`,
 	Trigger: `${contributePrefix}.${CommandKey.Trigger}`,
 	ShowBindings: `${contributePrefix}.${CommandKey.ShowBindings}`,
+	ShowTransient: `${contributePrefix}.${CommandKey.ShowTransient}`,
 	OpenFile: `${contributePrefix}.${CommandKey.OpenFile}`,
 };

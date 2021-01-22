@@ -38,6 +38,7 @@
 	"activationEvents": [
 		"onCommand:whichkey.show",
 		"onCommand:whichkey.showBindings",
+		"onCommand:whichkey.showTransient",
 		"onCommand:whichkey.register"
 	],
 	"main": "./dist/extension.js",
