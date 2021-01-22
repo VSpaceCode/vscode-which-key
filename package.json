@@ -37,6 +37,7 @@
 	},
 	"activationEvents": [
 		"onCommand:whichkey.show",
+		"onCommand:whichkey.showBindings",
 		"onCommand:whichkey.register"
 	],
 	"main": "./dist/extension.js",
@@ -99,6 +100,12 @@
 									"workbench.action.quickOpenPreviousRecentlyUsedEditorInGroup",
 									"list.select"
 								]
+							},
+							{
+								"key": "?",
+								"name": "Show keybindings",
+								"type": "command",
+								"command": "whichkey.showBindings"
 							},
 							{
 								"key": "b",

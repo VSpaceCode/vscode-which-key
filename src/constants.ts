@@ -11,6 +11,7 @@ export enum CommandKey {
 	Show = 'show',
 	Register = 'register',
 	Trigger = 'triggerKey',
+	ShowBindings = 'showBindings',
 	OpenFile = 'openFile',
 }
 
@@ -36,5 +37,6 @@ export const Commands = {
 	Show: `${contributePrefix}.${CommandKey.Show}`,
 	Register: `${contributePrefix}.${CommandKey.Register}`,
 	Trigger: `${contributePrefix}.${CommandKey.Trigger}`,
+	ShowBindings: `${contributePrefix}.${CommandKey.ShowBindings}`,
 	OpenFile: `${contributePrefix}.${CommandKey.OpenFile}`,
 };

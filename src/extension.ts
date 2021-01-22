@@ -22,6 +22,7 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(commands.registerCommand(Commands.Trigger, keyListener.trigger, keyListener));
     context.subscriptions.push(commands.registerCommand(Commands.Register, registry.register, registry));
     context.subscriptions.push(commands.registerCommand(Commands.Show, registry.show, registry));
+    context.subscriptions.push(commands.registerCommand(Commands.ShowBindings, registry.showBindings, registry));
     context.subscriptions.push(commands.registerCommand(Commands.OpenFile, openFile));
 }
 

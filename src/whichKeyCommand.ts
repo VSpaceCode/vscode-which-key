@@ -1,15 +1,18 @@
 import { Disposable, workspace } from "vscode";
 import { BindingItem, OverrideBindingItem } from "./bindingItem";
 import { ConfigKey, Configs, contributePrefix, SortOrder } from "./constants";
+import { bindingsToMenuItems } from "./descBind";
 import KeyListener from "./keyListener";
 import { WhichKeyMenu } from "./menu/menu";
 import { BaseMenuItem, RootMenuItem } from "./menu/menuItem";
+import { showDescBindMenu } from "./menu/descBindMenu";
 import { IStatusBar } from "./statusBar";
 import { WhichKeyConfig } from "./whichKeyConfig";
 
 export default class WhichKeyCommand {
     private statusBar: IStatusBar;
     private keyListener: KeyListener;
+    private bindingItems?: BindingItem[];
     private root?: RootMenuItem;
     private config?: WhichKeyConfig;
     private onConfigChangeListener?: Disposable;
@@ -26,6 +29,7 @@ export default class WhichKeyCommand {
         if (bindings) {
             this.root = new RootMenuItem(bindings);
         }
+        this.bindingItems = bindings;
 
         this.onConfigChangeListener = workspace.onDidChangeConfiguration((e) => {
             if (
@@ -51,6 +55,11 @@ export default class WhichKeyCommand {
         } else {
             throw new Error("No bindings are available");
         }
+    }
+
+    showBindings() {
+        const items = bindingsToMenuItems(this.bindingItems ?? [], []);
+        return showDescBindMenu(items, "Show Keybindings");
     }
 
     static show(bindings: BindingItem[], statusBar: IStatusBar, keyWatcher: KeyListener) {
