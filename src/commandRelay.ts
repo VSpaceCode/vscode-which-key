@@ -5,7 +5,7 @@ export interface KeybindingArgs {
     when?: string,
 }
 
-export default class KeyListener {
+export class CommandRelay {
     private keyEmitter: EventEmitter<KeybindingArgs>;
     private zenModeEmitter: EventEmitter<void>;
     constructor() {

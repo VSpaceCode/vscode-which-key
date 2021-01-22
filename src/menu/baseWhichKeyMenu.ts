@@ -1,5 +1,5 @@
 import { QuickPickItem, window } from "vscode";
-import KeyListener, { KeybindingArgs } from "../keyListener";
+import { CommandRelay, KeybindingArgs } from "../commandRelay";
 import { BaseMenu } from "./baseMenu";
 
 export interface IBaseWhichKeyMenuItem extends QuickPickItem {
@@ -13,10 +13,10 @@ export abstract class BaseWhichKeyMenu<T extends IBaseWhichKeyMenuItem> extends 
      */
     private when?: string;
 
-    constructor(keyListener: KeyListener) {
+    constructor(cmdRelay: CommandRelay) {
         super();
         this.disposables.push(
-            keyListener.onDidKeyPressed(this.onDidKeyPressed, this)
+            cmdRelay.onDidKeyPressed(this.onDidKeyPressed, this)
         );
     }
 

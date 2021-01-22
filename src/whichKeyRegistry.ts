@@ -1,6 +1,6 @@
 import { Disposable } from "vscode";
 import { toBindingItem } from "./bindingItem";
-import KeyListener from "./keyListener";
+import { CommandRelay } from "./commandRelay";
 import { StatusBar } from "./statusBar";
 import WhichKeyCommand from "./whichKeyCommand";
 import { defaultWhichKeyConfig, toWhichKeyConfig } from "./whichKeyConfig";
@@ -8,11 +8,11 @@ import { defaultWhichKeyConfig, toWhichKeyConfig } from "./whichKeyConfig";
 export class WhichKeyRegistry implements Disposable {
     private registry: Record<string, WhichKeyCommand>;
     private statusBar: StatusBar;
-    private keyListener: KeyListener;
+    private cmdRelay: CommandRelay;
 
-    constructor(statusBar: StatusBar, keyListener: KeyListener) {
+    constructor(statusBar: StatusBar, cmdRelay: CommandRelay) {
         this.statusBar = statusBar;
-        this.keyListener = keyListener;
+        this.cmdRelay = cmdRelay;
         this.registry = {};
     }
 
@@ -21,7 +21,7 @@ export class WhichKeyRegistry implements Disposable {
         if (config) {
             const key = config.bindings;
             if (!this.has(key)) {
-                this.registry[key] = new WhichKeyCommand(this.statusBar, this.keyListener);
+                this.registry[key] = new WhichKeyCommand(this.statusBar, this.cmdRelay);
             }
 
             this.registry[key].register(config);
@@ -44,7 +44,7 @@ export class WhichKeyRegistry implements Disposable {
                 return value !== null && value !== undefined;
             }
             const bindings = args.map(toBindingItem).filter(notEmpty);
-            return WhichKeyCommand.show(bindings, this.statusBar, this.keyListener);
+            return WhichKeyCommand.show(bindings, this.statusBar, this.cmdRelay);
         } else {
             const key = defaultWhichKeyConfig.bindings;
             if (!this.has(key)) {

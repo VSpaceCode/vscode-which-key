@@ -1,6 +1,6 @@
 import { TransientMenuConfig } from "../bindingItem";
+import { CommandRelay } from "../commandRelay";
 import { ContextKey } from "../constants";
-import KeyListener from "../keyListener";
 import { IStatusBar } from "../statusBar";
 import { executeCommands, setContext } from "../utils";
 import { BaseWhichKeyMenu } from "./baseWhichKeyMenu";
@@ -10,10 +10,10 @@ class TransientMenu extends BaseWhichKeyMenu<ITransientMenuItem> {
     private statusBar: IStatusBar;
     private isInZenMode: boolean;
 
-    constructor(statusBar: IStatusBar, keyListener: KeyListener) {
-        super(keyListener);
+    constructor(statusBar: IStatusBar, cmdRelay: CommandRelay) {
+        super(cmdRelay);
         this.disposables.push(
-            keyListener.onDidToggleZenMode(this.toggleZenMode, this)
+            cmdRelay.onDidToggleZenMode(this.toggleZenMode, this)
         );
         this.statusBar = statusBar;
         this.isInZenMode = false;
