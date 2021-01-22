@@ -2,22 +2,22 @@ import { Disposable, workspace } from "vscode";
 import { BindingItem, OverrideBindingItem } from "./bindingItem";
 import { ConfigKey, Configs, contributePrefix, SortOrder } from "./constants";
 import { bindingsToMenuItems } from "./descBind";
-import KeyListener from "./keyListener";
 import { WhichKeyMenu } from "./menu/menu";
 import { BaseMenuItem, RootMenuItem } from "./menu/menuItem";
 import { showDescBindMenu } from "./menu/descBindMenu";
 import { IStatusBar } from "./statusBar";
 import { WhichKeyConfig } from "./whichKeyConfig";
+import { CommandRelay } from "./commandRelay";
 
 export default class WhichKeyCommand {
     private statusBar: IStatusBar;
-    private keyListener: KeyListener;
+    private cmdRelay: CommandRelay;
     private bindingItems?: BindingItem[];
     private root?: RootMenuItem;
     private config?: WhichKeyConfig;
     private onConfigChangeListener?: Disposable;
-    constructor(statusBar: IStatusBar, keyListener: KeyListener) {
-        this.keyListener = keyListener;
+    constructor(statusBar: IStatusBar, cmdRelay: CommandRelay) {
+        this.cmdRelay = cmdRelay;
         this.statusBar = statusBar;
     }
 
@@ -51,7 +51,7 @@ export default class WhichKeyCommand {
     show() {
         const items = this.root?.select().items;
         if (items) {
-            return showMenu(this.statusBar, this.keyListener, items, false, this.config?.title);
+            return showMenu(this.statusBar, this.cmdRelay, items, false, this.config?.title);
         } else {
             throw new Error("No bindings are available");
         }
@@ -62,15 +62,15 @@ export default class WhichKeyCommand {
         return showDescBindMenu(items, "Show Keybindings");
     }
 
-    static show(bindings: BindingItem[], statusBar: IStatusBar, keyWatcher: KeyListener) {
+    static show(bindings: BindingItem[], statusBar: IStatusBar, keyWatcher: CommandRelay) {
         const items = new RootMenuItem(bindings).select().items!;
         return showMenu(statusBar, keyWatcher, items, false);
     }
 }
 
-function showMenu(statusBar: IStatusBar, keyListener: KeyListener, items: BaseMenuItem[], isTransient: boolean, title?: string) {
+function showMenu(statusBar: IStatusBar, cmdRelay: CommandRelay, items: BaseMenuItem[], isTransient: boolean, title?: string) {
     const delay = workspace.getConfiguration(contributePrefix).get<number>(ConfigKey.Delay) ?? 0;
-    return WhichKeyMenu.show(statusBar, keyListener, items, isTransient, delay, title);
+    return WhichKeyMenu.show(statusBar, cmdRelay, items, isTransient, delay, title);
 }
 
 function getConfig<T>(section: string) {

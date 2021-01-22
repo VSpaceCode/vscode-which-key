@@ -1,6 +1,6 @@
 import { commands, ExtensionContext } from 'vscode';
+import { CommandRelay } from './commandRelay';
 import { Commands } from './constants';
-import KeyListener from './keyListener';
 import { showTransientMenu } from './menu/transientMenu';
 import { StatusBar } from './statusBar';
 import { WhichKeyRegistry } from './whichKeyRegistry';
@@ -18,20 +18,20 @@ async function openFile() {
 
 export function activate(context: ExtensionContext) {
     const statusBar = new StatusBar();
-    const keyListener = new KeyListener();
-    const registry = new WhichKeyRegistry(statusBar, keyListener);
+    const cmdRelay = new CommandRelay();
+    const registry = new WhichKeyRegistry(statusBar, cmdRelay);
 
     context.subscriptions.push(
-        commands.registerCommand(Commands.Trigger, keyListener.triggerKey, keyListener),
+        commands.registerCommand(Commands.Trigger, cmdRelay.triggerKey, cmdRelay),
         commands.registerCommand(Commands.Register, registry.register, registry),
         commands.registerCommand(Commands.Show, registry.show, registry),
         commands.registerCommand(Commands.ShowBindings, registry.showBindings, registry),
-        commands.registerCommand(Commands.ShowTransient, showTransientMenu.bind(registry, statusBar, keyListener)),
-        commands.registerCommand(Commands.ToggleZen, keyListener.toggleZenMode, keyListener),
+        commands.registerCommand(Commands.ShowTransient, showTransientMenu.bind(registry, statusBar, cmdRelay)),
+        commands.registerCommand(Commands.ToggleZen, cmdRelay.toggleZenMode, cmdRelay),
         commands.registerCommand(Commands.OpenFile, openFile),
     );
 
-    context.subscriptions.push(registry, keyListener, statusBar);
+    context.subscriptions.push(registry, cmdRelay, statusBar);
 }
 
 export function deactivate() { }
