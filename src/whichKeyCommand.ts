@@ -1,5 +1,5 @@
 import { Disposable, workspace } from "vscode";
-import { BindingItem, OverrideBindingItem } from "./bindingItem";
+import { ActionType, BindingItem, OverrideBindingItem } from "./bindingItem";
 import { ConfigKey, Configs, contributePrefix, SortOrder } from "./constants";
 import { bindingsToMenuItems } from "./descBind";
 import { WhichKeyMenu } from "./menu/menu";
@@ -8,6 +8,7 @@ import { showDescBindMenu } from "./menu/descBindMenu";
 import { IStatusBar } from "./statusBar";
 import { WhichKeyConfig } from "./whichKeyConfig";
 import { CommandRelay } from "./commandRelay";
+import { isConditionKeyEqual } from "./condition";
 
 export default class WhichKeyCommand {
     private statusBar: IStatusBar;
@@ -119,31 +120,42 @@ function convertOverride(key: string, o: OverrideBindingItem) {
     }
 }
 
+function indexOfKey(bindingItems: BindingItem[] | undefined, key: string, isCondition = false) {
+    if (isCondition) {
+        return bindingItems?.findIndex(i => isConditionKeyEqual(i.key, key)) ?? -1;
+    } else {
+        return bindingItems?.findIndex(i => i.key === key) ?? -1;
+    }
+}
+
 function findBindings(items: BindingItem[], keys: string[]) {
     // Traverse to the last level
     let bindingItems: BindingItem[] | undefined = items;
+    let isCondition = false;
     for (let i = 0; i < keys.length - 1; i++) {
         const key = keys[i];
-        const keyIndex: number | undefined = bindingItems?.findIndex(i => i.key === key);
-        if (keyIndex === undefined || keyIndex === -1) {
+        const keyIndex = indexOfKey(bindingItems, key, isCondition);
+        if (keyIndex === -1) {
             console.warn(`Key ${key} of ${keys.toString()} not found`);
             break;
         }
+
+        isCondition = bindingItems?.[keyIndex].type === ActionType.Conditional;
         bindingItems = bindingItems?.[keyIndex]?.bindings;
     }
 
-    return bindingItems;
+    return {bindingItems, isCondition};
 }
 
 function overrideBindingItems(items: BindingItem[], overrides: OverrideBindingItem[]) {
     for (const o of overrides) {
         try {
             const keys = (typeof o.keys === 'string') ? o.keys.split('.') : o.keys;
-            const bindingItems = findBindings(items, keys);
+            const {bindingItems, isCondition} = findBindings(items, keys);
 
             if (bindingItems !== undefined) {
                 const key = keys[keys.length - 1]; // last Key
-                const index = bindingItems.findIndex(i => i.key === key);
+                const index = indexOfKey(bindingItems, key, isCondition);
 
                 if (o.position === undefined) {
                     const newItem = convertOverride(key, o);
