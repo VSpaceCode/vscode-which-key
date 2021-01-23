@@ -2,7 +2,7 @@ import { TransientMenuConfig } from "../bindingItem";
 import { CommandRelay } from "../commandRelay";
 import { ContextKey } from "../constants";
 import { IStatusBar } from "../statusBar";
-import { executeCommands, setContext } from "../utils";
+import { executeCommands, setContext, specializeBindingKey } from "../utils";
 import { BaseWhichKeyMenu } from "./baseWhichKeyMenu";
 import { ITransientMenuItem, TransientMenuItem } from "./transientMenuItem";
 
@@ -22,7 +22,7 @@ class TransientMenu extends BaseWhichKeyMenu<ITransientMenuItem> {
     protected async onItemNotMatch(value: string) {
         this.value = "";
         this.update();
-        this.statusBar.setErrorMessage(`${value} is undefined`);
+        this.statusBar.setErrorMessage(`${specializeBindingKey(value)} is undefined`);
     }
 
     protected onVisibilityChange(visible: boolean): Thenable<unknown> {
