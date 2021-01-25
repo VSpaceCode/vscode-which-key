@@ -35,6 +35,11 @@ export interface TransientBindingItem {
     exit?: boolean,
 }
 
+export interface WhichKeyMenuConfig {
+    title?: string,
+    delay?: number,
+    bindings: BindingItem[]
+}
 export interface TransientMenuConfig {
     title?: string,
     bindings: TransientBindingItem[]
@@ -48,4 +53,21 @@ export function toBindingItem(o: any) {
         }
     }
     return undefined;
+}
+
+export function toCommands(b: BindingItem) {
+    let commands: string[];
+    let args;
+    if (b.commands) {
+        commands = b.commands;
+        args = b.args;
+    } else if (b.command) {
+        commands = [b.command];
+        args = [b.args];
+    } else {
+        commands = [];
+        args = [];
+    }
+
+    return { commands, args };
 }

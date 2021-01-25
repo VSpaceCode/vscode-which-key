@@ -28,9 +28,9 @@ export abstract class BaseWhichKeyMenu<T extends IBaseWhichKeyMenuItem> extends 
         };
     }
 
-    protected onDidKeyPressed(value: KeybindingArgs) {
-        this.quickPick.value += value.key;
-        this.onDidChangeValue(this.quickPick.value, value.when);
+    protected async onDidKeyPressed(value: KeybindingArgs) {
+        await this.setValue(this.quickPick.value + value.key);
+        await this.onDidChangeValue(this.quickPick.value, value.when);
     }
 
     protected async onDidChangeValue(value: string, when?: string) {

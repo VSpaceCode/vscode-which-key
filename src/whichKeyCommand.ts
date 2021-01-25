@@ -1,20 +1,19 @@
 import { Disposable, workspace } from "vscode";
-import { ActionType, BindingItem, OverrideBindingItem } from "./bindingItem";
-import { ConfigKey, Configs, contributePrefix, SortOrder } from "./constants";
-import { bindingsToMenuItems } from "./descBind";
-import { WhichKeyMenu } from "./menu/menu";
-import { BaseMenuItem, RootMenuItem } from "./menu/menuItem";
-import { showDescBindMenu } from "./menu/descBindMenu";
-import { IStatusBar } from "./statusBar";
-import { WhichKeyConfig } from "./whichKeyConfig";
+import { ActionType, BindingItem, OverrideBindingItem, toCommands, TransientBindingItem } from "./bindingItem";
 import { CommandRelay } from "./commandRelay";
 import { isConditionKeyEqual } from "./condition";
+import { Commands, Configs, SortOrder } from "./constants";
+import { bindingsToMenuItems } from "./descBind";
+import { showDescBindMenu } from "./menu/descBindMenu";
+import { showWhichKeyMenu } from "./menu/whichKeyMenu";
+import { WhichKeyMenuItem } from "./menu/whichKeyMenuItem";
+import { IStatusBar } from "./statusBar";
+import { WhichKeyConfig } from "./whichKeyConfig";
 
 export default class WhichKeyCommand {
     private statusBar: IStatusBar;
     private cmdRelay: CommandRelay;
     private bindingItems?: BindingItem[];
-    private root?: RootMenuItem;
     private config?: WhichKeyConfig;
     private onConfigChangeListener?: Disposable;
     constructor(statusBar: IStatusBar, cmdRelay: CommandRelay) {
@@ -27,10 +26,7 @@ export default class WhichKeyCommand {
         this.config = config;
 
         const bindings = getCanonicalConfig(config);
-        if (bindings) {
-            this.root = new RootMenuItem(bindings);
-        }
-        this.bindingItems = bindings;
+        this.bindingItems = bindings.map(b => new WhichKeyMenuItem(b));
 
         this.onConfigChangeListener = workspace.onDidChangeConfiguration((e) => {
             if (
@@ -45,35 +41,33 @@ export default class WhichKeyCommand {
     }
 
     unregister() {
-        this.root = undefined;
         this.onConfigChangeListener?.dispose();
     }
 
     show() {
-        const items = this.root?.select().items;
-        if (items) {
-            return showMenu(this.statusBar, this.cmdRelay, items, false, this.config?.title);
-        } else {
-            throw new Error("No bindings are available");
-        }
+        const delay = getConfig<number>(Configs.Delay);
+        const config = {
+            bindings: this.bindingItems!, delay, title: this.config?.title
+        };
+        showWhichKeyMenu(this.statusBar, this.cmdRelay, config);
     }
 
     showBindings() {
-        const items = bindingsToMenuItems(this.bindingItems ?? [], []);
+        const items = bindingsToMenuItems(this.bindingItems!);
         return showDescBindMenu(items, "Show Keybindings");
     }
 
-    static show(bindings: BindingItem[], statusBar: IStatusBar, keyWatcher: CommandRelay) {
-        const items = new RootMenuItem(bindings).select().items!;
-        return showMenu(statusBar, keyWatcher, items, false);
+    static show(bindings: BindingItem[], statusBar: IStatusBar, cmdRelay: CommandRelay) {
+        const delay = getConfig<number>(Configs.Delay);
+        const config = { bindings, delay };
+        showWhichKeyMenu(statusBar, cmdRelay, config);
     }
 }
 
-function showMenu(statusBar: IStatusBar, cmdRelay: CommandRelay, items: BaseMenuItem[], isTransient: boolean, title?: string) {
-    const delay = workspace.getConfiguration(contributePrefix).get<number>(ConfigKey.Delay) ?? 0;
-    return WhichKeyMenu.show(statusBar, cmdRelay, items, isTransient, delay, title);
-}
-
+/**
+ * Get workspace configuration
+ * @param section The configuration name.
+ */
 function getConfig<T>(section: string) {
     // Get the minimal scope
     let filterSection: string | undefined = undefined;
@@ -92,7 +86,7 @@ function getSortOrder() {
 }
 
 function getCanonicalConfig(c: WhichKeyConfig) {
-    const bindings = getConfig<BindingItem[]>(c.bindings) ?? [];
+    let bindings = getConfig<BindingItem[]>(c.bindings) ?? [];
     if (c.overrides) {
         const overrides = getConfig<OverrideBindingItem[]>(c.overrides) ?? [];
         overrideBindingItems(bindings, overrides);
@@ -101,7 +95,7 @@ function getCanonicalConfig(c: WhichKeyConfig) {
     const sortOrder = getSortOrder();
     sortBindingsItems(bindings, sortOrder);
 
-    return bindings;
+    return migrateBindings(bindings);
 }
 
 function convertOverride(key: string, o: OverrideBindingItem) {
@@ -144,14 +138,14 @@ function findBindings(items: BindingItem[], keys: string[]) {
         bindingItems = bindingItems?.[keyIndex]?.bindings;
     }
 
-    return {bindingItems, isCondition};
+    return { bindingItems, isCondition };
 }
 
 function overrideBindingItems(items: BindingItem[], overrides: OverrideBindingItem[]) {
     for (const o of overrides) {
         try {
             const keys = (typeof o.keys === 'string') ? o.keys.split('.') : o.keys;
-            const {bindingItems, isCondition} = findBindings(items, keys);
+            const { bindingItems, isCondition } = findBindings(items, keys);
 
             if (bindingItems !== undefined) {
                 const key = keys[keys.length - 1]; // last Key
@@ -212,4 +206,53 @@ function sortBindingsItems(items: BindingItem[] | undefined, order: SortOrder) {
     for (const item of items) {
         sortBindingsItems(item.bindings, order);
     }
+}
+
+function migrateBindings(items: BindingItem[]) {
+    const migrated: BindingItem[] = [];
+    for (let i of items) {
+        i = migrateTransient(i);
+        if (i.bindings) {
+            i.bindings = migrateBindings(i.bindings);
+        }
+        migrated.push(i);
+    }
+    return migrated;
+}
+
+function migrateTransient(item: BindingItem) {
+    if (item.type === ActionType.Transient) {
+        const { commands, args } = toCommands(item);
+        commands.push(Commands.ShowTransient);
+        args[commands.length - 1] = {
+            title: item.name,
+            bindings: convertToTransientBinding(item),
+        };
+
+        return {
+            key: item.key,
+            name: item.name,
+            type: ActionType.Commands,
+            commands,
+            args,
+        };
+    }
+    return item;
+}
+
+function convertToTransientBinding(item: BindingItem) {
+    const transientBindings: TransientBindingItem[] = [];
+    if (item.bindings) {
+        for (const b of item.bindings) {
+            if (b.type === ActionType.Command
+                || b.type === ActionType.Commands) {
+                transientBindings.push({
+                    key: b.key,
+                    name: b.name,
+                    ...toCommands(b)
+                });
+            }
+        }
+    }
+    return transientBindings;
 }
