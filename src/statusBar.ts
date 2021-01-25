@@ -33,6 +33,15 @@ export interface IStatusBar extends Disposable {
      */
     hide(): void;
 
+    /**
+     * Hide only the plain message.
+     */
+    hidePlain(): void;
+    
+    /**
+     * Hide only the error message.
+     */
+    hideError(): void;
 }
 export class StatusBar implements IStatusBar {
     static DEFAULT_TIMEOUT = 3000;
@@ -88,6 +97,18 @@ export class StatusBar implements IStatusBar {
     hide() {
         this.clearTimeout();
         this._item.hide();
+    }
+
+    hidePlain() {
+        if (this._item.color !== StatusBar.ERROR_COLOR) {
+            this.hide();
+        }
+    }
+
+    hideError() {
+        if (this._item.color === StatusBar.ERROR_COLOR) {
+            this.hide();
+        }
     }
 
     dispose() {
