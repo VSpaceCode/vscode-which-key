@@ -25,6 +25,43 @@ export async function executeCommands(cmds: string[], args: any) {
     }
 }
 
+// https://en.wikipedia.org/wiki/Halfwidth_and_Fullwidth_Forms_(Unicode_block)
+export function toFullWidthKey(s: string) {
+    let key = "";
+    for (const symbol of s) {
+        const codePoint = symbol.codePointAt(0);
+        if (s.length === 1 && codePoint && codePoint >= 33 && codePoint <= 126) {
+            // Only replace single character string to full width
+            // ASCII character into full width characters
+            key += String.fromCodePoint(codePoint + 65248);
+        } else if (codePoint === 32) {
+            // Space
+            key += '␣';
+        } else if (codePoint === 9) {
+            // tab
+            key += '↹';
+        } else {
+            key += symbol;
+        }
+    }
+
+    return key;
+}
+
 export function specializeBindingKey(s: string) {
-    return s.replace(/ /g, '␣').replace(/\t/g, '↹');
+    let key = "";
+    for (const symbol of s) {
+        const codePoint = symbol.codePointAt(0);
+        if (codePoint === 32) {
+            // Space
+            key += '␣';
+        } else if (codePoint === 9) {
+            // tab
+            key += '↹';
+        } else {
+            key += symbol;
+        }
+    }
+
+    return key;
 }
