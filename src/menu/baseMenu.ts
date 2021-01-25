@@ -1,6 +1,9 @@
-import { Disposable, QuickPick, QuickPickItem, window } from "vscode";
+import { Disposable, QuickPick, QuickPickItem, version, window } from "vscode";
+import { Version } from "../version";
 
 export abstract class BaseMenu<T extends QuickPickItem> implements Disposable {
+    private onDidChangeValueDisposable: Disposable;
+
     protected quickPick: QuickPick<T>;
     protected disposables: Disposable[];
     protected isHiding: boolean;
@@ -21,9 +24,44 @@ export abstract class BaseMenu<T extends QuickPickItem> implements Disposable {
         this.disposables = [
             this.quickPick.onDidAccept(this.onDidAccept, this),
             this.quickPick.onDidHide(this.onDidHide, this),
-            this.quickPick.onDidChangeValue(this.onDidChangeValue, this),
         ];
+        this.onDidChangeValueDisposable = this.quickPick.onDidChangeValue(this.onDidChangeValue, this);
         this.isHiding = false;
+    }
+
+    /**
+     * Set the value of the QuickPick without triggering the onDidChangeValue event.
+     * @param value the string value to set the filter text of the QuickPick.
+     */
+    protected setValue(value: string): Promise<void> {
+        return new Promise<void>((resolve) => {
+            if (this.quickPick.value !== value) {
+                const v = Version.parse(version);
+                if (v.major >= 1 && v.minor >= 57) {
+                    // vscode 1.57 or later changed the onDidChangeValue API
+                    // https://github.com/microsoft/vscode/issues/122939
+                    //
+                    // The workaround is as follow:
+                    // 1. Remove the existing listener
+                    // 2. Set up temp listener
+                    // 3. Update value
+                    // 4. Wait until the temp listener is trigger
+                    // 5. Restore the onDidChangeValue listener
+                    this.onDidChangeValueDisposable.dispose();
+                    const d = this.quickPick.onDidChangeValue(() => {
+                        this.onDidChangeValueDisposable = this.quickPick.onDidChangeValue(this.onDidChangeValue, this);
+                        d.dispose();
+                        resolve();
+                    });
+                    this.quickPick.value = value;
+                } else {
+                    this.quickPick.value = value;
+                    resolve();
+                }
+            } else {
+                resolve();
+            }
+        });
     }
 
     private async onDidAccept() {
@@ -35,7 +73,7 @@ export abstract class BaseMenu<T extends QuickPickItem> implements Disposable {
 
     protected async accept(item: T) {
         try {
-            this.quickPick.value = "";
+            await this.setValue("");
             this.quickPick.placeholder = undefined;
             this.quickPick.title = undefined;
             this.quickPick.items = [];
@@ -78,19 +116,19 @@ export abstract class BaseMenu<T extends QuickPickItem> implements Disposable {
         }
     }
 
-    protected update() {
+    protected async update() {
         this.quickPick.title = this.title;
         this.quickPick.placeholder = this.placeholder;
         this.quickPick.matchOnDetail = this.matchOnDetail;
         this.quickPick.matchOnDescription = this.matchOnDescription;
-        this.quickPick.value = this.value;
+        await this.setValue(this.value);
         this.quickPick.busy = this.busy;
         this.quickPick.items = this.items;
     }
 
     async show() {
         await this.onVisibilityChange(false);
-        this.update();
+        await this.update();
         this.quickPick.show();
     }
 
@@ -112,6 +150,7 @@ export abstract class BaseMenu<T extends QuickPickItem> implements Disposable {
             d.dispose();
         }
 
+        this.onDidChangeValueDisposable.dispose();
         this.quickPick.dispose();
     }
 }

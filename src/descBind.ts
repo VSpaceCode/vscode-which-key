@@ -1,4 +1,4 @@
-import { ActionType, BindingItem } from "./bindingItem";
+import { ActionType, BindingItem, toCommands } from "./bindingItem";
 import { DescBindMenuItem } from "./menu/descBindMenu";
 import { specializeBindingKey } from "./utils";
 
@@ -28,13 +28,12 @@ function conversion(i: BindingItem, path: BindingItem[] = []) {
     };
     if (i.bindings) {
         item.items = bindingsToMenuItems(i.bindings, newPath);
-    } else if (i.commands) {
-        item.commands = i.commands;
-        item.args = i.args;
-    } else if (i.command) {
-        item.commands = [i.command];
-        item.args = i.args ? [i.args] : undefined;
+    } else if (i.commands || i.command) {
+        const { commands, args } = toCommands(i);
+        item.commands = commands;
+        item.args = args;
     }
+
     return item;
 }
 
