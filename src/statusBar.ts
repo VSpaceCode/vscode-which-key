@@ -3,15 +3,40 @@ import { Disposable, StatusBarItem, ThemeColor, window } from "vscode";
 type StatusBarColor = string | ThemeColor | undefined;
 
 export interface IStatusBar extends Disposable {
+    /**
+     * The timeout in milliseconds of the message display. Set it to non-positive number to display message until this instance is disposed.
+     */
     timeout: number;
-    setMessage(text: string): void;
-    setErrorMessage(text: string): void;
-    show(): void;
+
+    /**
+     * Set and show plain message with a specified timeout for this message.
+     * @param text The message to display on the status bar.
+     * @param timeout An optional timeout in ms for this message only.
+     */
+    setPlainMessage(text: string, timeout?: number): void;
+
+    /**
+     * Set and show error message with a specified timeout for this message.
+     * @param text The message to display on the status bar.
+     * @param timeout An optional timeout in ms for this message only.
+     */
+    setErrorMessage(text: string, timeout?: number): void;
+
+    /**
+     * Show the message.
+     * @param timeout An optional timeout override for this show call.
+     */
+    show(timeout?: number): void;
+
+    /**
+     * Hide all types of message.
+     */
     hide(): void;
 
 }
 export class StatusBar implements IStatusBar {
     static DEFAULT_TIMEOUT = 3000;
+    static ERROR_COLOR = new ThemeColor('errorForeground');
 
     private _timeout: number;
     private _item: StatusBarItem;
@@ -30,11 +55,11 @@ export class StatusBar implements IStatusBar {
         this._timeout = ms;
     }
 
-    private _setMessage(text: string, color: StatusBarColor) {
+    private _setMessage(text: string, color: StatusBarColor, timeout?: number) {
         this.clearTimeout();
         this._item.color = color;
         this._item.text = text;
-        this.show();
+        this.show(timeout);
     }
 
     private clearTimeout() {
@@ -44,17 +69,20 @@ export class StatusBar implements IStatusBar {
         }
     }
 
-    setMessage(text: string) {
-        this._setMessage(text, undefined);
+    setPlainMessage(text: string, timeout?: number) {
+        this._setMessage(text, undefined, timeout);
     }
 
-    setErrorMessage(text: string) {
-        this._setMessage(text, new ThemeColor('errorForeground'));
+    setErrorMessage(text: string, timeout?: number) {
+        this._setMessage(text, StatusBar.ERROR_COLOR, timeout);
     }
 
-    show() {
+    show(timeout?: number) {
+        const ms = timeout ?? this._timeout;
         this._item.show();
-        this._timerId = setTimeout(this.hide.bind(this), this._timeout);
+        if (ms > 0) {
+            this._timerId = setTimeout(this.hide.bind(this), ms);
+        }
     }
 
     hide() {
