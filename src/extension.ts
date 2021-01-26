@@ -27,6 +27,8 @@ export function activate(context: ExtensionContext) {
         commands.registerCommand(Commands.Show, registry.show, registry),
         commands.registerCommand(Commands.ShowBindings, registry.showBindings, registry),
         commands.registerCommand(Commands.ShowTransient, showTransientMenu.bind(registry, statusBar, cmdRelay)),
+        commands.registerCommand(Commands.ShowPreviousActions, registry.showPreviousAction, registry),
+        commands.registerCommand(Commands.RepeatLastAction, registry.repeatLastAction, registry),
         commands.registerCommand(Commands.ToggleZen, cmdRelay.toggleZenMode, cmdRelay),
         commands.registerCommand(Commands.OpenFile, openFile),
     );

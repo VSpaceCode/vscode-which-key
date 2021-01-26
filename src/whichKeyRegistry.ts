@@ -54,17 +54,29 @@ export class WhichKeyRegistry implements Disposable {
         }
     }
 
-
     showBindings(args: any) {
+        return this.getRegister(args).showPreviousActions();
+    }
+
+    showPreviousAction(args: any) {
+        return this.getRegister(args).showPreviousActions();
+    }
+
+    repeatLastAction(args: any) {
+        return this.getRegister(args).repeatLastAction();
+    }
+
+    private getRegister(args: any) {
         if (typeof args === 'string') {
-            return this.registry[args].showBindings();
+            return this.registry[args];
         } else {
             const key = defaultWhichKeyConfig.bindings;
             if (!this.has(key)) {
                 this.register(defaultWhichKeyConfig);
             }
-            return this.registry[key].showBindings();
+            return this.registry[key];
         }
+
     }
 
     unregister(section: string) {
