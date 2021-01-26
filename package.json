@@ -39,6 +39,8 @@
 		"onCommand:whichkey.show",
 		"onCommand:whichkey.showBindings",
 		"onCommand:whichkey.showTransient",
+		"onCommand:whichkey.showPreviousActions",
+		"onCommand:whichkey.repeatLastAction",
 		"onCommand:whichkey.toggleZenMode",
 		"onCommand:whichkey.register"
 	],
@@ -108,6 +110,18 @@
 								"name": "Show keybindings",
 								"type": "command",
 								"command": "whichkey.showBindings"
+							},
+							{
+								"key": ".",
+								"name": "Repeat last action",
+								"type": "command",
+								"command": "whichkey.repeatLastAction"
+							},
+							{
+								"key": ">",
+								"name": "Repeat last action",
+								"type": "command",
+								"command": "whichkey.showPreviousActions"
 							},
 							{
 								"key": "b",

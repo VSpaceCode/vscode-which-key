@@ -4,20 +4,23 @@ import { CommandRelay } from "../commandRelay";
 import { ContextKey } from "../constants";
 import { IStatusBar } from "../statusBar";
 import { executeCommands, setContext, specializeBindingKey } from "../utils";
+import { WhichKeyRepeater } from "../whichKeyRepeater";
 import { BaseWhichKeyMenu } from "./baseWhichKeyMenu";
 import { WhichKeyMenuItem } from "./whichKeyMenuItem";
 
 
 class WhichKeyMenu extends BaseWhichKeyMenu<WhichKeyMenuItem>{
     private statusBar: IStatusBar;
+    private repeater?: WhichKeyRepeater;
     private itemHistory: WhichKeyMenuItem[];
 
     delay: number = 0;
     private timeoutId?: NodeJS.Timeout;
 
-    constructor(statusBar: IStatusBar, cmdRelay: CommandRelay) {
+    constructor(statusBar: IStatusBar, cmdRelay: CommandRelay, repeater?: WhichKeyRepeater) {
         super(cmdRelay);
         this.statusBar = statusBar;
+        this.repeater = repeater;
         this.itemHistory = [];
     }
 
@@ -62,6 +65,7 @@ class WhichKeyMenu extends BaseWhichKeyMenu<WhichKeyMenuItem>{
             await this.hide();
             const { commands, args } = toCommands(result);
             await executeCommands(commands, args);
+            this.repeater?.record(this.itemHistory);
         }
 
         if (result.bindings) {
@@ -101,8 +105,8 @@ class WhichKeyMenu extends BaseWhichKeyMenu<WhichKeyMenuItem>{
     }
 }
 
-export function showWhichKeyMenu(statusBar: IStatusBar, cmdRelay: CommandRelay, config: WhichKeyMenuConfig) {
-    const menu = new WhichKeyMenu(statusBar, cmdRelay);
+export function showWhichKeyMenu(statusBar: IStatusBar, cmdRelay: CommandRelay, repeater: WhichKeyRepeater | undefined, config: WhichKeyMenuConfig) {
+    const menu = new WhichKeyMenu(statusBar, cmdRelay, repeater);
     menu.items = config.bindings.map(b => new WhichKeyMenuItem(b));
     menu.delay = config.delay ?? 0;
     menu.title = config.title;

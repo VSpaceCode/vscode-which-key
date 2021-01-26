@@ -9,16 +9,19 @@ import { showWhichKeyMenu } from "./menu/whichKeyMenu";
 import { WhichKeyMenuItem } from "./menu/whichKeyMenuItem";
 import { IStatusBar } from "./statusBar";
 import { WhichKeyConfig } from "./whichKeyConfig";
+import { WhichKeyRepeater } from "./whichKeyRepeater";
 
 export default class WhichKeyCommand {
     private statusBar: IStatusBar;
     private cmdRelay: CommandRelay;
+    private repeater: WhichKeyRepeater;
     private bindingItems?: BindingItem[];
     private config?: WhichKeyConfig;
     private onConfigChangeListener?: Disposable;
     constructor(statusBar: IStatusBar, cmdRelay: CommandRelay) {
-        this.cmdRelay = cmdRelay;
         this.statusBar = statusBar;
+        this.cmdRelay = cmdRelay;
+        this.repeater = new WhichKeyRepeater(statusBar, cmdRelay);
     }
 
     register(config: WhichKeyConfig) {
@@ -42,6 +45,7 @@ export default class WhichKeyCommand {
 
     unregister() {
         this.onConfigChangeListener?.dispose();
+        this.repeater.clear();
     }
 
     show() {
@@ -49,7 +53,7 @@ export default class WhichKeyCommand {
         const config = {
             bindings: this.bindingItems!, delay, title: this.config?.title
         };
-        showWhichKeyMenu(this.statusBar, this.cmdRelay, config);
+        showWhichKeyMenu(this.statusBar, this.cmdRelay, this.repeater, config);
     }
 
     showBindings() {
@@ -57,10 +61,18 @@ export default class WhichKeyCommand {
         return showDescBindMenu(items, "Show Keybindings");
     }
 
+    showPreviousActions() {
+        return this.repeater.show();
+    }
+
+    repeatLastAction() {
+        return this.repeater.repeatLastAction();
+    }
+
     static show(bindings: BindingItem[], statusBar: IStatusBar, cmdRelay: CommandRelay) {
         const delay = getConfig<number>(Configs.Delay);
         const config = { bindings, delay };
-        showWhichKeyMenu(statusBar, cmdRelay, config);
+        showWhichKeyMenu(statusBar, cmdRelay, undefined, config);
     }
 }
 
