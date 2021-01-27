@@ -1,5 +1,5 @@
-import { ActionType, BindingItem } from "../bindingItem";
-import { Condition, evalCondition, getCondition } from "../condition";
+import { ActionType, BindingItem } from "../config/bindingItem";
+import { Condition, evalCondition, getCondition } from "../config/condition";
 import { specializeBindingKey } from "../utils";
 import { IBaseWhichKeyMenuItem } from "./baseWhichKeyMenu";
 

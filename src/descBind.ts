@@ -1,4 +1,4 @@
-import { ActionType, BindingItem, toCommands } from "./bindingItem";
+import { ActionType, BindingItem, toCommands } from "./config/bindingItem";
 import { DescBindMenuItem } from "./menu/descBindMenu";
 import { specializeBindingKey } from "./utils";
 

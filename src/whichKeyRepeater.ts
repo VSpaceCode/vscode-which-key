@@ -1,4 +1,4 @@
-import { BindingItem, toCommands } from "./bindingItem";
+import { BindingItem, toCommands } from "./config/bindingItem";
 import { CommandRelay } from "./commandRelay";
 import { Commands } from "./constants";
 import { IRepeaterMenuItem, showRepeaterMenu } from "./menu/repeaterMenu";

@@ -1,5 +1,5 @@
 import { window } from "vscode";
-import { toCommands, WhichKeyMenuConfig } from "../bindingItem";
+import { toCommands } from "../config/bindingItem";
 import { CommandRelay } from "../commandRelay";
 import { ContextKey } from "../constants";
 import { IStatusBar } from "../statusBar";
@@ -7,7 +7,7 @@ import { executeCommands, setContext, specializeBindingKey } from "../utils";
 import { WhichKeyRepeater } from "../whichKeyRepeater";
 import { BaseWhichKeyMenu } from "./baseWhichKeyMenu";
 import { WhichKeyMenuItem } from "./whichKeyMenuItem";
-
+import { WhichKeyMenuConfig } from "../config/menuConfig";
 
 class WhichKeyMenu extends BaseWhichKeyMenu<WhichKeyMenuItem>{
     private statusBar: IStatusBar;

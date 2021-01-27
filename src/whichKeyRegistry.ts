@@ -1,9 +1,9 @@
 import { Disposable } from "vscode";
-import { toBindingItem } from "./bindingItem";
+import { toBindingItem } from "./config/bindingItem";
 import { CommandRelay } from "./commandRelay";
 import { StatusBar } from "./statusBar";
 import WhichKeyCommand from "./whichKeyCommand";
-import { defaultWhichKeyConfig, toWhichKeyConfig } from "./whichKeyConfig";
+import { defaultWhichKeyConfig, toWhichKeyConfig } from "./config/whichKeyConfig";
 
 export class WhichKeyRegistry implements Disposable {
     private registry: Record<string, WhichKeyCommand>;

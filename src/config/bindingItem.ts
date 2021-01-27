@@ -35,16 +35,6 @@ export interface TransientBindingItem {
     exit?: boolean,
 }
 
-export interface WhichKeyMenuConfig {
-    title?: string,
-    delay?: number,
-    bindings: BindingItem[]
-}
-export interface TransientMenuConfig {
-    title?: string,
-    bindings: TransientBindingItem[]
-}
-
 export function toBindingItem(o: any) {
     if (typeof o === "object") {
         const config = o as Partial<BindingItem>;
