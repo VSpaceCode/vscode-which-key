@@ -1,5 +1,5 @@
-import { TransientMenuConfig } from "../bindingItem";
 import { CommandRelay } from "../commandRelay";
+import { TransientMenuConfig } from "../config/menuConfig";
 import { ContextKey } from "../constants";
 import { IStatusBar } from "../statusBar";
 import { executeCommands, setContext, specializeBindingKey } from "../utils";

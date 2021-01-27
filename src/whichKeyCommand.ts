@@ -1,14 +1,14 @@
 import { Disposable, workspace } from "vscode";
-import { ActionType, BindingItem, OverrideBindingItem, toCommands, TransientBindingItem } from "./bindingItem";
+import { ActionType, BindingItem, OverrideBindingItem, toCommands, TransientBindingItem } from "./config/bindingItem";
 import { CommandRelay } from "./commandRelay";
-import { isConditionKeyEqual } from "./condition";
+import { isConditionKeyEqual } from "./config/condition";
 import { Commands, Configs, SortOrder } from "./constants";
 import { bindingsToMenuItems } from "./descBind";
 import { showDescBindMenu } from "./menu/descBindMenu";
 import { showWhichKeyMenu } from "./menu/whichKeyMenu";
 import { WhichKeyMenuItem } from "./menu/whichKeyMenuItem";
 import { IStatusBar } from "./statusBar";
-import { WhichKeyConfig } from "./whichKeyConfig";
+import { WhichKeyConfig } from "./config/whichKeyConfig";
 import { WhichKeyRepeater } from "./whichKeyRepeater";
 
 export default class WhichKeyCommand {

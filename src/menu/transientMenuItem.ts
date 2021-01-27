@@ -1,4 +1,4 @@
-import { TransientBindingItem } from "../bindingItem";
+import { TransientBindingItem } from "../config/bindingItem";
 import { IBaseWhichKeyMenuItem } from "./baseWhichKeyMenu";
 
 
