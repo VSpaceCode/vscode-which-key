@@ -1,12 +1,6 @@
-import { QuickPickItem } from "vscode";
 import { executeCommands } from "../utils";
 import { BaseMenu } from "./baseMenu";
-
-export interface DescBindMenuItem extends QuickPickItem {
-    commands?: string[];
-    args?: string[];
-    items?: DescBindMenuItem[];
-}
+import { DescBindMenuItem } from "./descBindMenuItem";
 
 class DescBindMenu extends BaseMenu<DescBindMenuItem> {
     protected async handleAcceptance(val: DescBindMenuItem) {
