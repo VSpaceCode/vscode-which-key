@@ -3,13 +3,13 @@ import { ActionType, BindingItem, OverrideBindingItem, toCommands, TransientBind
 import { CommandRelay } from "./commandRelay";
 import { isConditionKeyEqual } from "./config/condition";
 import { Commands, Configs, SortOrder } from "./constants";
-import { bindingsToMenuItems } from "./descBind";
 import { showDescBindMenu } from "./menu/descBindMenu";
 import { showWhichKeyMenu } from "./menu/whichKeyMenu";
 import { WhichKeyMenuItem } from "./menu/whichKeyMenuItem";
 import { IStatusBar } from "./statusBar";
 import { WhichKeyConfig } from "./config/whichKeyConfig";
 import { WhichKeyRepeater } from "./whichKeyRepeater";
+import { createDescBindItems } from "./menu/descBindMenuItem";
 
 export default class WhichKeyCommand {
     private statusBar: IStatusBar;
@@ -57,7 +57,7 @@ export default class WhichKeyCommand {
     }
 
     showBindings() {
-        const items = bindingsToMenuItems(this.bindingItems!);
+        const items = createDescBindItems(this.bindingItems!);
         return showDescBindMenu(items, "Show Keybindings");
     }
 

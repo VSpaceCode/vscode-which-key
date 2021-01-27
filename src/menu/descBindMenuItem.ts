@@ -1,8 +1,14 @@
-import { ActionType, BindingItem, toCommands } from "./config/bindingItem";
-import { DescBindMenuItem } from "./menu/descBindMenu";
-import { specializeBindingKey } from "./utils";
+import { QuickPickItem } from "vscode";
+import { ActionType, BindingItem, toCommands } from "../config/bindingItem";
+import { specializeBindingKey } from "../utils";
 
-export function bindingsToMenuItems(items: readonly BindingItem[], path: BindingItem[] = []) {
+export interface DescBindMenuItem extends QuickPickItem {
+    commands?: string[];
+    args?: string[];
+    items?: DescBindMenuItem[];
+}
+
+export function createDescBindItems(items: readonly BindingItem[], path: BindingItem[] = []) {
     const curr: DescBindMenuItem[] = [];
     const next: DescBindMenuItem[] = [];
 
@@ -27,7 +33,7 @@ function conversion(i: BindingItem, path: BindingItem[] = []) {
         description: i.name,
     };
     if (i.bindings) {
-        item.items = bindingsToMenuItems(i.bindings, newPath);
+        item.items = createDescBindItems(i.bindings, newPath);
     } else if (i.commands || i.command) {
         const { commands, args } = toCommands(i);
         item.commands = commands;
