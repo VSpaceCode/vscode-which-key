@@ -263,6 +263,27 @@ function convertToTransientBinding(item: BindingItem) {
                     name: b.name,
                     ...toCommands(b)
                 });
+            } else if (b.type === ActionType.Bindings) {
+                transientBindings.push({
+                    key: b.key,
+                    name: b.name,
+                    commands: [Commands.Show],
+                    args: b.bindings,
+                    exit: true,
+                });
+            } else if (b.type === ActionType.Transient) {
+                transientBindings.push({
+                    key: b.key,
+                    name: b.name,
+                    commands: [Commands.ShowTransient],
+                    args: {
+                        title: item.name,
+                        bindings: convertToTransientBinding(item),
+                    },
+                    exit: true,
+                });
+            } else {
+                // Not supported.
             }
         }
     }
