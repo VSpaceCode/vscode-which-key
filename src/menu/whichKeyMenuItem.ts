@@ -54,14 +54,12 @@ export class WhichKeyMenuItem implements IWhichKeyMenuItem {
     }
 
     evalCondition(condition?: Condition) {
-        switch (this.type) {
-            case ActionType.Conditional:
-                // Search the condition first. If no matches, find the first empty condition as else
-                return this.findBinding(condition) ?? this.findBinding(undefined);
-            default:
-                return this;
-
+        let item: WhichKeyMenuItem | undefined = this;
+        while (item && item.type === ActionType.Conditional) {
+            // Search the condition first. If no matches, find the first empty condition as else
+            item = item.findBinding(condition) ?? item.findBinding(undefined);
         }
+        return item;
     }
 
     private findBinding(condition?: Condition) {
