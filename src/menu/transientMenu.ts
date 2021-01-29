@@ -1,5 +1,5 @@
 import { CommandRelay } from "../commandRelay";
-import { TransientMenuConfig } from "../config/menuConfig";
+import { resolveBindings, TransientMenuConfig } from "../config/menuConfig";
 import { ContextKey } from "../constants";
 import { IStatusBar } from "../statusBar";
 import { executeCommands, setContext, specializeBindingKey } from "../utils";
@@ -79,7 +79,7 @@ export function showTransientMenu(statusBar: IStatusBar, cmdRelay: CommandRelay,
     return new Promise<void>((resolve, reject) => {
         const menu = new TransientMenu(statusBar, cmdRelay);
         menu.title = config.title;
-        menu.items = config.bindings.map(b => new TransientMenuItem(b));
+        menu.items = resolveBindings(config.bindings).map(b => new TransientMenuItem(b));
         menu.onDidResolve = resolve;
         menu.onDidReject = reject;
         menu.show();
