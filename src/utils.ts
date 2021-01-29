@@ -1,4 +1,4 @@
-import { commands } from "vscode";
+import { commands, workspace } from "vscode";
 import { CharCode } from "./charCode";
 
 export function setContext(key: string, value: any) {
@@ -24,6 +24,23 @@ export async function executeCommands(cmds: string[], args: any) {
         const arg = args?.[i];
         await executeCommand(cmd, arg);
     }
+}
+
+/**
+ * Get workspace configuration
+ * @param section The configuration name.
+ */
+export function getConfig<T>(section: string) {
+    // Get the minimal scope
+    let filterSection: string | undefined = undefined;
+    let lastSection: string = section;
+    const idx = section.lastIndexOf('.');
+    if (idx !== -1) {
+        filterSection = section.substring(0, idx);
+        lastSection = section.substring(idx + 1);
+    }
+
+    return workspace.getConfiguration(filterSection).get<T>(lastSection);
 }
 
 // https://en.wikipedia.org/wiki/Halfwidth_and_Fullwidth_Forms_(Unicode_block)

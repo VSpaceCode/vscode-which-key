@@ -10,6 +10,7 @@ import { IStatusBar } from "./statusBar";
 import { WhichKeyConfig } from "./config/whichKeyConfig";
 import { WhichKeyRepeater } from "./whichKeyRepeater";
 import { createDescBindItems } from "./menu/descBindMenuItem";
+import { getConfig } from "./utils";
 
 export default class WhichKeyCommand {
     private statusBar: IStatusBar;
@@ -74,23 +75,6 @@ export default class WhichKeyCommand {
         const config = { bindings, delay };
         showWhichKeyMenu(statusBar, cmdRelay, undefined, config);
     }
-}
-
-/**
- * Get workspace configuration
- * @param section The configuration name.
- */
-function getConfig<T>(section: string) {
-    // Get the minimal scope
-    let filterSection: string | undefined = undefined;
-    let lastSection: string = section;
-    const idx = section.lastIndexOf('.');
-    if (idx !== -1) {
-        filterSection = section.substring(0, idx);
-        lastSection = section.substring(idx + 1);
-    }
-
-    return workspace.getConfiguration(filterSection).get<T>(lastSection);
 }
 
 function getSortOrder() {
