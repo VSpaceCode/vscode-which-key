@@ -52,7 +52,8 @@
 		"commands": [
 			{
 				"command": "whichkey.show",
-				"title": "Which Key: Show Menu"
+				"title": "Show Menu",
+				"category": "Which Key"
 			}
 		],
 		"configuration": [
