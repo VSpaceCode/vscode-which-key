@@ -5,6 +5,10 @@ import { StatusBar } from "./statusBar";
 import WhichKeyCommand from "./whichKeyCommand";
 import { defaultWhichKeyConfig, toWhichKeyConfig } from "./config/whichKeyConfig";
 
+function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
+    return value !== null && value !== undefined;
+}
+
 export class WhichKeyRegistry implements Disposable {
     private registry: Record<string, WhichKeyCommand>;
     private statusBar: StatusBar;
@@ -16,7 +20,7 @@ export class WhichKeyRegistry implements Disposable {
         this.registry = {};
     }
 
-    register(obj: any) {
+    register(obj: any): boolean {
         const config = toWhichKeyConfig(obj);
         if (config) {
             const key = config.bindings;
@@ -36,13 +40,10 @@ export class WhichKeyRegistry implements Disposable {
         return section in this.registry;
     }
 
-    show(args: any) {
+    show(args: any): Promise<void> {
         if (typeof args === 'string') {
             return this.registry[args].show();
         } else if (Array.isArray(args)) {
-            function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
-                return value !== null && value !== undefined;
-            }
             const bindings = args.map(toBindingItem).filter(notEmpty);
             return WhichKeyCommand.show(bindings, this.statusBar, this.cmdRelay);
         } else {
@@ -54,15 +55,15 @@ export class WhichKeyRegistry implements Disposable {
         }
     }
 
-    showPreviousAction(args: any) {
+    showPreviousAction(args: any): Promise<void> {
         return this.getRegister(args).showPreviousActions();
     }
 
-    repeatLastAction(args: any) {
+    repeatLastAction(args: any): Promise<void> {
         return this.getRegister(args).repeatLastAction();
     }
 
-    private getRegister(args: any) {
+    private getRegister(args: any): WhichKeyCommand {
         if (typeof args === 'string') {
             return this.registry[args];
         } else {
@@ -75,13 +76,13 @@ export class WhichKeyRegistry implements Disposable {
 
     }
 
-    unregister(section: string) {
+    unregister(section: string): void {
         if (this.has(section)) {
             this.registry[section].unregister();
         }
     }
 
-    dispose() {
+    dispose(): void {
         for (const key of Object.keys(this.register)) {
             this.registry[key].unregister();
         }

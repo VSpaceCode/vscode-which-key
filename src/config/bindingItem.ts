@@ -9,33 +9,33 @@ export const enum ActionType {
 export interface BindingItem {
     key: string;
     name: string;
-    type: ActionType,
-    command?: string,
-    commands?: string[],
-    args?: any,
-    bindings?: BindingItem[],
+    type: ActionType;
+    command?: string;
+    commands?: string[];
+    args?: any;
+    bindings?: BindingItem[];
 }
 
 export interface OverrideBindingItem {
     keys: string | string[];
     position?: number;
     name?: string;
-    type?: ActionType,
-    command?: string,
-    commands?: string[],
-    args?: any,
-    bindings?: BindingItem[],
+    type?: ActionType;
+    command?: string;
+    commands?: string[];
+    args?: any;
+    bindings?: BindingItem[];
 }
 
 export interface TransientBindingItem {
-    key: string,
-    name: string,
-    commands?: string[],
-    args?: any,
-    exit?: boolean,
+    key: string;
+    name: string;
+    commands?: string[];
+    args?: any;
+    exit?: boolean;
 }
 
-export function toBindingItem(o: any) {
+export function toBindingItem(o: any): BindingItem | undefined {
     if (typeof o === "object") {
         const config = o as Partial<BindingItem>;
         if (config.key && config.name && config.type) {
@@ -45,7 +45,10 @@ export function toBindingItem(o: any) {
     return undefined;
 }
 
-export function toCommands(b: BindingItem) {
+export function toCommands(b: BindingItem): {
+    commands: string[];
+    args: any;
+} {
     let commands: string[];
     let args;
     if (b.commands) {

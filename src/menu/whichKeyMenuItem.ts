@@ -1,12 +1,9 @@
 import { ActionType, BindingItem } from "../config/bindingItem";
 import { Condition, evalCondition, getCondition } from "../config/condition";
 import { specializeBindingKey } from "../utils";
-import { IBaseWhichKeyMenuItem } from "./baseWhichKeyMenu";
+import { BaseWhichKeyMenuItem } from "./baseWhichKeyMenu";
 
-export interface IWhichKeyMenuItem extends BindingItem, IBaseWhichKeyMenuItem {
-}
-
-export class WhichKeyMenuItem implements IWhichKeyMenuItem {
+export class WhichKeyMenuItem implements BindingItem, BaseWhichKeyMenuItem {
     private _binding: BindingItem;
     private _cacheItems?: WhichKeyMenuItem[];
 
@@ -14,46 +11,47 @@ export class WhichKeyMenuItem implements IWhichKeyMenuItem {
         this._binding = binding;
     }
 
-    get key() {
+    get key(): string {
         return this._binding.key;
     }
 
-    get name() {
+    get name(): string {
         return this._binding.name;
     }
 
-    get type() {
+    get type(): ActionType {
         return this._binding.type;
     }
 
-    get command() {
+    get command(): string | undefined {
         return this._binding.command;
     }
 
-    get commands() {
+    get commands(): string[] | undefined {
         return this._binding.commands;
     }
 
-    get args() {
+    get args(): any {
         return this._binding.args;
     }
 
-    get bindings() {
+    get bindings(): WhichKeyMenuItem[] {
         if (this._binding.bindings && !this._cacheItems) {
             this._cacheItems = this._binding.bindings.map(b => new WhichKeyMenuItem(b));
         }
-        return this._cacheItems;
+        return this._cacheItems!;
     }
 
-    get label() {
+    get label(): string {
         return specializeBindingKey(this.key);
     }
 
-    get description() {
+    get description(): string {
         return `\t${this._binding.name}`;
     }
 
-    evalCondition(condition?: Condition) {
+    evalCondition(condition?: Condition): WhichKeyMenuItem | undefined {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         let item: WhichKeyMenuItem | undefined = this;
         while (item && item.type === ActionType.Conditional) {
             // Search the condition first. If no matches, find the first empty condition as else
@@ -62,7 +60,7 @@ export class WhichKeyMenuItem implements IWhichKeyMenuItem {
         return item;
     }
 
-    private findBinding(condition?: Condition) {
+    private findBinding(condition?: Condition): WhichKeyMenuItem | undefined {
         return this.bindings?.find(i => evalCondition(getCondition(i.key), condition));
     }
 }

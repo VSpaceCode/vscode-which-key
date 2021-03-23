@@ -1,41 +1,37 @@
 import { TransientBindingItem } from "../config/bindingItem";
-import { IBaseWhichKeyMenuItem } from "./baseWhichKeyMenu";
+import { BaseWhichKeyMenuItem } from "./baseWhichKeyMenu";
 
-
-export interface ITransientMenuItem extends TransientBindingItem, IBaseWhichKeyMenuItem {
-}
-
-export class TransientMenuItem implements ITransientMenuItem {
+export class TransientMenuItem implements TransientBindingItem, BaseWhichKeyMenuItem {
     private _binding: TransientBindingItem;
     constructor(binding: TransientBindingItem) {
         this._binding = binding;
     }
 
-    get key() {
+    get key(): string {
         return this._binding.key;
     }
 
-    get name() {
+    get name(): string {
         return this._binding.name;
     }
 
-    get commands() {
+    get commands(): string[] | undefined {
         return this._binding.commands;
     }
 
-    get args() {
+    get args(): any {
         return this._binding.args;
     }
 
-    get exit() {
+    get exit(): boolean | undefined {
         return this._binding.exit;
     }
 
-    get label() {
+    get label(): string {
         return this._binding.key;
     }
 
-    get description() {
+    get description(): string {
         return `\t${this._binding.name}`;
     }
 }

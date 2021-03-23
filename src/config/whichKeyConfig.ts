@@ -2,15 +2,15 @@ import { Configs } from "../constants";
 
 type ConfigSections = [string, string];
 export interface OldWhichKeyConfig {
-    bindings: ConfigSections,
-    overrides?: ConfigSections,
-    title?: string,
+    bindings: ConfigSections;
+    overrides?: ConfigSections;
+    title?: string;
 }
 
 export interface WhichKeyConfig {
-    bindings: string,
-    overrides?: string,
-    title?: string,
+    bindings: string;
+    overrides?: string;
+    title?: string;
 }
 
 function isString(x: any): x is string {
@@ -27,13 +27,17 @@ function isOldWhichKeyConfig(config: any): config is OldWhichKeyConfig {
         (!config.title || isString(config.title));
 }
 
-function isWhichKeyConfig(config: any) {
+function isWhichKeyConfig(config: any): boolean {
     return (config.bindings && isString(config.bindings)) &&
         (!config.overrides || isString(config.overrides)) &&
         (!config.title || isString(config.title));
 }
 
-function convertOldWhichKeyConfig(o: OldWhichKeyConfig) {
+function getFullSection(sections: ConfigSections): string {
+    return `${sections[0]}.${sections[1]}`;
+}
+
+function convertOldWhichKeyConfig(o: OldWhichKeyConfig): WhichKeyConfig {
     const config: WhichKeyConfig = {
         bindings: getFullSection(o.bindings),
         title: o.title
@@ -54,10 +58,6 @@ export function toWhichKeyConfig(o: any): WhichKeyConfig | undefined {
         }
     }
     return undefined;
-}
-
-export function getFullSection(sections: ConfigSections) {
-    return `${sections[0]}.${sections[1]}`;
 }
 
 export const defaultWhichKeyConfig: WhichKeyConfig = {

@@ -1,13 +1,14 @@
 import { QuickPickItem, window } from "vscode";
 import { CommandRelay, KeybindingArgs } from "../commandRelay";
+import { Condition } from "../config/condition";
 import { BaseMenu } from "./baseMenu";
 
-export interface IBaseWhichKeyMenuItem extends QuickPickItem {
-    key: string,
-    name: string,
+export interface BaseWhichKeyMenuItem extends QuickPickItem {
+    key: string;
+    name: string;
 }
 
-export abstract class BaseWhichKeyMenu<T extends IBaseWhichKeyMenuItem> extends BaseMenu<T> {
+export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> extends BaseMenu<T> {
     /**
      * This used to stored the last when condition from the key listener
      */
@@ -20,7 +21,7 @@ export abstract class BaseWhichKeyMenu<T extends IBaseWhichKeyMenuItem> extends 
         );
     }
 
-    protected get condition() {
+    protected get condition(): Condition {
         const languageId = window.activeTextEditor?.document.languageId;
         return {
             when: this.when,
@@ -28,12 +29,12 @@ export abstract class BaseWhichKeyMenu<T extends IBaseWhichKeyMenuItem> extends 
         };
     }
 
-    protected async onDidKeyPressed(value: KeybindingArgs) {
+    protected async onDidKeyPressed(value: KeybindingArgs): Promise<void> {
         await this.setValue(this.quickPick.value + value.key);
         await this.onDidChangeValue(this.quickPick.value, value.when);
     }
 
-    protected async onDidChangeValue(value: string, when?: string) {
+    protected async onDidChangeValue(value: string, when?: string): Promise<void> {
         this.when = when;
 
         const chosenItem = this.items.find(i => i.key === value);

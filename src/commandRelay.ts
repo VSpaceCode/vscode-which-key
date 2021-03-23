@@ -1,8 +1,8 @@
-import { EventEmitter } from "vscode";
+import { Event, EventEmitter } from "vscode";
 
 export interface KeybindingArgs {
-    key: string,
-    when?: string,
+    key: string;
+    when?: string;
 }
 
 export class CommandRelay {
@@ -16,34 +16,34 @@ export class CommandRelay {
         this.showBindingEmitter = new EventEmitter<void>();
     }
 
-    triggerKey(key: string | KeybindingArgs) {
+    triggerKey(key: string | KeybindingArgs): void {
         if (typeof key === "string") {
             key = { key };
         }
         this.keyEmitter.fire(key);
     }
 
-    get onDidKeyPressed() {
+    get onDidKeyPressed(): Event<KeybindingArgs> {
         return this.keyEmitter.event;
     }
 
-    toggleZenMode() {
+    toggleZenMode(): void {
         this.zenModeEmitter.fire();
     }
 
-    get onDidToggleZenMode() {
+    get onDidToggleZenMode(): Event<void> {
         return this.zenModeEmitter.event;
     }
 
-    showBindings() {
+    showBindings(): void {
         this.showBindingEmitter.fire();
     }
 
-    get onShowBindings() {
+    get onShowBindings(): Event<void> {
         return this.showBindingEmitter.event;
     }
 
-    dispose() {
+    dispose(): void {
         this.keyEmitter.dispose();
         this.zenModeEmitter.dispose();
         this.showBindingEmitter.dispose();

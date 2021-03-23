@@ -1,31 +1,37 @@
 import { BindingItem, toCommands } from "./config/bindingItem";
 import { CommandRelay } from "./commandRelay";
 import { Commands } from "./constants";
-import { IRepeaterMenuItem, showRepeaterMenu } from "./menu/repeaterMenu";
-import { IWhichKeyMenuItem } from "./menu/whichKeyMenuItem";
-import { IStatusBar } from "./statusBar";
+import { RepeaterMenuItem, showRepeaterMenu } from "./menu/repeaterMenu";
+import { WhichKeyMenuItem } from "./menu/whichKeyMenuItem";
+import { StatusBar } from "./statusBar";
 import { executeCommands } from "./utils";
 
-class WhichKeyRepeaterEntry {
-    private path: IWhichKeyMenuItem[];
+function shouldIgnore(item: BindingItem): boolean {
+    const cmds = toCommands(item).commands;
+    const ignore = [Commands.ShowPreviousActions, Commands.RepeatLastAction];
+    return cmds.findIndex(ignore.includes.bind(ignore)) >= 0;
+}
 
-    constructor(path: IWhichKeyMenuItem[]) {
+class WhichKeyRepeaterEntry {
+    private path: WhichKeyMenuItem[];
+
+    constructor(path: WhichKeyMenuItem[]) {
         this.path = [...path];
     }
 
-    get pathKey() {
+    get pathKey(): string {
         return this.path.map(p => p.key).toString();
     }
 
-    get item() {
+    get item(): WhichKeyMenuItem {
         return this.path[this.path.length - 1];
     }
 
-    get description() {
+    get description(): string {
         return this.path.map(p => p.name).join("$(chevron-right)");
     }
 
-    get shouldIgnore() {
+    get shouldIgnore(): boolean {
         return this.path.length === 0 || shouldIgnore(this.item);
     }
 }
@@ -40,19 +46,19 @@ export class WhichKeyRepeater {
      */
     private cache: WhichKeyRepeaterEntry[];
 
-    public constructor(private statusBar: IStatusBar, private cmdRelay: CommandRelay) {
+    public constructor(private statusBar: StatusBar, private cmdRelay: CommandRelay) {
         this.cache = [];
     }
 
-    private get isEmpty() {
+    private get isEmpty(): boolean {
         return this.cache.length === 0;
     }
 
-    private get length() {
+    private get length(): number {
         return this.cache.length;
     }
 
-    public record(path: IWhichKeyMenuItem[]) {
+    public record(path: WhichKeyMenuItem[]): void {
         const newEntry = new WhichKeyRepeaterEntry(path);
         if (newEntry.shouldIgnore) {
             return;
@@ -72,7 +78,7 @@ export class WhichKeyRepeater {
         }
     }
 
-    public async repeatLastAction(idx: number = 0) {
+    public async repeatLastAction(idx = 0): Promise<void> {
         if (!this.isEmpty && idx >= 0 && idx < this.length) {
             const entry = this.cache.splice(idx, 1)[0];
             const { commands, args } = toCommands(entry.item);
@@ -82,23 +88,23 @@ export class WhichKeyRepeater {
         this.statusBar.setErrorMessage("No last action");
     }
 
-    private repeatAction(pathKey: string) {
+    private repeatAction(pathKey: string): Promise<void> {
         const idx = this.cache.findIndex(c => c.pathKey === pathKey);
         return this.repeatLastAction(idx);
     }
 
-    public show() {
+    public show(): Promise<void> {
         return showRepeaterMenu(this.statusBar, this.cmdRelay, this.createMenuItems(), "Repeat previous actions");
     }
 
-    public clear() {
+    public clear(): void {
         this.cache.length = 0;
     }
 
-    private createMenuItems() {
+    private createMenuItems(): RepeaterMenuItem[] {
         return this.cache.map((entry, index) => {
             const key = index + 1;
-            const menuItem: IRepeaterMenuItem = {
+            const menuItem: RepeaterMenuItem = {
                 key: key.toString(),
                 name: entry.item.name,
                 label: key.toString(),
@@ -109,10 +115,4 @@ export class WhichKeyRepeater {
             return menuItem;
         });
     }
-}
-
-function shouldIgnore(item: BindingItem) {
-    const cmds = toCommands(item).commands;
-    const ignore = [Commands.ShowPreviousActions, Commands.RepeatLastAction];
-    return cmds.findIndex(ignore.includes.bind(ignore)) >= 0;
 }

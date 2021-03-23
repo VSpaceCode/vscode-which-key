@@ -1,111 +1,20 @@
 import { Disposable, workspace } from "vscode";
-import { ActionType, BindingItem, OverrideBindingItem, toCommands, TransientBindingItem } from "./config/bindingItem";
 import { CommandRelay } from "./commandRelay";
+import { ActionType, BindingItem, OverrideBindingItem, toCommands, TransientBindingItem } from "./config/bindingItem";
 import { isConditionKeyEqual } from "./config/condition";
+import { WhichKeyConfig } from "./config/whichKeyConfig";
 import { Commands, Configs, SortOrder } from "./constants";
-import { showDescBindMenu } from "./menu/descBindMenu";
 import { showWhichKeyMenu } from "./menu/whichKeyMenu";
 import { WhichKeyMenuItem } from "./menu/whichKeyMenuItem";
-import { IStatusBar } from "./statusBar";
-import { WhichKeyConfig } from "./config/whichKeyConfig";
-import { WhichKeyRepeater } from "./whichKeyRepeater";
-import { createDescBindItems } from "./menu/descBindMenuItem";
+import { StatusBar } from "./statusBar";
 import { getConfig } from "./utils";
+import { WhichKeyRepeater } from "./whichKeyRepeater";
 
-export default class WhichKeyCommand {
-    private statusBar: IStatusBar;
-    private cmdRelay: CommandRelay;
-    private repeater: WhichKeyRepeater;
-    private bindingItems?: BindingItem[];
-    private config?: WhichKeyConfig;
-    private onConfigChangeListener?: Disposable;
-    constructor(statusBar: IStatusBar, cmdRelay: CommandRelay) {
-        this.statusBar = statusBar;
-        this.cmdRelay = cmdRelay;
-        this.repeater = new WhichKeyRepeater(statusBar, cmdRelay);
-    }
-
-    register(config: WhichKeyConfig) {
-        this.unregister();
-        this.config = config;
-
-        const bindings = getCanonicalConfig(config);
-        this.bindingItems = bindings.map(b => new WhichKeyMenuItem(b));
-
-        this.onConfigChangeListener = workspace.onDidChangeConfiguration((e) => {
-            if (
-                e.affectsConfiguration(Configs.SortOrder) ||
-                e.affectsConfiguration(config.bindings) ||
-                (config.overrides && e.affectsConfiguration(config.overrides))
-            ) {
-                this.unregister();
-                this.register(config);
-            }
-        }, this);
-    }
-
-    unregister() {
-        this.onConfigChangeListener?.dispose();
-        this.repeater.clear();
-    }
-
-    show() {
-        const delay = getConfig<number>(Configs.Delay);
-        const config = {
-            bindings: this.bindingItems!, delay, title: this.config?.title
-        };
-        showWhichKeyMenu(this.statusBar, this.cmdRelay, this.repeater, config);
-    }
-
-    showPreviousActions() {
-        return this.repeater.show();
-    }
-
-    repeatLastAction() {
-        return this.repeater.repeatLastAction();
-    }
-
-    static show(bindings: BindingItem[], statusBar: IStatusBar, cmdRelay: CommandRelay) {
-        const delay = getConfig<number>(Configs.Delay);
-        const config = { bindings, delay };
-        showWhichKeyMenu(statusBar, cmdRelay, undefined, config);
-    }
-}
-
-function getSortOrder() {
+function getSortOrder(): SortOrder {
     return getConfig<SortOrder>(Configs.SortOrder) ?? SortOrder.None;
 }
 
-function getCanonicalConfig(c: WhichKeyConfig) {
-    let bindings = getConfig<BindingItem[]>(c.bindings) ?? [];
-    if (c.overrides) {
-        const overrides = getConfig<OverrideBindingItem[]>(c.overrides) ?? [];
-        overrideBindingItems(bindings, overrides);
-    }
-
-    const sortOrder = getSortOrder();
-    sortBindingsItems(bindings, sortOrder);
-
-    return migrateBindings(bindings);
-}
-
-function convertOverride(key: string, o: OverrideBindingItem) {
-    if (o.name !== undefined && o.type !== undefined) {
-        return {
-            key: key,
-            name: o.name,
-            type: o.type,
-            command: o.command,
-            commands: o.commands,
-            args: o.args,
-            bindings: o.bindings,
-        };
-    } else {
-        throw new Error('name or type of the override is undefined');
-    }
-}
-
-function indexOfKey(bindingItems: BindingItem[] | undefined, key: string, isCondition = false) {
+function indexOfKey(bindingItems: BindingItem[] | undefined, key: string, isCondition = false): number {
     if (isCondition) {
         return bindingItems?.findIndex(i => isConditionKeyEqual(i.key, key)) ?? -1;
     } else {
@@ -113,7 +22,10 @@ function indexOfKey(bindingItems: BindingItem[] | undefined, key: string, isCond
     }
 }
 
-function findBindings(items: BindingItem[], keys: string[]) {
+function findBindings(items: BindingItem[], keys: string[]): {
+    bindingItems: BindingItem[] | undefined;
+    isCondition: boolean;
+} {
     // Traverse to the last level
     let bindingItems: BindingItem[] | undefined = items;
     let isCondition = false;
@@ -132,7 +44,23 @@ function findBindings(items: BindingItem[], keys: string[]) {
     return { bindingItems, isCondition };
 }
 
-function overrideBindingItems(items: BindingItem[], overrides: OverrideBindingItem[]) {
+function convertOverride(key: string, o: OverrideBindingItem): BindingItem {
+    if (o.name !== undefined && o.type !== undefined) {
+        return {
+            key: key,
+            name: o.name,
+            type: o.type,
+            command: o.command,
+            commands: o.commands,
+            args: o.args,
+            bindings: o.bindings,
+        };
+    } else {
+        throw new Error('name or type of the override is undefined');
+    }
+}
+
+function overrideBindingItems(items: BindingItem[], overrides: OverrideBindingItem[]): void {
     for (const o of overrides) {
         try {
             const keys = (typeof o.keys === 'string') ? o.keys.split('.') : o.keys;
@@ -174,7 +102,7 @@ function overrideBindingItems(items: BindingItem[], overrides: OverrideBindingIt
 }
 
 // in place sort
-function sortBindingsItems(items: BindingItem[] | undefined, order: SortOrder) {
+function sortBindingsItems(items: BindingItem[] | undefined, order: SortOrder): void {
     if (!items || order === SortOrder.None) {
         return;
     }
@@ -199,39 +127,7 @@ function sortBindingsItems(items: BindingItem[] | undefined, order: SortOrder) {
     }
 }
 
-function migrateBindings(items: BindingItem[]) {
-    const migrated: BindingItem[] = [];
-    for (let i of items) {
-        i = migrateTransient(i);
-        if (i.bindings) {
-            i.bindings = migrateBindings(i.bindings);
-        }
-        migrated.push(i);
-    }
-    return migrated;
-}
-
-function migrateTransient(item: BindingItem) {
-    if (item.type === ActionType.Transient) {
-        const { commands, args } = toCommands(item);
-        commands.push(Commands.ShowTransient);
-        args[commands.length - 1] = {
-            title: item.name,
-            bindings: convertToTransientBinding(item),
-        };
-
-        return {
-            key: item.key,
-            name: item.name,
-            type: ActionType.Commands,
-            commands,
-            args,
-        };
-    }
-    return item;
-}
-
-function convertToTransientBinding(item: BindingItem) {
+function convertToTransientBinding(item: BindingItem): TransientBindingItem[] {
     const transientBindings: TransientBindingItem[] = [];
     if (item.bindings) {
         for (const b of item.bindings) {
@@ -267,4 +163,108 @@ function convertToTransientBinding(item: BindingItem) {
         }
     }
     return transientBindings;
+}
+
+function migrateTransient(item: BindingItem): BindingItem {
+    if (item.type === ActionType.Transient) {
+        const { commands, args } = toCommands(item);
+        commands.push(Commands.ShowTransient);
+        args[commands.length - 1] = {
+            title: item.name,
+            bindings: convertToTransientBinding(item),
+        };
+
+        return {
+            key: item.key,
+            name: item.name,
+            type: ActionType.Commands,
+            commands,
+            args,
+        };
+    }
+    return item;
+}
+
+function migrateBindings(items: BindingItem[]): BindingItem[] {
+    const migrated: BindingItem[] = [];
+    for (let i of items) {
+        i = migrateTransient(i);
+        if (i.bindings) {
+            i.bindings = migrateBindings(i.bindings);
+        }
+        migrated.push(i);
+    }
+    return migrated;
+}
+
+function getCanonicalConfig(c: WhichKeyConfig): BindingItem[] {
+    const bindings = getConfig<BindingItem[]>(c.bindings) ?? [];
+    if (c.overrides) {
+        const overrides = getConfig<OverrideBindingItem[]>(c.overrides) ?? [];
+        overrideBindingItems(bindings, overrides);
+    }
+
+    const sortOrder = getSortOrder();
+    sortBindingsItems(bindings, sortOrder);
+
+    return migrateBindings(bindings);
+}
+export default class WhichKeyCommand {
+    private statusBar: StatusBar;
+    private cmdRelay: CommandRelay;
+    private repeater: WhichKeyRepeater;
+    private bindingItems?: BindingItem[];
+    private config?: WhichKeyConfig;
+    private onConfigChangeListener?: Disposable;
+    constructor(statusBar: StatusBar, cmdRelay: CommandRelay) {
+        this.statusBar = statusBar;
+        this.cmdRelay = cmdRelay;
+        this.repeater = new WhichKeyRepeater(statusBar, cmdRelay);
+    }
+
+    register(config: WhichKeyConfig): void {
+        this.unregister();
+        this.config = config;
+
+        const bindings = getCanonicalConfig(config);
+        this.bindingItems = bindings.map(b => new WhichKeyMenuItem(b));
+
+        this.onConfigChangeListener = workspace.onDidChangeConfiguration((e) => {
+            if (
+                e.affectsConfiguration(Configs.SortOrder) ||
+                e.affectsConfiguration(config.bindings) ||
+                (config.overrides && e.affectsConfiguration(config.overrides))
+            ) {
+                this.unregister();
+                this.register(config);
+            }
+        }, this);
+    }
+
+    unregister(): void {
+        this.onConfigChangeListener?.dispose();
+        this.repeater.clear();
+    }
+
+    show(): Promise<void> {
+        const delay = getConfig<number>(Configs.Delay);
+        const config = {
+            bindings: this.bindingItems!, delay, title: this.config?.title
+        };
+        return showWhichKeyMenu(this.statusBar, this.cmdRelay, this.repeater, config);
+    }
+
+    showPreviousActions(): Promise<void> {
+        return this.repeater.show();
+    }
+
+    repeatLastAction(): Promise<void> {
+        return this.repeater.repeatLastAction();
+    }
+
+    static show(bindings: BindingItem[], statusBar: StatusBar, cmdRelay: CommandRelay): Promise<void> {
+        const delay = getConfig<number>(Configs.Delay);
+        const config = { bindings, delay };
+        return showWhichKeyMenu(statusBar, cmdRelay, undefined, config);
+    }
 }

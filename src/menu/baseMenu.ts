@@ -10,10 +10,10 @@ export abstract class BaseMenu<T extends QuickPickItem> implements Disposable {
 
     public title: string | undefined = undefined;
     public placeholder: string | undefined = undefined;
-    public matchOnDetail: boolean = false;
-    public matchOnDescription: boolean = false;
-    public value: string = "";
-    public busy: boolean = false;
+    public matchOnDetail = false;
+    public matchOnDescription = false;
+    public value = "";
+    public busy = false;
     public items: readonly T[] = [];
 
     onDidResolve?: () => any;
@@ -64,14 +64,14 @@ export abstract class BaseMenu<T extends QuickPickItem> implements Disposable {
         });
     }
 
-    private async onDidAccept() {
+    private async onDidAccept(): Promise<void> {
         if (this.quickPick.activeItems.length > 0) {
             const item = this.quickPick.activeItems[0];
             await this.accept(item);
         }
     }
 
-    protected async accept(item: T) {
+    protected async accept(item: T): Promise<void> {
         try {
             await this.setValue("");
             this.quickPick.placeholder = undefined;
@@ -85,7 +85,7 @@ export abstract class BaseMenu<T extends QuickPickItem> implements Disposable {
 
     protected abstract handleAcceptance(item: T): Thenable<unknown>;
 
-    protected async onDidHide() {
+    protected async onDidHide(): Promise<void> {
         if (!this.isHiding) {
             // Dispose correctly when it is not manually hiding
             this.resolve();
@@ -102,21 +102,21 @@ export abstract class BaseMenu<T extends QuickPickItem> implements Disposable {
         return Promise.resolve();
     }
 
-    protected resolve() {
+    protected resolve(): void {
         this.dispose();
         if (this.onDidResolve) {
             this.onDidResolve();
         }
     }
 
-    protected reject(e: any) {
+    protected reject(e: any): void {
         this.dispose();
         if (this.onDidReject) {
             this.onDidReject(e);
         }
     }
 
-    protected async update() {
+    protected async update(): Promise<void> {
         this.quickPick.title = this.title;
         this.quickPick.placeholder = this.placeholder;
         this.quickPick.matchOnDetail = this.matchOnDetail;
@@ -126,14 +126,14 @@ export abstract class BaseMenu<T extends QuickPickItem> implements Disposable {
         this.quickPick.items = this.items;
     }
 
-    async show() {
+    async show(): Promise<void> {
         await this.onVisibilityChange(true);
         await this.update();
         this.quickPick.show();
     }
 
     // Manually hide the menu
-    hide() {
+    hide(): Promise<void> {
         return new Promise<void>(r => {
             this.isHiding = true;
             const disposable = this.quickPick.onDidHide(() => {
@@ -145,7 +145,7 @@ export abstract class BaseMenu<T extends QuickPickItem> implements Disposable {
         });
     }
 
-    dispose() {
+    dispose(): void {
         for (const d of this.disposables) {
             d.dispose();
         }
