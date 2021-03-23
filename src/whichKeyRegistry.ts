@@ -54,10 +54,6 @@ export class WhichKeyRegistry implements Disposable {
         }
     }
 
-    showBindings(args: any) {
-        return this.getRegister(args).showPreviousActions();
-    }
-
     showPreviousAction(args: any) {
         return this.getRegister(args).showPreviousActions();
     }
