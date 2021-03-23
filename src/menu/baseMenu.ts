@@ -127,7 +127,7 @@ export abstract class BaseMenu<T extends QuickPickItem> implements Disposable {
     }
 
     async show() {
-        await this.onVisibilityChange(false);
+        await this.onVisibilityChange(true);
         await this.update();
         this.quickPick.show();
     }
