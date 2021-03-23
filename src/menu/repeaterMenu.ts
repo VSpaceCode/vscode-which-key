@@ -1,26 +1,26 @@
 import { CommandRelay } from "../commandRelay";
-import { IStatusBar } from "../statusBar";
-import { BaseWhichKeyMenu, IBaseWhichKeyMenuItem } from "./baseWhichKeyMenu";
+import { StatusBar } from "../statusBar";
+import { BaseWhichKeyMenu, BaseWhichKeyMenuItem } from "./baseWhichKeyMenu";
 
-export interface IRepeaterMenuItem extends IBaseWhichKeyMenuItem {
+export interface RepeaterMenuItem extends BaseWhichKeyMenuItem {
     accept: () => Thenable<unknown>;
 }
 
-class RepeaterMenu extends BaseWhichKeyMenu<IRepeaterMenuItem> {
-    private statusBar: IStatusBar;
+class RepeaterMenu extends BaseWhichKeyMenu<RepeaterMenuItem> {
+    private statusBar: StatusBar;
 
-    constructor(statusBar: IStatusBar, cmdRelay: CommandRelay) {
+    constructor(statusBar: StatusBar, cmdRelay: CommandRelay) {
         super(cmdRelay);
         this.statusBar = statusBar;
     }
 
-    protected async onItemNotMatch(value: string) {
+    protected async onItemNotMatch(value: string): Promise<void> {
         await this.hide();
         this.statusBar.setErrorMessage(`${value} is undefined`);
         this.resolve();
     }
 
-    protected async handleAcceptance(item: IRepeaterMenuItem) {
+    protected async handleAcceptance(item: RepeaterMenuItem): Promise<void> {
         this.statusBar.hide();
 
         await this.hide();
@@ -29,7 +29,7 @@ class RepeaterMenu extends BaseWhichKeyMenu<IRepeaterMenuItem> {
     }
 }
 
-export function showRepeaterMenu(statusBar: IStatusBar, cmdRelay: CommandRelay, items: IRepeaterMenuItem[], title?: string) {
+export function showRepeaterMenu(statusBar: StatusBar, cmdRelay: CommandRelay, items: RepeaterMenuItem[], title?: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         const menu = new RepeaterMenu(statusBar, cmdRelay);
         menu.title = title;

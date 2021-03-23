@@ -1,16 +1,16 @@
 import { CommandRelay } from "../commandRelay";
 import { resolveBindings, TransientMenuConfig } from "../config/menuConfig";
 import { ContextKey } from "../constants";
-import { IStatusBar } from "../statusBar";
+import { StatusBar } from "../statusBar";
 import { executeCommands, setContext, specializeBindingKey } from "../utils";
 import { BaseWhichKeyMenu } from "./baseWhichKeyMenu";
-import { ITransientMenuItem, TransientMenuItem } from "./transientMenuItem";
+import { TransientMenuItem } from "./transientMenuItem";
 
-class TransientMenu extends BaseWhichKeyMenu<ITransientMenuItem> {
-    private statusBar: IStatusBar;
+class TransientMenu extends BaseWhichKeyMenu<TransientMenuItem> {
+    private statusBar: StatusBar;
     private isInZenMode: boolean;
 
-    constructor(statusBar: IStatusBar, cmdRelay: CommandRelay) {
+    constructor(statusBar: StatusBar, cmdRelay: CommandRelay) {
         super(cmdRelay);
         this.disposables.push(
             cmdRelay.onDidToggleZenMode(this.toggleZenMode, this)
@@ -19,7 +19,7 @@ class TransientMenu extends BaseWhichKeyMenu<ITransientMenuItem> {
         this.isInZenMode = false;
     }
 
-    protected async onItemNotMatch(value: string) {
+    protected async onItemNotMatch(value: string): Promise<void> {
         this.value = "";
         this.update();
         this.statusBar.setErrorMessage(`${specializeBindingKey(value)} is undefined`);
@@ -29,7 +29,7 @@ class TransientMenu extends BaseWhichKeyMenu<ITransientMenuItem> {
         return setContext(ContextKey.TransientVisible, visible);
     }
 
-    protected async handleAcceptance(item: ITransientMenuItem) {
+    protected async handleAcceptance(item: TransientMenuItem): Promise<void> {
         await this.hide();
         if (item.commands) {
             await executeCommands(item.commands, item.args);
@@ -42,7 +42,7 @@ class TransientMenu extends BaseWhichKeyMenu<ITransientMenuItem> {
         }
     }
 
-    protected async update() {
+    protected async update(): Promise<void> {
         this.quickPick.matchOnDetail = this.matchOnDetail;
         this.quickPick.placeholder = this.placeholder;
         this.quickPick.matchOnDescription = this.matchOnDescription;
@@ -54,19 +54,19 @@ class TransientMenu extends BaseWhichKeyMenu<ITransientMenuItem> {
         }
     }
 
-    exitZenMode() {
+    exitZenMode(): void {
         this.quickPick.items = this.items;
         this.quickPick.title = this.title;
         this.isInZenMode = false;
     }
 
-    enterZenMode() {
+    enterZenMode(): void {
         this.quickPick.items = [];
         this.quickPick.title = "";
         this.isInZenMode = true;
     }
 
-    toggleZenMode() {
+    toggleZenMode(): void {
         if (this.isInZenMode) {
             this.exitZenMode();
         } else {
@@ -75,7 +75,7 @@ class TransientMenu extends BaseWhichKeyMenu<ITransientMenuItem> {
     }
 }
 
-export function showTransientMenu(statusBar: IStatusBar, cmdRelay: CommandRelay, config: TransientMenuConfig) {
+export function showTransientMenu(statusBar: StatusBar, cmdRelay: CommandRelay, config: TransientMenuConfig): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         const menu = new TransientMenu(statusBar, cmdRelay);
         menu.title = config.title;

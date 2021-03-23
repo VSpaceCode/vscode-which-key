@@ -1,11 +1,11 @@
 import { commands, workspace } from "vscode";
 import { CharCode } from "./charCode";
 
-export function setContext(key: string, value: any) {
+export function setContext(key: string, value: any): Thenable<unknown> {
     return commands.executeCommand("setContext", key, value);
 }
 
-export function executeCommand(cmd: string, args: any) {
+export function executeCommand(cmd: string, args: any): Thenable<unknown> {
     if (Array.isArray(args)) {
         const arr = args as any[];
         return commands.executeCommand(cmd, ...arr);
@@ -18,7 +18,7 @@ export function executeCommand(cmd: string, args: any) {
     }
 }
 
-export async function executeCommands(cmds: string[], args: any) {
+export async function executeCommands(cmds: string[], args: any): Promise<void> {
     for (let i = 0; i < cmds.length; i++) {
         const cmd = cmds[i];
         const arg = args?.[i];
@@ -30,7 +30,7 @@ export async function executeCommands(cmds: string[], args: any) {
  * Get workspace configuration
  * @param section The configuration name.
  */
-export function getConfig<T>(section: string) {
+export function getConfig<T>(section: string): T | undefined {
     // Get the minimal scope
     let filterSection: string | undefined = undefined;
     let lastSection: string = section;
@@ -44,7 +44,7 @@ export function getConfig<T>(section: string) {
 }
 
 // https://en.wikipedia.org/wiki/Halfwidth_and_Fullwidth_Forms_(Unicode_block)
-export function toFullWidthKey(s: string) {
+export function toFullWidthKey(s: string): string {
     let key = "";
     for (const symbol of s) {
         const codePoint = symbol.codePointAt(0);
@@ -64,7 +64,7 @@ export function toFullWidthKey(s: string) {
     return key;
 }
 
-export function specializeBindingKey(s: string) {
+export function specializeBindingKey(s: string): string {
     let key = "";
     for (const symbol of s) {
         const codePoint = symbol.codePointAt(0);

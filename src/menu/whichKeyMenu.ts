@@ -2,7 +2,7 @@ import { window } from "vscode";
 import { toCommands } from "../config/bindingItem";
 import { CommandRelay } from "../commandRelay";
 import { ContextKey } from "../constants";
-import { IStatusBar } from "../statusBar";
+import { StatusBar } from "../statusBar";
 import { executeCommands, setContext, specializeBindingKey } from "../utils";
 import { WhichKeyRepeater } from "../whichKeyRepeater";
 import { BaseWhichKeyMenu } from "./baseWhichKeyMenu";
@@ -12,37 +12,37 @@ import { createDescBindItems } from "./descBindMenuItem";
 import { showDescBindMenu } from "./descBindMenu";
 
 class WhichKeyMenu extends BaseWhichKeyMenu<WhichKeyMenuItem>{
-    private statusBar: IStatusBar;
+    private statusBar: StatusBar;
     private repeater?: WhichKeyRepeater;
     private itemHistory: WhichKeyMenuItem[];
 
-    delay: number = 0;
+    private delay: number;
     private timeoutId?: NodeJS.Timeout;
 
-    constructor(statusBar: IStatusBar, cmdRelay: CommandRelay, repeater?: WhichKeyRepeater) {
+    constructor(statusBar: StatusBar, cmdRelay: CommandRelay, repeater?: WhichKeyRepeater, delay = 0) {
         super(cmdRelay);
         this.disposables.push(
             cmdRelay.onShowBindings(this.onShowBindings, this)
         );
         this.statusBar = statusBar;
         this.repeater = repeater;
+        this.delay = delay;
         this.itemHistory = [];
     }
 
-    private onShowBindings() {
+    private onShowBindings(): Promise<void> {
         const items = createDescBindItems(this.items, this.itemHistory);
         return showDescBindMenu(items, "Show Keybindings");
     }
 
-    protected async onItemNotMatch(value: string) {
+    protected async onItemNotMatch(value: string): Promise<void> {
         await this.hide();
         const keyCombo = this.toHistoricalKeysString(value);
         this.statusBar.setErrorMessage(`${keyCombo} is undefined`);
         this.resolve();
     }
 
-
-    private toHistoricalKeysString(currentKey?: string) {
+    private toHistoricalKeysString(currentKey?: string): string {
         let keyCombo = this.itemHistory.map(i => i.key);
         if (currentKey) {
             keyCombo = keyCombo.concat(currentKey);
@@ -50,16 +50,16 @@ class WhichKeyMenu extends BaseWhichKeyMenu<WhichKeyMenuItem>{
         return keyCombo.map(specializeBindingKey).join(' ');
     }
 
-    protected async onDidHide() {
+    protected async onDidHide(): Promise<void> {
         this.clearDelay();
-        super.onDidHide();
+        await super.onDidHide();
     }
 
-    protected onVisibilityChange(visible: boolean) {
+    protected onVisibilityChange(visible: boolean): Thenable<unknown> {
         return setContext(ContextKey.Visible, visible);
     }
 
-    protected async handleAcceptance(item: WhichKeyMenuItem) {
+    protected async handleAcceptance(item: WhichKeyMenuItem): Promise<void> {
         this.itemHistory.push(item);
         this.statusBar.hide();
         this.clearDelay();
@@ -88,51 +88,34 @@ class WhichKeyMenu extends BaseWhichKeyMenu<WhichKeyMenuItem>{
         }
     }
 
-    private clearDelay() {
+    private clearDelay(): void {
         if (this.timeoutId) {
             clearTimeout(this.timeoutId);
             this.timeoutId = undefined;
         }
     }
 
-    protected async update() {
+    protected async update(): Promise<void> {
         this.quickPick.placeholder = this.placeholder;
         this.quickPick.matchOnDetail = this.matchOnDetail;
         this.quickPick.matchOnDescription = this.matchOnDescription;
         await this.setValue(this.value);
         this.quickPick.busy = this.busy;
-        this.timeoutId = setTimeout((() => {
+        this.timeoutId = setTimeout(((): void => {
             this.clearDelay();
             this.quickPick.title = this.title;
             this.quickPick.items = this.items;
         }).bind(this), this.delay);
     }
 
-    dispose() {
+    dispose(): void {
         this.clearDelay();
         this.statusBar.hidePlain();
         super.dispose();
     }
 }
 
-export function showWhichKeyMenu(statusBar: IStatusBar, cmdRelay: CommandRelay, repeater: WhichKeyRepeater | undefined, config: WhichKeyMenuConfig) {
-    const menu = new WhichKeyMenu(statusBar, cmdRelay, repeater);
-    menu.items = config.bindings.map(b => new WhichKeyMenuItem(b));
-    menu.delay = config.delay ?? 0;
-    menu.title = config.title;
-    // Explicitly not wait for the whole menu to resolve
-    // to fix the issue where executing show command which can freeze vim instead of waiting on menu.
-    // In addition, show command waits until we call menu show to allow chaining command of show and triggerKey.
-    // Specifically, when triggerKey called before shown is done. The value will be set before shown, which causes the
-    // value to be selected.
-    waitForMenu(menu);
-    return Promise.all([
-        setContext(ContextKey.Active, true),
-        menu.show()
-    ]);
-}
-
-async function waitForMenu(menu: WhichKeyMenu) {
+async function waitForMenu(menu: WhichKeyMenu): Promise<void> {
     try {
         await new Promise<void>((resolve, reject) => {
             menu.onDidResolve = resolve;
@@ -150,4 +133,20 @@ async function waitForMenu(menu: WhichKeyMenu) {
             setContext(ContextKey.Visible, false)
         ]);
     }
+}
+
+export async function showWhichKeyMenu(statusBar: StatusBar, cmdRelay: CommandRelay, repeater: WhichKeyRepeater | undefined, config: WhichKeyMenuConfig): Promise<void> {
+    const menu = new WhichKeyMenu(statusBar, cmdRelay, repeater, config.delay);
+    menu.items = config.bindings.map(b => new WhichKeyMenuItem(b));
+    menu.title = config.title;
+    // Explicitly not wait for the whole menu to resolve
+    // to fix the issue where executing show command which can freeze vim instead of waiting on menu.
+    // In addition, show command waits until we call menu show to allow chaining command of show and triggerKey.
+    // Specifically, when triggerKey called before shown is done. The value will be set before shown, which causes the
+    // value to be selected.
+    waitForMenu(menu);
+    await Promise.all([
+        setContext(ContextKey.Active, true),
+        menu.show()
+    ]);
 }

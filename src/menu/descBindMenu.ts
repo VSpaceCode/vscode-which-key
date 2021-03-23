@@ -3,7 +3,7 @@ import { BaseMenu } from "./baseMenu";
 import { DescBindMenuItem } from "./descBindMenuItem";
 
 class DescBindMenu extends BaseMenu<DescBindMenuItem> {
-    protected async handleAcceptance(val: DescBindMenuItem) {
+    protected async handleAcceptance(val: DescBindMenuItem): Promise<void> {
         if (val.commands) {
             await this.hide();
             await executeCommands(val.commands, val.args);
@@ -19,7 +19,7 @@ class DescBindMenu extends BaseMenu<DescBindMenuItem> {
     }
 }
 
-export function showDescBindMenu(items: DescBindMenuItem[], title?: string) {
+export function showDescBindMenu(items: DescBindMenuItem[], title?: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         const menu = new DescBindMenu();
         menu.matchOnDescription = true;

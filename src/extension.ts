@@ -6,7 +6,7 @@ import { StatusBar } from './statusBar';
 import { WhichKeyRegistry } from './whichKeyRegistry';
 
 
-async function openFile() {
+async function openFile(): Promise<void> {
     try {
         await commands.executeCommand("workbench.action.files.openFile");
     } catch {
@@ -16,7 +16,7 @@ async function openFile() {
     }
 }
 
-export function activate(context: ExtensionContext) {
+export function activate(context: ExtensionContext): void {
     const statusBar = new StatusBar();
     const cmdRelay = new CommandRelay();
     const registry = new WhichKeyRegistry(statusBar, cmdRelay);
@@ -35,5 +35,3 @@ export function activate(context: ExtensionContext) {
 
     context.subscriptions.push(registry, cmdRelay, statusBar);
 }
-
-export function deactivate() { }
