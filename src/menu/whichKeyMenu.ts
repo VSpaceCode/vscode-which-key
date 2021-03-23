@@ -8,6 +8,8 @@ import { WhichKeyRepeater } from "../whichKeyRepeater";
 import { BaseWhichKeyMenu } from "./baseWhichKeyMenu";
 import { WhichKeyMenuItem } from "./whichKeyMenuItem";
 import { WhichKeyMenuConfig } from "../config/menuConfig";
+import { createDescBindItems } from "./descBindMenuItem";
+import { showDescBindMenu } from "./descBindMenu";
 
 class WhichKeyMenu extends BaseWhichKeyMenu<WhichKeyMenuItem>{
     private statusBar: IStatusBar;
@@ -19,9 +21,17 @@ class WhichKeyMenu extends BaseWhichKeyMenu<WhichKeyMenuItem>{
 
     constructor(statusBar: IStatusBar, cmdRelay: CommandRelay, repeater?: WhichKeyRepeater) {
         super(cmdRelay);
+        this.disposables.push(
+            cmdRelay.onShowBindings(this.onShowBindings, this)
+        );
         this.statusBar = statusBar;
         this.repeater = repeater;
         this.itemHistory = [];
+    }
+
+    private onShowBindings() {
+        const items = createDescBindItems(this.items, this.itemHistory);
+        return showDescBindMenu(items, "Show Keybindings");
     }
 
     protected async onItemNotMatch(value: string) {

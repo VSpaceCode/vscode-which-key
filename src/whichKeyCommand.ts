@@ -57,11 +57,6 @@ export default class WhichKeyCommand {
         showWhichKeyMenu(this.statusBar, this.cmdRelay, this.repeater, config);
     }
 
-    showBindings() {
-        const items = createDescBindItems(this.bindingItems!);
-        return showDescBindMenu(items, "Show Keybindings");
-    }
-
     showPreviousActions() {
         return this.repeater.show();
     }

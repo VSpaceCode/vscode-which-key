@@ -13,6 +13,7 @@ export function createDescBindItems(items: readonly BindingItem[], path: Binding
     const next: DescBindMenuItem[] = [];
 
     for (const i of items) {
+        path = path.filter(p => p.type === ActionType.Bindings);
         const menuItem = conversion(i, path);
         curr.push(menuItem);
         if (menuItem.items) {

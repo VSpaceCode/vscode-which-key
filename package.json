@@ -37,7 +37,6 @@
 	},
 	"activationEvents": [
 		"onCommand:whichkey.show",
-		"onCommand:whichkey.showBindings",
 		"onCommand:whichkey.showTransient",
 		"onCommand:whichkey.showPreviousActions",
 		"onCommand:whichkey.repeatLastAction",
@@ -51,6 +50,11 @@
 				"key": "tab",
 				"command": "whichkey.triggerKey",
 				"args": "\t",
+				"when": "whichkeyVisible"
+			},
+			{
+				"key": "ctrl+h",
+				"command": "whichkey.showBindings",
 				"when": "whichkeyVisible"
 			}
 		],
