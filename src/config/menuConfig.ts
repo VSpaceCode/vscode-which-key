@@ -1,7 +1,7 @@
 import { getConfig } from "../utils";
 import { BindingItem, TransientBindingItem } from "./bindingItem";
 
-export type Bindings<T> = T[] | string;
+export type MaybeConfig<T> = T | string | undefined;
 
 export interface WhichKeyMenuConfig {
     title?: string;
@@ -11,12 +11,12 @@ export interface WhichKeyMenuConfig {
 
 export interface TransientMenuConfig {
     title?: string;
-    bindings: Bindings<TransientBindingItem>;
+    bindings: TransientBindingItem[];
 }
 
-export function resolveBindings<T>(b: Bindings<T>): T[] {
+export function resolveMaybeConfig<T>(b?: MaybeConfig<T>): T | undefined {
     if (typeof b === 'string') {
-        return getConfig<T[]>(b) ?? [];
+        return getConfig<T>(b);
     } else {
         return b;
     }
