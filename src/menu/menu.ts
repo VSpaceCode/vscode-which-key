@@ -2,6 +2,7 @@ import { commands, Disposable, QuickPick, version, window } from "vscode";
 import { ContextKey, defaultStatusBarTimeout } from "../constants";
 import KeyListener, { KeybindingArgs } from "../keyListener";
 import { setStatusBarMessage } from "../statusBar";
+import { Version } from "../version";
 import { BaseMenuItem, convertToMenuLabel } from "./menuItem";
 
 export class WhichKeyMenu {
@@ -65,12 +66,13 @@ export class WhichKeyMenu {
 
     /**
      * Set the value of the QuickPick without triggering the onDidChangeValue event.
-     * @param v the string value to set the filter text of the QuickPick.
+     * @param value the string value to set the filter text of the QuickPick.
      */
-    private setValue(v: string): Promise<void> {
+    private setValue(value: string): Promise<void> {
         return new Promise<void>((resolve) => {
-            if (this.quickPick.value !== v) {
-                if (version.startsWith("1.57")) {
+            if (this.quickPick.value !== value) {
+                const v = Version.parse(version);
+                if (v.major >= 1 && v.minor >= 57) {
                     // vscode 1.57 or later changed the onDidChangeValue API
                     // https://github.com/microsoft/vscode/issues/122939
                     //
@@ -86,9 +88,9 @@ export class WhichKeyMenu {
                         d.dispose();
                         resolve();
                     });
-                    this.quickPick.value = v;
+                    this.quickPick.value = value;
                 } else {
-                    this.quickPick.value = v;
+                    this.quickPick.value = value;
                     resolve();
                 }
             } else {
