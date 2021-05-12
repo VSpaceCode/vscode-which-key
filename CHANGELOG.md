@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.5] - 2021-05-12
+
 ### Fixed
-- Fix the name `<spc> g s` binding
+- Fix the name of `<spc> g s` binding
 - Fix vscode 1.57 insider QuickPick API change issue (#34)
 
 ## [0.8.4] - 2020-12-14
