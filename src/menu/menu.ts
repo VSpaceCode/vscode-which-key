@@ -1,4 +1,4 @@
-import { commands, Disposable, QuickPick, window } from "vscode";
+import { commands, Disposable, QuickPick, version, window } from "vscode";
 import { ContextKey, defaultStatusBarTimeout } from "../constants";
 import KeyListener, { KeybindingArgs } from "../keyListener";
 import { setStatusBarMessage } from "../statusBar";
@@ -12,6 +12,7 @@ export class WhichKeyMenu {
 
     private quickPick: QuickPick<BaseMenuItem>;
     private disposables: Disposable[];
+    private onDidChangeValueDisposable: Disposable;
     private isHiding: boolean;
     private itemHistory: BaseMenuItem[];
 
@@ -42,10 +43,10 @@ export class WhichKeyMenu {
         });
         this.disposables = [
             this.keyListener.onDidKeyPressed(this.onDidKeyPressed, this),
-            this.quickPick.onDidChangeValue(this.onDidChangeValue, this),
             this.quickPick.onDidAccept(this.onDidAccept, this),
             this.quickPick.onDidHide(this.onDidHide, this)
         ];
+        this.onDidChangeValueDisposable = this.quickPick.onDidChangeValue(this.onDidChangeValue, this);
         this.isHiding = false;
         this.itemHistory = [];
     }
@@ -58,9 +59,47 @@ export class WhichKeyMenu {
         };
     }
 
-    private onDidKeyPressed(value: KeybindingArgs) {
-        this.quickPick.value += value.key;
-        this.onDidChangeValue(this.quickPick.value, value.when);
+    private get value() {
+        return this.quickPick.value;
+    }
+
+    /**
+     * Set the value of the QuickPick without triggering the onDidChangeValue event.
+     * @param v the string value to set the filter text of the QuickPick.
+     */
+    private setValue(v: string): Promise<void> {
+        return new Promise<void>((resolve) => {
+            if (this.quickPick.value !== v) {
+                if (version.startsWith("1.57")) {
+                    // vscode 1.57 or later changed the onDidChangeValue API
+                    // https://github.com/microsoft/vscode/issues/122939
+                    //
+                    // The workaround is as follow:
+                    // 1. Remove the existing listener
+                    // 2. Set up temp listener
+                    // 3. Update value
+                    // 4. Wait until the temp listener is trigger
+                    // 5. Restore the onDidChangeValue listener
+                    this.onDidChangeValueDisposable.dispose();
+                    const d = this.quickPick.onDidChangeValue(() => {
+                        this.onDidChangeValueDisposable = this.quickPick.onDidChangeValue(this.onDidChangeValue, this);
+                        d.dispose();
+                        resolve();
+                    });
+                    this.quickPick.value = v;
+                } else {
+                    this.quickPick.value = v;
+                    resolve();
+                }
+            } else {
+                resolve();
+            }
+        });
+    }
+
+    private async onDidKeyPressed(value: KeybindingArgs) {
+        await this.setValue(this.value + value.key);
+        await this.onDidChangeValue(this.value, value.when);
     }
 
     private async onDidChangeValue(value: string, when?: string) {
@@ -72,14 +111,14 @@ export class WhichKeyMenu {
                 value = value.substring(this.enteredValue.length);
             } else if (this.enteredValue.startsWith(value)) {
                 // Disallow user from removing entered value when in delay 
-                this.quickPick.value = this.enteredValue;
+                await this.setValue(this.enteredValue);
                 return;
             } else {
                 // special case for fixing the quick pick value if trigger key command
                 // was called before the menu is displayed. When the menu is displayed,
                 // quick pick value is then selected. Any subsequent key will remove
                 // the value in the input.
-                this.quickPick.value = this.enteredValue + value;
+                await this.setValue(this.enteredValue + value);
             }
         }
 
@@ -195,10 +234,10 @@ export class WhichKeyMenu {
     }
 
     private async show() {
-        const updateQuickPick = () => {
+        const updateQuickPick = async () => {
             this.quickPick.busy = false;
             this.enteredValue = '';
-            this.quickPick.value = '';
+            await this.setValue('');
             this.quickPick.title = this.title;
             this.quickPick.items = this.items;
         };
@@ -213,7 +252,7 @@ export class WhichKeyMenu {
                 updateQuickPick();
             }, this.delay);
         } else {
-            updateQuickPick();
+            await updateQuickPick();
         }
 
         const thenable = setContext(ContextKey.Visible, true);
@@ -226,11 +265,12 @@ export class WhichKeyMenu {
             d.dispose();
         }
 
+        this.onDidChangeValueDisposable.dispose();
         this.quickPick.dispose();
     }
 
     static show(keyListener: KeyListener, items: BaseMenuItem[], isTransient: boolean, delay: number, title?: string) {
-        return new Promise(async (resolve) => {
+        return new Promise<void>(async (resolve) => {
             try {
                 const menu = new WhichKeyMenu(keyListener, items, isTransient, delay, title);
                 await Promise.all([
