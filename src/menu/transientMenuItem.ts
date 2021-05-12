@@ -15,6 +15,10 @@ export class TransientMenuItem implements TransientBindingItem, BaseWhichKeyMenu
         return this._binding.name;
     }
 
+    get command(): string | undefined {
+        return this._binding.command;
+    }
+
     get commands(): string[] | undefined {
         return this._binding.commands;
     }

@@ -1,5 +1,6 @@
 import { CommandRelay } from "../commandRelay";
-import { resolveBindings, TransientMenuConfig } from "../config/menuConfig";
+import { toCommands } from "../config/bindingItem";
+import { MaybeConfig, resolveMaybeConfig, TransientMenuConfig } from "../config/menuConfig";
 import { ContextKey } from "../constants";
 import { StatusBar } from "../statusBar";
 import { executeCommands, setContext, specializeBindingKey } from "../utils";
@@ -31,9 +32,8 @@ class TransientMenu extends BaseWhichKeyMenu<TransientMenuItem> {
 
     protected async handleAcceptance(item: TransientMenuItem): Promise<void> {
         await this.hide();
-        if (item.commands) {
-            await executeCommands(item.commands, item.args);
-        }
+        const { commands, args } = toCommands(item);
+        await executeCommands(commands, args);
 
         if (item.exit === true) {
             this.resolve();
@@ -75,11 +75,12 @@ class TransientMenu extends BaseWhichKeyMenu<TransientMenuItem> {
     }
 }
 
-export function showTransientMenu(statusBar: StatusBar, cmdRelay: CommandRelay, config: TransientMenuConfig): Promise<void> {
+export function showTransientMenu(statusBar: StatusBar, cmdRelay: CommandRelay, config: MaybeConfig<TransientMenuConfig>): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         const menu = new TransientMenu(statusBar, cmdRelay);
-        menu.title = config.title;
-        menu.items = resolveBindings(config.bindings).map(b => new TransientMenuItem(b));
+        const menuConfig = resolveMaybeConfig(config);
+        menu.title = menuConfig?.title;
+        menu.items = menuConfig?.bindings.map(b => new TransientMenuItem(b)) ?? [];
         menu.onDidResolve = resolve;
         menu.onDidReject = reject;
         menu.show();

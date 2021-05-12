@@ -6,32 +6,30 @@ export const enum ActionType {
     Conditional = "conditional",
 }
 
-export interface BindingItem {
-    key: string;
-    name: string;
-    type: ActionType;
+export interface CommandItem {
     command?: string;
     commands?: string[];
     args?: any;
+}
+
+export interface BindingItem extends CommandItem {
+    key: string;
+    name: string;
+    type: ActionType;
     bindings?: BindingItem[];
 }
 
-export interface OverrideBindingItem {
+export interface OverrideBindingItem extends CommandItem {
     keys: string | string[];
     position?: number;
     name?: string;
     type?: ActionType;
-    command?: string;
-    commands?: string[];
-    args?: any;
     bindings?: BindingItem[];
 }
 
-export interface TransientBindingItem {
+export interface TransientBindingItem extends CommandItem {
     key: string;
     name: string;
-    commands?: string[];
-    args?: any;
     exit?: boolean;
 }
 
@@ -45,7 +43,7 @@ export function toBindingItem(o: any): BindingItem | undefined {
     return undefined;
 }
 
-export function toCommands(b: BindingItem): {
+export function toCommands(b: CommandItem): {
     commands: string[];
     args: any;
 } {

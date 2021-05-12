@@ -73,177 +73,154 @@
 					"whichkey.transient": {
 						"type": "object",
 						"default": {
-							"error": [
-								{
-									"key": "N",
-									"name": "Previous error",
-									"commands": [
-										"editor.action.marker.prev"
-									]
-								},
-								{
-									"key": "n",
-									"name": "Next error",
-									"commands": [
-										"editor.action.marker.next"
-									]
-								},
-								{
-									"key": "p",
-									"name": "Previous error",
-									"commands": [
-										"editor.action.marker.prev"
-									]
-								}
-							],
-							"symbol": [
-								{
-									"key": "p",
-									"name": "Previous occurrence",
-									"commands": [
-										"editor.action.wordHighlight.prev"
-									]
-								},
-								{
-									"key": "N",
-									"name": "Previous occurrence",
-									"commands": [
-										"editor.action.wordHighlight.prev"
-									]
-								},
-								{
-									"key": "n",
-									"name": "Next occurrence",
-									"commands": [
-										"editor.action.wordHighlight.next"
-									]
-								},
-								{
-									"key": "/",
-									"name": "Search in a project with a selection",
-									"commands": [
-										"editor.action.addSelectionToNextFindMatch",
-										"workbench.action.findInFiles"
-									]
-								}
-							],
-							"lineMoving": [
-								[
+							"error": {
+								"title": "Error transient",
+								"bindings": [
+									{
+										"key": "N",
+										"name": "Previous error",
+										"command": "editor.action.marker.prev"
+									},
+									{
+										"key": "n",
+										"name": "Next error",
+										"command": "editor.action.marker.next"
+									},
+									{
+										"key": "p",
+										"name": "Previous error",
+										"command": "editor.action.marker.prev"
+									}
+								]
+							},
+							"symbol": {
+								"title": "Highlight symbol transient",
+								"bindings": [
+									{
+										"key": "p",
+										"name": "Previous occurrence",
+										"command": "editor.action.wordHighlight.prev"
+									},
+									{
+										"key": "N",
+										"name": "Previous occurrence",
+										"command": "editor.action.wordHighlight.prev"
+									},
+									{
+										"key": "n",
+										"name": "Next occurrence",
+										"command": "editor.action.wordHighlight.next"
+									},
+									{
+										"key": "/",
+										"name": "Search in a project with a selection",
+										"commands": [
+											"editor.action.addSelectionToNextFindMatch",
+											"workbench.action.findInFiles"
+										]
+									}
+								]
+							},
+							"lineMoving": {
+								"title": "Line moving transient",
+								"bindings": [
 									{
 										"key": "J",
 										"name": "Move lines down",
-										"commands": [
-											"editor.action.moveLinesDownAction"
-										]
+										"command": "editor.action.moveLinesDownAction"
 									},
 									{
 										"key": "K",
 										"name": "Move lines up",
-										"commands": [
-											"editor.action.moveLinesUpAction"
-										]
+										"command": "editor.action.moveLinesUpAction"
 									}
 								]
-							],
-							"frameZooming": [
-								{
-									"key": "=",
-									"name": "Zoom in",
-									"commands": [
-										"workbench.action.zoomIn"
-									]
-								},
-								{
-									"key": "+",
-									"name": "Zoom in",
-									"commands": [
-										"workbench.action.zoomIn"
-									]
-								},
-								{
-									"key": "-",
-									"name": "Zoom out",
-									"commands": [
-										"workbench.action.zoomOut"
-									]
-								},
-								{
-									"key": "0",
-									"name": "Reset zoom",
-									"commands": [
-										"workbench.action.zoomReset"
-									]
-								}
-							],
-							"fontZooming": [
-								{
-									"key": "=",
-									"name": "Zoom in",
-									"commands": [
-										"editor.action.fontZoomIn"
-									]
-								},
-								{
-									"key": "+",
-									"name": "Zoom in",
-									"commands": [
-										"editor.action.fontZoomIn"
-									]
-								},
-								{
-									"key": "-",
-									"name": "Zoom out",
-									"commands": [
-										"editor.action.fontZoomOut"
-									]
-								},
-								{
-									"key": "0",
-									"name": "Reset zoom",
-									"commands": [
-										"editor.action.fontZoomReset"
-									]
-								}
-							],
-							"imageZooming": [
-								{
-									"key": "=",
-									"name": "Zoom in",
-									"commands": [
-										"imagePreview.zoomIn"
-									]
-								},
-								{
-									"key": "+",
-									"name": "Zoom in",
-									"commands": [
-										"imagePreview.zoomIn"
-									]
-								},
-								{
-									"key": "-",
-									"name": "Zoom out",
-									"commands": [
-										"imagePreview.zoomOut"
-									]
-								}
-							],
-							"smartExpand": [
-								{
-									"key": "v",
-									"name": "Grow selection",
-									"commands": [
-										"editor.action.smartSelect.grow"
-									]
-								},
-								{
-									"key": "V",
-									"name": "Shrink selection",
-									"commands": [
-										"editor.action.smartSelect.shrink"
-									]
-								}
-							]
+							},
+							"frameZooming": {
+								"title": "Frame zooming transient",
+								"bindings": [
+									{
+										"key": "=",
+										"name": "Zoom in",
+										"command": "workbench.action.zoomIn"
+									},
+									{
+										"key": "+",
+										"name": "Zoom in",
+										"command": "workbench.action.zoomIn"
+									},
+									{
+										"key": "-",
+										"name": "Zoom out",
+										"command": "workbench.action.zoomOut"
+									},
+									{
+										"key": "0",
+										"name": "Reset zoom",
+										"command": "workbench.action.zoomReset"
+									}
+								]
+							},
+							"fontZooming": {
+								"title": "Front zooming transient",
+								"bindings": [
+									{
+										"key": "=",
+										"name": "Zoom in",
+										"command": "editor.action.fontZoomIn"
+									},
+									{
+										"key": "+",
+										"name": "Zoom in",
+										"command": "editor.action.fontZoomIn"
+									},
+									{
+										"key": "-",
+										"name": "Zoom out",
+										"command": "editor.action.fontZoomOut"
+									},
+									{
+										"key": "0",
+										"name": "Reset zoom",
+										"command": "editor.action.fontZoomReset"
+									}
+								]
+							},
+							"imageZooming": {
+								"title": "Image zooming transient",
+								"bindings": [
+									{
+										"key": "=",
+										"name": "Zoom in",
+										"command": "imagePreview.zoomIn"
+									},
+									{
+										"key": "+",
+										"name": "Zoom in",
+										"command": "imagePreview.zoomIn"
+									},
+									{
+										"key": "-",
+										"name": "Zoom out",
+										"command": "imagePreview.zoomOut"
+									}
+								]
+							},
+							"smartExpand": {
+								"title": "Smart expand transient",
+								"bindings": [
+									{
+										"key": "v",
+										"name": "Grow selection",
+										"command": "editor.action.smartSelect.grow"
+									},
+									{
+										"key": "V",
+										"name": "Shrink selection",
+										"command": "editor.action.smartSelect.shrink"
+									}
+								]
+							}
 						}
 					},
 					"whichkey.delay": {
@@ -508,10 +485,7 @@
 										"name": "Error transient",
 										"type": "command",
 										"command": "whichkey.showTransient",
-										"args": {
-											"title": "Error transient",
-											"bindings": "whichkey.transient.error"
-										}
+										"args": "whichkey.transient.error"
 									},
 									{
 										"key": "l",
@@ -1196,10 +1170,7 @@
 										],
 										"args": [
 											null,
-											{
-												"title": "Line moving transient",
-												"bindings": "whichkey.transient.lineMoving"
-											}
+											"whichkey.transient.lineMoving"
 										]
 									},
 									{
@@ -1397,7 +1368,7 @@
 									},
 									{
 										"key": "i",
-										"name": "+Image preview transient",
+										"name": "Image zooming transient",
 										"type": "command",
 										"command": "whichkey.showTransient",
 										"args": "whichkey.transient.imageZooming"
