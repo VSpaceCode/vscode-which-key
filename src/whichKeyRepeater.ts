@@ -84,8 +84,9 @@ export class WhichKeyRepeater {
             const { commands, args } = toCommands(entry.item);
             await executeCommands(commands, args);
             this.cache.unshift(entry);
+        } else {
+            this.statusBar.setErrorMessage("No last action");
         }
-        this.statusBar.setErrorMessage("No last action");
     }
 
     private repeatAction(pathKey: string): Promise<void> {
