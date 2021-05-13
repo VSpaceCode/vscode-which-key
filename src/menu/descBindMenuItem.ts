@@ -1,21 +1,15 @@
 import { QuickPickItem } from "vscode";
-import { ActionType, BindingItem, toCommands } from "../config/bindingItem";
+import { BindingItem, toCommands } from "../config/bindingItem";
+import { getCondition } from "../config/condition";
 import { specializeBindingKey } from "../utils";
 
 function pathToMenuLabel(path: BindingItem[]): string {
-    const keys = [];
-    for (let i = 0; i < path.length; i++) {
-        const item = path[i];
-        keys.push(specializeBindingKey(item.key));
-        if (item.type === ActionType.Conditional) {
-            // Shift one extra key after conditional type
-            // because we don't want to display something like
-            // languageId:markdown as key
-            i++;
-        }
-    }
-
-    return keys.join(" ");
+    return path
+        // Filter all the condition key so we will not show something like
+        // languageId:markdown
+        .filter(item => !getCondition(item.key))
+        .map(item => specializeBindingKey(item.key))
+        .join(" ");
 }
 
 function pathToMenuDetail(path: BindingItem[]): string {
@@ -52,7 +46,7 @@ export function createDescBindItems(items: readonly BindingItem[], path: Binding
     const next: DescBindMenuItem[] = [];
 
     for (const i of items) {
-        path = path.filter(p => p.type === ActionType.Bindings);
+        path = path.filter(p => p.bindings);
         const menuItem = conversion(i, path);
         curr.push(menuItem);
         if (menuItem.items) {
