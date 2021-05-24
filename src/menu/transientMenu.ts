@@ -47,7 +47,6 @@ class TransientMenu extends BaseWhichKeyMenu<TransientMenuItem> {
         this.quickPick.placeholder = this.placeholder;
         this.quickPick.matchOnDescription = this.matchOnDescription;
         await this.setValue(this.value);
-        this.quickPick.busy = this.busy;
         if (!this.isInZenMode) {
             this.quickPick.title = this.title;
             this.quickPick.items = this.items;
