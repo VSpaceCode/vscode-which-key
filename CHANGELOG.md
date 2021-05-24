@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add icons support for which-key menu
+
 ## [0.8.6] - 2021-06-11
 
 ### Fixed

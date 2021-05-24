@@ -228,6 +228,11 @@
 						"markdownDescription": "Delay (in milliseconds) for which-key menu to display.",
 						"default": 0
 					},
+					"whichkey.showIcons": {
+						"type": "boolean",
+						"markdownDescription": "Controls whether to show or hide icons in which-key menu.",
+						"default": true
+					},
 					"whichkey.sortOrder": {
 						"type": "string",
 						"default": "none",

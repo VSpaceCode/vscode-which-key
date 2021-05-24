@@ -15,6 +15,7 @@ export interface CommandItem {
 export interface BindingItem extends CommandItem {
     key: string;
     name: string;
+    icon?: string;
     type: ActionType;
     bindings?: BindingItem[];
 }
@@ -23,6 +24,7 @@ export interface OverrideBindingItem extends CommandItem {
     keys: string | string[];
     position?: number;
     name?: string;
+    icon?: string;
     type?: ActionType;
     bindings?: BindingItem[];
 }

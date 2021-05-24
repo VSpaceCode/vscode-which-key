@@ -3,6 +3,7 @@ export const publisherId = 'VSpaceCode';
 export const contributePrefix = 'whichkey';
 export enum ConfigKey {
 	Delay = "delay",
+	ShowIcons = "showIcons",
 	SortOrder = "sortOrder",
 	Bindings = "bindings",
 	Overrides = "bindingOverrides",
@@ -33,6 +34,7 @@ export enum ContextKey {
 
 export const Configs = {
 	Delay: `${contributePrefix}.${ConfigKey.Delay}`,
+	ShowIcons: `${contributePrefix}.${ConfigKey.ShowIcons}`,
 	SortOrder: `${contributePrefix}.${ConfigKey.SortOrder}`,
 	Bindings: `${contributePrefix}.${ConfigKey.Bindings}`,
 	Overrides: `${contributePrefix}.${ConfigKey.Overrides}`,

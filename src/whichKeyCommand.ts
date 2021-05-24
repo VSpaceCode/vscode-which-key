@@ -5,7 +5,6 @@ import { isConditionKeyEqual } from "./config/condition";
 import { WhichKeyConfig } from "./config/whichKeyConfig";
 import { Commands, Configs, SortOrder } from "./constants";
 import { showWhichKeyMenu } from "./menu/whichKeyMenu";
-import { WhichKeyMenuItem } from "./menu/whichKeyMenuItem";
 import { StatusBar } from "./statusBar";
 import { getConfig } from "./utils";
 import { WhichKeyRepeater } from "./whichKeyRepeater";
@@ -49,6 +48,7 @@ function convertOverride(key: string, o: OverrideBindingItem): BindingItem {
         return {
             key: key,
             name: o.name,
+            icon: o.icon,
             type: o.type,
             command: o.command,
             commands: o.commands,
@@ -226,16 +226,13 @@ export default class WhichKeyCommand {
         this.unregister();
         this.config = config;
 
-        const bindings = getCanonicalConfig(config);
-        this.bindingItems = bindings.map(b => new WhichKeyMenuItem(b));
-
+        this.bindingItems = getCanonicalConfig(config);
         this.onConfigChangeListener = workspace.onDidChangeConfiguration((e) => {
             if (
                 e.affectsConfiguration(Configs.SortOrder) ||
                 e.affectsConfiguration(config.bindings) ||
                 (config.overrides && e.affectsConfiguration(config.overrides))
             ) {
-                this.unregister();
                 this.register(config);
             }
         }, this);
@@ -247,9 +244,13 @@ export default class WhichKeyCommand {
     }
 
     show(): Promise<void> {
-        const delay = getConfig<number>(Configs.Delay);
+        const delay = getConfig<number>(Configs.Delay) ?? 0;
+        const showIcons = getConfig<boolean>(Configs.ShowIcons) ?? true;
         const config = {
-            bindings: this.bindingItems!, delay, title: this.config?.title
+            bindings: this.bindingItems!,
+            delay,
+            showIcons,
+            title: this.config?.title
         };
         return showWhichKeyMenu(this.statusBar, this.cmdRelay, this.repeater, config);
     }
@@ -263,8 +264,9 @@ export default class WhichKeyCommand {
     }
 
     static show(bindings: BindingItem[], statusBar: StatusBar, cmdRelay: CommandRelay): Promise<void> {
-        const delay = getConfig<number>(Configs.Delay);
-        const config = { bindings, delay };
+        const delay = getConfig<number>(Configs.Delay) ?? 0;
+        const showIcons = getConfig<boolean>(Configs.ShowIcons) ?? true;
+        const config = { bindings, delay, showIcons };
         return showWhichKeyMenu(statusBar, cmdRelay, undefined, config);
     }
 }

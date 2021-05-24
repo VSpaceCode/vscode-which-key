@@ -137,7 +137,7 @@ async function waitForMenu(menu: WhichKeyMenu): Promise<void> {
 
 export async function showWhichKeyMenu(statusBar: StatusBar, cmdRelay: CommandRelay, repeater: WhichKeyRepeater | undefined, config: WhichKeyMenuConfig): Promise<void> {
     const menu = new WhichKeyMenu(statusBar, cmdRelay, repeater, config.delay);
-    menu.items = config.bindings.map(b => new WhichKeyMenuItem(b));
+    menu.items = config.bindings.map(b => new WhichKeyMenuItem(b, config.showIcons));
     menu.title = config.title;
     // Explicitly not wait for the whole menu to resolve
     // to fix the issue where executing show command which can freeze vim instead of waiting on menu.
