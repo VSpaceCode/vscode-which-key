@@ -100,12 +100,18 @@ class WhichKeyMenu extends BaseWhichKeyMenu<WhichKeyMenuItem>{
         this.quickPick.matchOnDetail = this.matchOnDetail;
         this.quickPick.matchOnDescription = this.matchOnDescription;
         await this.setValue(this.value);
-        this.quickPick.busy = this.busy;
-        this.timeoutId = setTimeout(((): void => {
-            this.clearDelay();
+        if (this.delay > 0) {
+            this.quickPick.busy = true;
+            this.timeoutId = setTimeout(((): void => {
+                this.clearDelay();
+                this.quickPick.busy = false;
+                this.quickPick.title = this.title;
+                this.quickPick.items = this.items;
+            }).bind(this), this.delay);
+        } else {
             this.quickPick.title = this.title;
             this.quickPick.items = this.items;
-        }).bind(this), this.delay);
+        }
     }
 
     dispose(): void {

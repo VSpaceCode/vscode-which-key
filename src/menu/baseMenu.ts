@@ -13,7 +13,6 @@ export abstract class BaseMenu<T extends QuickPickItem> implements Disposable {
     public matchOnDetail = false;
     public matchOnDescription = false;
     public value = "";
-    public busy = false;
     public items: readonly T[] = [];
 
     onDidResolve?: () => any;
@@ -122,7 +121,6 @@ export abstract class BaseMenu<T extends QuickPickItem> implements Disposable {
         this.quickPick.matchOnDetail = this.matchOnDetail;
         this.quickPick.matchOnDescription = this.matchOnDescription;
         await this.setValue(this.value);
-        this.quickPick.busy = this.busy;
         this.quickPick.items = this.items;
     }
 
