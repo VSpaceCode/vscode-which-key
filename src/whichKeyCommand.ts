@@ -9,10 +9,6 @@ import { StatusBar } from "./statusBar";
 import { getConfig } from "./utils";
 import { WhichKeyRepeater } from "./whichKeyRepeater";
 
-function getSortOrder(): SortOrder {
-    return getConfig<SortOrder>(Configs.SortOrder) ?? SortOrder.None;
-}
-
 function indexOfKey(bindingItems: BindingItem[] | undefined, key: string, isCondition = false): number {
     if (isCondition) {
         return bindingItems?.findIndex(i => isConditionKeyEqual(i.key, key)) ?? -1;
@@ -142,7 +138,7 @@ function convertToTransientBinding(item: BindingItem): TransientBindingItem[] {
                 transientBindings.push({
                     key: b.key,
                     name: b.name,
-                    commands: [Commands.Show],
+                    command: Commands.Show,
                     args: b.bindings,
                     exit: true,
                 });
@@ -150,7 +146,7 @@ function convertToTransientBinding(item: BindingItem): TransientBindingItem[] {
                 transientBindings.push({
                     key: b.key,
                     name: b.name,
-                    commands: [Commands.ShowTransient],
+                    command: Commands.ShowTransient,
                     args: {
                         title: item.name,
                         bindings: convertToTransientBinding(item),
@@ -158,7 +154,7 @@ function convertToTransientBinding(item: BindingItem): TransientBindingItem[] {
                     exit: true,
                 });
             } else {
-                // Not supported.
+                console.error(`Type ${b.type} is not supported in convertToTransientBinding`);
             }
         }
     }
@@ -204,7 +200,7 @@ function getCanonicalConfig(c: WhichKeyConfig): BindingItem[] {
         overrideBindingItems(bindings, overrides);
     }
 
-    const sortOrder = getSortOrder();
+    const sortOrder = getConfig<SortOrder>(Configs.SortOrder) ?? SortOrder.None;
     sortBindingsItems(bindings, sortOrder);
 
     return migrateBindings(bindings);
