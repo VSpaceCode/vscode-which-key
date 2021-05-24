@@ -8,12 +8,12 @@ export interface KeybindingArgs {
 export class CommandRelay {
     private keyEmitter: EventEmitter<KeybindingArgs>;
     private zenModeEmitter: EventEmitter<void>;
-    private showBindingEmitter: EventEmitter<void>;
+    private describeBindingEmitter: EventEmitter<void>;
 
     constructor() {
         this.keyEmitter = new EventEmitter<KeybindingArgs>();
         this.zenModeEmitter = new EventEmitter<void>();
-        this.showBindingEmitter = new EventEmitter<void>();
+        this.describeBindingEmitter = new EventEmitter<void>();
     }
 
     triggerKey(key: string | KeybindingArgs): void {
@@ -35,17 +35,17 @@ export class CommandRelay {
         return this.zenModeEmitter.event;
     }
 
-    showBindings(): void {
-        this.showBindingEmitter.fire();
+    describeBindings(): void {
+        this.describeBindingEmitter.fire();
     }
 
-    get onShowBindings(): Event<void> {
-        return this.showBindingEmitter.event;
+    get onDescribeBindings(): Event<void> {
+        return this.describeBindingEmitter.event;
     }
 
     dispose(): void {
         this.keyEmitter.dispose();
         this.zenModeEmitter.dispose();
-        this.showBindingEmitter.dispose();
+        this.describeBindingEmitter.dispose();
     }
 }

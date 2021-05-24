@@ -25,7 +25,7 @@ export function activate(context: ExtensionContext): void {
         commands.registerCommand(Commands.Trigger, cmdRelay.triggerKey, cmdRelay),
         commands.registerCommand(Commands.Register, registry.register, registry),
         commands.registerCommand(Commands.Show, registry.show, registry),
-        commands.registerCommand(Commands.ShowBindings, cmdRelay.showBindings, cmdRelay),
+        commands.registerCommand(Commands.DescribeBindings, cmdRelay.describeBindings, cmdRelay),
         commands.registerCommand(Commands.ShowTransient, showTransientMenu.bind(registry, statusBar, cmdRelay)),
         commands.registerCommand(Commands.ShowPreviousActions, registry.showPreviousAction, registry),
         commands.registerCommand(Commands.RepeatLastAction, registry.repeatLastAction, registry),
