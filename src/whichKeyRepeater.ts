@@ -27,8 +27,8 @@ class WhichKeyRepeaterEntry {
         return this.path[this.path.length - 1];
     }
 
-    get description(): string {
-        return this.path.map(p => p.name).join("$(chevron-right)");
+    get uiPath(): string {
+        return this.path.slice(0, -1).map(p => p.name).join("$(chevron-right)");
     }
 
     get shouldIgnore(): boolean {
@@ -110,7 +110,7 @@ export class WhichKeyRepeater {
                 name: entry.item.name,
                 label: key.toString(),
                 description: entry.item.name,
-                detail: entry.description,
+                detail: entry.uiPath,
                 accept: this.repeatAction.bind(this, entry.pathKey),
             };
             return menuItem;
