@@ -5,7 +5,8 @@ export type MaybeConfig<T> = T | string | undefined;
 
 export interface WhichKeyMenuConfig {
     title?: string;
-    delay?: number;
+    delay: number;
+    showIcons: boolean;
     bindings: BindingItem[];
 }
 

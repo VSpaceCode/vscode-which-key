@@ -7,8 +7,11 @@ export class WhichKeyMenuItem implements BindingItem, BaseWhichKeyMenuItem {
     private _binding: BindingItem;
     private _cacheItems?: WhichKeyMenuItem[];
 
-    constructor(binding: BindingItem) {
+    public showIcons: boolean;
+
+    constructor(binding: BindingItem, showIcons: boolean) {
         this._binding = binding;
+        this.showIcons = showIcons;
     }
 
     get key(): string {
@@ -17,6 +20,10 @@ export class WhichKeyMenuItem implements BindingItem, BaseWhichKeyMenuItem {
 
     get name(): string {
         return this._binding.name;
+    }
+
+    get icon(): string | undefined {
+        return this._binding.icon;
     }
 
     get type(): ActionType {
@@ -37,7 +44,7 @@ export class WhichKeyMenuItem implements BindingItem, BaseWhichKeyMenuItem {
 
     get bindings(): WhichKeyMenuItem[] {
         if (this._binding.bindings && !this._cacheItems) {
-            this._cacheItems = this._binding.bindings.map(b => new WhichKeyMenuItem(b));
+            this._cacheItems = this._binding.bindings.map(b => new WhichKeyMenuItem(b, this.showIcons));
         }
         return this._cacheItems!;
     }
@@ -47,7 +54,8 @@ export class WhichKeyMenuItem implements BindingItem, BaseWhichKeyMenuItem {
     }
 
     get description(): string {
-        return `\t${this._binding.name}`;
+        const icon = (this.showIcons && this.icon && this.icon.length > 0) ? `$(${this.icon}) ` : "";
+        return `\t${icon}${this._binding.name}`;
     }
 
     evalCondition(condition?: Condition): WhichKeyMenuItem | undefined {
