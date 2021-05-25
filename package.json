@@ -280,12 +280,6 @@
 								"command": "whichkey.repeatMostRecent"
 							},
 							{
-								"key": ">",
-								"name": "Repeat recent",
-								"type": "command",
-								"command": "whichkey.repeatRecent"
-							},
-							{
 								"key": "b",
 								"name": "+Buffers/Editors",
 								"type": "bindings",
@@ -763,6 +757,19 @@
 										"name": "Show tree/explorer view",
 										"type": "command",
 										"command": "workbench.view.explorer"
+									}
+								]
+							},
+							{
+								"key": "r",
+								"name": "+Repeat",
+								"type": "bindings",
+								"bindings": [
+									{
+										"key": ".",
+										"name": "Repeat recent actions",
+										"type": "command",
+										"command": "whichkey.repeatRecent"
 									}
 								]
 							},
