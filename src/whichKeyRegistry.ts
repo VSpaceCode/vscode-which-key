@@ -55,11 +55,11 @@ export class WhichKeyRegistry implements Disposable {
         }
     }
 
-    showPreviousAction(args: any): Promise<void> {
+    repeatRecent(args: any): Promise<void> {
         return this.getRegister(args).showPreviousActions();
     }
 
-    repeatLastAction(args: any): Promise<void> {
+    repeatMostRecent(args: any): Promise<void> {
         return this.getRegister(args).repeatLastAction();
     }
 

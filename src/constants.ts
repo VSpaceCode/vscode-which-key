@@ -14,8 +14,8 @@ export enum CommandKey {
 	Trigger = 'triggerKey',
 	DescribeBindings = 'describeBindings',
 	ShowTransient = 'showTransient',
-	ShowPreviousActions = 'showPreviousActions',
-	RepeatLastAction = 'repeatLastAction',
+	RepeatRecent = 'repeatRecent',
+	RepeatMostRecent = 'repeatMostRecent',
 	ToggleZenMode = 'toggleZenMode',
 	OpenFile = 'openFile',
 }
@@ -46,8 +46,8 @@ export const Commands = {
 	Trigger: `${contributePrefix}.${CommandKey.Trigger}`,
 	DescribeBindings: `${contributePrefix}.${CommandKey.DescribeBindings}`,
 	ShowTransient: `${contributePrefix}.${CommandKey.ShowTransient}`,
-	ShowPreviousActions: `${contributePrefix}.${CommandKey.ShowPreviousActions}`,
-	RepeatLastAction: `${contributePrefix}.${CommandKey.RepeatLastAction}`,
+	RepeatRecent: `${contributePrefix}.${CommandKey.RepeatRecent}`,
+	RepeatMostRecent: `${contributePrefix}.${CommandKey.RepeatMostRecent}`,
 	ToggleZen: `${contributePrefix}.${CommandKey.ToggleZenMode}`,
 	OpenFile: `${contributePrefix}.${CommandKey.OpenFile}`,
 };

@@ -8,7 +8,7 @@ import { executeCommands } from "./utils";
 
 function shouldIgnore(item: BindingItem): boolean {
     const cmds = toCommands(item).commands;
-    const ignore = [Commands.ShowPreviousActions, Commands.RepeatLastAction];
+    const ignore = [Commands.RepeatRecent, Commands.RepeatMostRecent];
     return cmds.findIndex(ignore.includes.bind(ignore)) >= 0;
 }
 
