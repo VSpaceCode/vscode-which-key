@@ -555,7 +555,7 @@
 									},
 									{
 										"key": "r",
-										"name": "+Open recent",
+										"name": "Open recent",
 										"type": "command",
 										"command": "workbench.action.openRecent"
 									},
@@ -588,7 +588,7 @@
 									},
 									{
 										"key": "o",
-										"name": "+Open with",
+										"name": "Open with",
 										"type": "command",
 										"command": "explorer.openWith"
 									},
@@ -748,13 +748,13 @@
 								"bindings": [
 									{
 										"key": "f",
-										"name": "+Find file in project",
+										"name": "Find file in project",
 										"type": "command",
 										"command": "workbench.action.quickOpen"
 									},
 									{
 										"key": "p",
-										"name": "+Switch project",
+										"name": "Switch project",
 										"type": "command",
 										"command": "workbench.action.openRecent"
 									},
