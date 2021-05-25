@@ -275,15 +275,15 @@
 							},
 							{
 								"key": ".",
-								"name": "Repeat last action",
+								"name": "Repeat most recent",
 								"type": "command",
-								"command": "whichkey.repeatLastAction"
+								"command": "whichkey.repeatMostRecent"
 							},
 							{
 								"key": ">",
-								"name": "Repeat last action",
+								"name": "Repeat recent",
 								"type": "command",
-								"command": "whichkey.showPreviousActions"
+								"command": "whichkey.repeatRecent"
 							},
 							{
 								"key": "b",
