@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.6] - 2021-06-11
+
+### Fixed
+
+- Properly fix QuickPick API change issue for vscode >= 1.57 (#34)
+
 ## [0.8.5] - 2021-05-12
 
 ### Fixed
