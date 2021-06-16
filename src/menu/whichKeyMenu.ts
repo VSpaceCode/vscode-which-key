@@ -22,7 +22,7 @@ class WhichKeyMenu extends BaseWhichKeyMenu<WhichKeyMenuItem>{
     constructor(statusBar: StatusBar, cmdRelay: CommandRelay, repeater?: WhichKeyRepeater, delay = 0) {
         super(cmdRelay);
         this.disposables.push(
-            cmdRelay.onDescribeBindings(this.onDescribeBindings, this)
+            cmdRelay.onDidSearchBindings(this.onDidSearchBindings, this)
         );
         this.statusBar = statusBar;
         this.repeater = repeater;
@@ -30,9 +30,9 @@ class WhichKeyMenu extends BaseWhichKeyMenu<WhichKeyMenuItem>{
         this.itemHistory = [];
     }
 
-    private onDescribeBindings(): Promise<void> {
+    private onDidSearchBindings(): Promise<void> {
         const items = createDescBindItems(this.items, this.itemHistory);
-        return showDescBindMenu(items, "Describe Keybindings");
+        return showDescBindMenu(items, "Search Keybindings");
     }
 
     protected async onItemNotMatch(value: string): Promise<void> {

@@ -54,7 +54,7 @@
 			},
 			{
 				"key": "ctrl+h",
-				"command": "whichkey.describeBindings",
+				"command": "whichkey.searchBindings",
 				"when": "whichkeyVisible"
 			}
 		],
@@ -269,9 +269,9 @@
 							},
 							{
 								"key": "?",
-								"name": "Describe keybindings",
+								"name": "Search keybindings",
 								"type": "command",
-								"command": "whichkey.describeBindings"
+								"command": "whichkey.searchBindings"
 							},
 							{
 								"key": ".",
