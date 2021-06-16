@@ -12,6 +12,7 @@ export interface WhichKeyMenuConfig {
 
 export interface TransientMenuConfig {
     title?: string;
+    showIcons?: boolean;
     bindings: TransientBindingItem[];
 }
 

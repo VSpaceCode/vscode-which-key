@@ -132,12 +132,14 @@ function convertToTransientBinding(item: BindingItem): TransientBindingItem[] {
                 transientBindings.push({
                     key: b.key,
                     name: b.name,
+                    icon: b.icon,
                     ...toCommands(b)
                 });
             } else if (b.type === ActionType.Bindings) {
                 transientBindings.push({
                     key: b.key,
                     name: b.name,
+                    icon: b.icon,
                     command: Commands.Show,
                     args: b.bindings,
                     exit: true,
@@ -146,6 +148,7 @@ function convertToTransientBinding(item: BindingItem): TransientBindingItem[] {
                 transientBindings.push({
                     key: b.key,
                     name: b.name,
+                    icon: b.icon,
                     command: Commands.ShowTransient,
                     args: {
                         title: item.name,
@@ -173,6 +176,7 @@ function migrateTransient(item: BindingItem): BindingItem {
         return {
             key: item.key,
             name: item.name,
+            icon: item.icon,
             type: ActionType.Commands,
             commands,
             args,
