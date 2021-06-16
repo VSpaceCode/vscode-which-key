@@ -3,8 +3,12 @@ import { BaseWhichKeyMenuItem } from "./baseWhichKeyMenu";
 
 export class TransientMenuItem implements TransientBindingItem, BaseWhichKeyMenuItem {
     private _binding: TransientBindingItem;
-    constructor(binding: TransientBindingItem) {
+
+    public showIcons: boolean;
+
+    constructor(binding: TransientBindingItem, showIcons: boolean) {
         this._binding = binding;
+        this.showIcons = showIcons;
     }
 
     get key(): string {
@@ -13,6 +17,10 @@ export class TransientMenuItem implements TransientBindingItem, BaseWhichKeyMenu
 
     get name(): string {
         return this._binding.name;
+    }
+
+    get icon(): string | undefined{
+        return this._binding.icon;
     }
 
     get command(): string | undefined {
@@ -36,6 +44,7 @@ export class TransientMenuItem implements TransientBindingItem, BaseWhichKeyMenu
     }
 
     get description(): string {
-        return `\t${this._binding.name}`;
+        const icon = (this.showIcons && this.icon && this.icon.length > 0) ? `$(${this.icon}) ` : "";
+        return `\t${icon}${this._binding.name}`;
     }
 }

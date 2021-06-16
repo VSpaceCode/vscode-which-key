@@ -32,6 +32,7 @@ export interface OverrideBindingItem extends CommandItem {
 export interface TransientBindingItem extends CommandItem {
     key: string;
     name: string;
+    icon?: string;
     exit?: boolean;
 }
 
