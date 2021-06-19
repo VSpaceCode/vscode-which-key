@@ -272,7 +272,7 @@
 							},
 							{
 								"key": ".",
-								"name": "Repeat most recent",
+								"name": "Repeat most recent action",
 								"type": "command",
 								"command": "whichkey.repeatMostRecent"
 							},
