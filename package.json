@@ -38,9 +38,6 @@
 	"activationEvents": [
 		"onCommand:whichkey.show",
 		"onCommand:whichkey.showTransient",
-		"onCommand:whichkey.showPreviousActions",
-		"onCommand:whichkey.repeatLastAction",
-		"onCommand:whichkey.toggleZenMode",
 		"onCommand:whichkey.register"
 	],
 	"main": "./dist/extension.js",
