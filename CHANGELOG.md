@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2021-06-18
+
 ### Added
 
 - Add icons support for which-key menu ([#41](https://github.com/VSpaceCode/vscode-which-key/issues/41)).
