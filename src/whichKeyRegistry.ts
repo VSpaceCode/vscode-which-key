@@ -43,7 +43,8 @@ export class WhichKeyRegistry implements Disposable {
     show(args: any): Promise<void> {
         if (typeof args === 'string') {
             return this.registry[args].show();
-        } else if (Array.isArray(args)) {
+        } else if (Array.isArray(args) && args.length > 0) {
+            // Vim call command with an array with length of 0
             const bindings = args.map(toBindingItem).filter(notEmpty);
             return WhichKeyCommand.show(bindings, this.statusBar, this.cmdRelay);
         } else {

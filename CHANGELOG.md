@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix an issue where calling `whichkey.show` by vim failed
+
 ### Changed
 
 - Update the name of `<spc> r .` to be more descriptive.
