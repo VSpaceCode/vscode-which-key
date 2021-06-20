@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix an issue where calling `whichkey.show` by vim failed
+- Fix an issue where using vim to call `whichkey.show` without any params failed
 
 ### Changed
 
