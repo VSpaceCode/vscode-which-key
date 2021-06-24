@@ -54,7 +54,7 @@ export class WhichKeyMenuItem implements BindingItem, BaseWhichKeyMenuItem {
     }
 
     get description(): string {
-        const icon = (this.showIcons && this.icon && this.icon.length > 0) ? `$(${this.icon}) ` : "";
+        const icon = (this.showIcons && this.icon && this.icon.length > 0) ? `$(${this.icon})   ` : "";
         return `\t${icon}${this._binding.name}`;
     }
 
