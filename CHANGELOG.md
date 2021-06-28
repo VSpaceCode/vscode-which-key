@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.2] - 2021-06-27
+
 ### Changed
 
-- Icons now have some additional padding
+- Add additional padding for icons
 
 ## [0.9.1] - 2021-06-19
 
