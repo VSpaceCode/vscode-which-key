@@ -2,21 +2,35 @@ on:
   push:
     tags:
       - v*
+
 name: Deploy Extension
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - name: Checkout vscode-which-key
+        uses: actions/checkout@v2
+
+      - name: Set up node.js
+        uses: actions/setup-node@v2
         with:
           node-version: 12
-      - run: npm ci
+
+      - name: Install dependencies
+        uses: bahmutov/npm-install@v1
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: xvfb-run -a npm run test
+
       - name: Publish to Open VSX Registry
         uses: HaaLeo/publish-vscode-extension@v0
         id: publishToOpenVSX
         with:
           pat: ${{ secrets.OVSX_TOKEN }}
+
       - name: Publish to Visual Studio Marketplace
         uses: HaaLeo/publish-vscode-extension@v0
         with:

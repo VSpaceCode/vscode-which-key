@@ -40,7 +40,7 @@
 		"onCommand:whichkey.showTransient",
 		"onCommand:whichkey.register"
 	],
-	"main": "./dist/extension.js",
+	"main": "./dist/extension",
 	"contributes": {
 		"keybindings": [
 			{
@@ -1479,10 +1479,10 @@
 	"scripts": {
 		"vscode:prepublish": "webpack --mode production",
 		"compile": "webpack --mode development",
-		"watch": "tsc -watch -p ./",
 		"lint": "eslint src --ext ts",
-		"test-compile": "tsc -p ./",
-		"pretest": "npm run test-compile && npm run lint",
+		"test-compile": "tsc -p .",
+		"pretest": "npm run test-compile && npx npe main ./out/extension",
+		"posttest": "npx npe main ./dist/extension",
 		"test": "node ./out/test/runTest.js"
 	},
 	"devDependencies": {
@@ -1495,6 +1495,7 @@
 		"eslint": "^7.22.0",
 		"glob": "^7.1.6",
 		"mocha": "^8.3.2",
+		"npe": "^1.1.4",
 		"ts-loader": "^8.0.18",
 		"typescript": "^4.2.3",
 		"vscode-test": "^1.5.1",
