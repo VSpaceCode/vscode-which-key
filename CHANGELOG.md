@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add command (`whichkey.undoKey`) to undo entered key.
 - Add menu buttons to which key menu.
+- Add a default sorting order for bindings.
 
 ### Changed
 

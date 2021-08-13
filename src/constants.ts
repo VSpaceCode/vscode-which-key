@@ -21,6 +21,7 @@ export enum CommandKey {
 }
 
 export enum SortOrder {
+	Default = 'default',
 	None = 'none',
 	Alphabetically = 'alphabetically',
 	NonNumberFirst = 'nonNumberFirst',

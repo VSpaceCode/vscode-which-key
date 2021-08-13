@@ -24,6 +24,11 @@ export const enum CharCode {
     Z = 90,
 
     /**
+     * The `[` character.
+     */
+    LeftBracket = 91,
+
+    /**
      * The `\` character.
      */
     Backslash = 92,
