@@ -233,14 +233,16 @@
 					},
 					"whichkey.sortOrder": {
 						"type": "string",
-						"default": "none",
+						"default": "default",
 						"enum": [
 							"none",
+							"default",
 							"alphabetically",
 							"nonNumberFirst"
 						],
 						"enumDescriptions": [
 							"Menu items are not sorted.",
+							"Menu items are sorted with a default sorting order.",
 							"Menu items are sorted in alphabetical order.",
 							"Menu items are sorted in alphabetical order with non-number first."
 						],

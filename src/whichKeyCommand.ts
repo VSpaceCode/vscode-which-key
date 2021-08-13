@@ -1,4 +1,5 @@
 import { Disposable, workspace } from "vscode";
+import { getSortComparer } from "./bindingComparer";
 import { CommandRelay } from "./commandRelay";
 import { ActionType, BindingItem, OverrideBindingItem, toCommands, TransientBindingItem } from "./config/bindingItem";
 import { isConditionKeyEqual } from "./config/condition";
@@ -98,28 +99,14 @@ function overrideBindingItems(items: BindingItem[], overrides: OverrideBindingIt
 }
 
 // in place sort
-function sortBindingsItems(items: BindingItem[] | undefined, order: SortOrder): void {
-    if (!items || order === SortOrder.None) {
+function sortBindingsItems(items: BindingItem[] | undefined, comparer: (a: BindingItem, b: BindingItem) => number): void {
+    if (!items) {
         return;
     }
 
-    if (order === SortOrder.Alphabetically) {
-        items.sort((a, b) => a.key.localeCompare(b.key));
-    } else if (order === SortOrder.NonNumberFirst) {
-        items.sort((a, b) => {
-            const regex = /^[0-9]/;
-            const aStartsWithNumber = regex.test(a.key);
-            const bStartsWithNumber = regex.test(b.key);
-            if (aStartsWithNumber !== bStartsWithNumber) {
-                // Sort non-number first
-                return aStartsWithNumber ? 1 : -1;
-            } else {
-                return a.key.localeCompare(b.key);
-            }
-        });
-    }
+    items.sort(comparer);
     for (const item of items) {
-        sortBindingsItems(item.bindings, order);
+        sortBindingsItems(item.bindings, comparer);
     }
 }
 
@@ -205,7 +192,10 @@ function getCanonicalConfig(c: WhichKeyConfig): BindingItem[] {
     }
 
     const sortOrder = getConfig<SortOrder>(Configs.SortOrder) ?? SortOrder.None;
-    sortBindingsItems(bindings, sortOrder);
+    const comparer = getSortComparer(sortOrder);
+    if (comparer) {
+        sortBindingsItems(bindings, comparer);
+    }
 
     return migrateBindings(bindings);
 }
