@@ -1,15 +1,17 @@
 import { Disposable, StatusBarItem, ThemeColor, window } from "vscode";
 
-type StatusBarColor = string | ThemeColor | undefined;
 export class StatusBar implements Disposable {
     static DEFAULT_TIMEOUT = 3000;
-    static ERROR_COLOR = new ThemeColor('errorForeground');
+    static ERROR_FG_COLOR = new ThemeColor('statusBarItem.errorForeground');
+    static ERROR_BG_COLOR = new ThemeColor('statusBarItem.errorBackground');
 
     private _timeout: number;
+    private _isError: boolean;
     private _item: StatusBarItem;
     private _timerId?: NodeJS.Timer;
 
     constructor() {
+        this._isError = false;
         this._item = window.createStatusBarItem();
         this._timeout = StatusBar.DEFAULT_TIMEOUT;
     }
@@ -28,10 +30,14 @@ export class StatusBar implements Disposable {
         this._timeout = ms;
     }
 
-    private _setMessage(text: string, color: StatusBarColor, timeout?: number): void {
+    private _setMessage(text: string, isError: boolean, timeout?: number): void {
         this.clearTimeout();
-        this._item.color = color;
+        const fgColor = isError ? StatusBar.ERROR_FG_COLOR : undefined;
+        const bgColor = isError ? StatusBar.ERROR_BG_COLOR : undefined;
+        this._item.color = fgColor;
+        this._item.backgroundColor = bgColor;
         this._item.text = text;
+        this._isError = isError;
         this.show(timeout);
     }
 
@@ -48,7 +54,7 @@ export class StatusBar implements Disposable {
      * @param timeout An optional timeout in ms for this message only.
      */
     setPlainMessage(text: string, timeout?: number): void {
-        this._setMessage(text, undefined, timeout);
+        this._setMessage(text, false, timeout);
     }
 
     /**
@@ -57,7 +63,7 @@ export class StatusBar implements Disposable {
      * @param timeout An optional timeout in ms for this message only.
      */
     setErrorMessage(text: string, timeout?: number): void {
-        this._setMessage(text, StatusBar.ERROR_COLOR, timeout);
+        this._setMessage(text, true, timeout);
     }
 
     /**
@@ -84,7 +90,7 @@ export class StatusBar implements Disposable {
      * Hide only the plain message.
      */
     hidePlain(): void {
-        if (this._item.color !== StatusBar.ERROR_COLOR) {
+        if (!this._isError) {
             this.hide();
         }
     }
@@ -93,7 +99,7 @@ export class StatusBar implements Disposable {
      * Hide only the error message.
      */
     hideError(): void {
-        if (this._item.color === StatusBar.ERROR_COLOR) {
+        if (this._isError) {
             this.hide();
         }
     }
