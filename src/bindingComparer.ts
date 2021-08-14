@@ -5,6 +5,7 @@ import { SortOrder } from "./constants";
 function getType(b: BindingItem) {
 	let type = b.type;
 	if (b.bindings && type == ActionType.Conditional) {
+		// If all the bindings are the same type. E.g. all the conditionals are commands, treat it as command order
 		if (b.bindings.every(x => b.bindings && x.type === b.bindings[0].type)) {
 			type = b.bindings[0].type;
 		}

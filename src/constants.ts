@@ -8,11 +8,13 @@ export enum ConfigKey {
 	Overrides = "bindingOverrides",
 }
 export enum CommandKey {
-	Show = 'show',
 	Register = 'register',
+	RegisterLayer = 'registerLayer',
+	Show = 'show',
+	ShowLayer = 'showLayer',
+	ShowTransient = 'showTransient',
 	Trigger = 'triggerKey',
 	SearchBindings = 'searchBindings',
-	ShowTransient = 'showTransient',
 	RepeatRecent = 'repeatRecent',
 	RepeatMostRecent = 'repeatMostRecent',
 	ToggleZenMode = 'toggleZenMode',
@@ -41,11 +43,13 @@ export const Configs = {
 };
 
 export const Commands = {
-	Show: `${contributePrefix}.${CommandKey.Show}`,
 	Register: `${contributePrefix}.${CommandKey.Register}`,
+	RegisterLayer: `${contributePrefix}.${CommandKey.RegisterLayer}`,
+	Show: `${contributePrefix}.${CommandKey.Show}`,
+	ShowLayer: `${contributePrefix}.${CommandKey.ShowLayer}`,
+	ShowTransient: `${contributePrefix}.${CommandKey.ShowTransient}`,
 	Trigger: `${contributePrefix}.${CommandKey.Trigger}`,
 	SearchBindings: `${contributePrefix}.${CommandKey.SearchBindings}`,
-	ShowTransient: `${contributePrefix}.${CommandKey.ShowTransient}`,
 	RepeatRecent: `${contributePrefix}.${CommandKey.RepeatRecent}`,
 	RepeatMostRecent: `${contributePrefix}.${CommandKey.RepeatMostRecent}`,
 	ToggleZen: `${contributePrefix}.${CommandKey.ToggleZenMode}`,

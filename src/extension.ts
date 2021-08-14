@@ -24,9 +24,11 @@ export function activate(context: ExtensionContext): void {
     context.subscriptions.push(
         commands.registerCommand(Commands.Trigger, cmdRelay.triggerKey, cmdRelay),
         commands.registerCommand(Commands.Register, registry.register, registry),
+        commands.registerCommand(Commands.RegisterLayer, registry.registerLayer, registry),
         commands.registerCommand(Commands.Show, registry.show, registry),
-        commands.registerCommand(Commands.SearchBindings, cmdRelay.searchBindings, cmdRelay),
+        commands.registerCommand(Commands.ShowLayer, registry.show, registry),
         commands.registerCommand(Commands.ShowTransient, showTransientMenu.bind(registry, statusBar, cmdRelay)),
+        commands.registerCommand(Commands.SearchBindings, cmdRelay.searchBindings, cmdRelay),
         commands.registerCommand(Commands.RepeatRecent, registry.repeatRecent, registry),
         commands.registerCommand(Commands.RepeatMostRecent, registry.repeatMostRecent, registry),
         commands.registerCommand(Commands.ToggleZen, cmdRelay.toggleZenMode, cmdRelay),

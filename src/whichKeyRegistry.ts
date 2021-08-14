@@ -1,13 +1,10 @@
 import { Disposable } from "vscode";
-import { toBindingItem } from "./config/bindingItem";
 import { CommandRelay } from "./commandRelay";
+import { toBindingItem } from "./config/bindingItem";
+import { defaultWhichKeyConfig, toWhichKeyConfig, toWhichKeyLayerConfig } from "./config/whichKeyConfig";
 import { StatusBar } from "./statusBar";
+import { notNullish } from "./utils";
 import WhichKeyCommand from "./whichKeyCommand";
-import { defaultWhichKeyConfig, toWhichKeyConfig } from "./config/whichKeyConfig";
-
-function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
-    return value !== null && value !== undefined;
-}
 
 export class WhichKeyRegistry implements Disposable {
     private registry: Record<string, WhichKeyCommand>;
@@ -30,10 +27,26 @@ export class WhichKeyRegistry implements Disposable {
 
             this.registry[key].register(config);
             return true;
-        } else {
-            console.warn('Incorrect which-key config format.');
-            return false;
         }
+
+        console.warn('Incorrect which-key config format.');
+        return false;
+    }
+
+    registerLayer(obj: any): boolean {
+        const layerConfig = toWhichKeyLayerConfig(obj);
+        if (layerConfig) {
+            const key = layerConfig.layers;
+            if (!this.has(key)) {
+                this.registry[key] = new WhichKeyCommand(this.statusBar, this.cmdRelay);
+            }
+
+            this.registry[key].registerLayer(layerConfig);
+            return true;
+        }
+
+        console.warn('Incorrect which-key layer config format.');
+        return false;
     }
 
     has(section: string): boolean {
@@ -45,7 +58,7 @@ export class WhichKeyRegistry implements Disposable {
             return this.registry[args].show();
         } else if (Array.isArray(args) && args.length > 0) {
             // Vim call command with an array with length of 0
-            const bindings = args.map(toBindingItem).filter(notEmpty);
+            const bindings = args.map(toBindingItem).filter(notNullish);
             return WhichKeyCommand.show(bindings, this.statusBar, this.cmdRelay);
         } else {
             const key = defaultWhichKeyConfig.bindings;

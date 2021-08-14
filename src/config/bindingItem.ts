@@ -36,6 +36,23 @@ export interface TransientBindingItem extends CommandItem {
     exit?: boolean;
 }
 
+export interface BindingObject {
+	type: ActionType;
+	name: string;
+	icon?: string;
+	command?: string;
+	commands?: string[],
+	args?: any;
+	bindings?: BindingMap;
+}
+
+export interface Layer {
+    bindings: BindingMap;
+}
+
+export type BindingMap = Record<string, BindingObject | null>;
+export type LayerMap = Record<string, Layer | null>;
+
 export function toBindingItem(o: any): BindingItem | undefined {
     if (typeof o === "object") {
         const config = o as Partial<BindingItem>;

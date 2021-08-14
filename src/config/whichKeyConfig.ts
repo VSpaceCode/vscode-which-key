@@ -45,3 +45,19 @@ export const defaultWhichKeyConfig: WhichKeyConfig = {
     bindings: Configs.Bindings,
     overrides: Configs.Overrides
 };
+
+export interface WhichKeyLayerConfig {
+    layers: string;
+    overrides?: string;
+    title: string;
+}
+
+function isWhichKeyLayerConfig(config: any): config is WhichKeyLayerConfig {
+    return (config.layers && isString(config.layers)) &&
+        (!config.overrides || isString(config.overrides)) &&
+        (!config.title || isString(config.title));
+}
+
+export function toWhichKeyLayerConfig(o: any): WhichKeyLayerConfig | undefined {
+    return typeof o == "object" && isWhichKeyLayerConfig(o) ? o : undefined;
+}

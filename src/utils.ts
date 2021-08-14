@@ -1,6 +1,10 @@
 import { commands, workspace } from "vscode";
 import { CharCode } from "./charCode";
 
+export function notNullish<TValue>(value: TValue | null | undefined): value is TValue {
+    return value !== null && value !== undefined;
+}
+
 export function setContext(key: string, value: any): Thenable<unknown> {
     return commands.executeCommand("setContext", key, value);
 }

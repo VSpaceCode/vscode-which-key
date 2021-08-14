@@ -36,9 +36,11 @@
 		"url": "https://github.com/VSpaceCode/vscode-which-key/issues"
 	},
 	"activationEvents": [
+		"onCommand:whichkey.register",
+		"onCommand:whichkey.registerLayer",
 		"onCommand:whichkey.show",
-		"onCommand:whichkey.showTransient",
-		"onCommand:whichkey.register"
+		"onCommand:whichkey.showLayer",
+		"onCommand:whichkey.showTransient"
 	],
 	"main": "./dist/extension-node",
 	"browser": "./dist/extension-web",
