@@ -24,17 +24,40 @@ jobs:
 
       - name: Test
         run: xvfb-run -a npm run test
+      
+      - name: Package
+        id: package
+        run: |
+          npx vsce package;
+          echo ::set-output name=vsix_path::$(ls *.vsix)
+
+      - name: Create release on GitHub
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload .vsix as release asset to GitHub
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.package.outputs.vsix_path }}
+          asset_name: ${{ steps.package.outputs.vsix_path }}
+          asset_content_type: application/zip
+
+      - name: Publish to VSCode Extension Marketplace
+        run: npx vsce publish --packagePath ${{ steps.package.outputs.vsix_path }}
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_TOKEN }}
 
       - name: Publish to Open VSX Registry
-        uses: HaaLeo/publish-vscode-extension@v0
-        id: publishToOpenVSX
-        with:
-          pat: ${{ secrets.OVSX_TOKEN }}
-
-      - name: Publish to Visual Studio Marketplace
-        uses: HaaLeo/publish-vscode-extension@v0
-        with:
-          pat: ${{ secrets.VSCE_TOKEN }}
-          registryUrl: https://marketplace.visualstudio.com
-          extensionFile: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
-          packagePath: ''
+        run: npx ovsx publish ${{ steps.package.outputs.vsix_path }}
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_TOKEN }}
