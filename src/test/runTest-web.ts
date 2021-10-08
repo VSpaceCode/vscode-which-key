@@ -1,6 +1,5 @@
+import { runTests } from '@vscode/test-web';
 import * as path from 'path';
-
-import { runTests } from '@vscode/test-electron';
 
 async function main() {
 	try {
@@ -10,11 +9,17 @@ async function main() {
 
 		// The path to test runner
 		// Passed to --extensionTestsPath
-		const extensionTestsPath = path.resolve(__dirname, './suite/index-node');
+		const extensionTestsPath = path.resolve(__dirname, './suite/index-web');
 
-		// Download VS Code, unzip it and run the integration test
-		await runTests({ extensionDevelopmentPath, extensionTestsPath });
+		// Start a web server that serves VSCode in a browser, run the tests
+		await runTests({
+			browserType: 'chromium',
+			version: 'stable',
+			extensionDevelopmentPath,
+			extensionTestsPath,
+		});
 	} catch (err) {
+		console.error(err);
 		console.error('Failed to run tests');
 		process.exit(1);
 	}

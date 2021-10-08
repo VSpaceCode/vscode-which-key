@@ -1484,8 +1484,8 @@
 		"lint": "eslint src --ext ts",
 		"test-compile": "tsc -p .",
 		"test": "npm run compile && npm run test-node && npm run test-web",
-		"test-node": "node ./dist/test/runTest.js",
-		"test-web": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --extensionTestsPath=./dist/test/suite/index-web"
+		"test-node": "node ./dist/test/runTest-node.js",
+		"test-web": "node ./dist/test/runTest-web.js"
 	},
 	"devDependencies": {
 		"@types/glob": "^7.1.3",
