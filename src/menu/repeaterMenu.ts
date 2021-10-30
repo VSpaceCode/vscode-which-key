@@ -1,10 +1,11 @@
 import { CommandRelay } from "../commandRelay";
 import { StatusBar } from "../statusBar";
 import { specializeBindingKey } from "../utils";
-import { BaseWhichKeyMenu, BaseWhichKeyMenuItem, OptionalBaseWhichKeyMenuState } from "./baseWhichKeyMenu";
+import { BaseWhichKeyMenu, BaseWhichKeyMenuItem, BaseWhichKeyQuickPickItem, OptionalBaseWhichKeyMenuState } from "./baseWhichKeyMenu";
 
 export interface RepeaterMenuItem extends BaseWhichKeyMenuItem {
     name: string,
+    basePathNames: string[],
     accept: () => Thenable<unknown>;
 }
 
@@ -31,6 +32,15 @@ class RepeaterMenu extends BaseWhichKeyMenu<RepeaterMenuItem> {
         const msg = `${specializeBindingKey(key)} is undefined`;
         this._statusBar.setErrorMessage(msg);
         return undefined;
+    }
+
+    protected override handleRender(items: RepeaterMenuItem[]): BaseWhichKeyQuickPickItem<RepeaterMenuItem>[] {
+        return items.map(i => ({
+            label: i.key,
+            description: i.name,
+            detail: i.basePathNames.join('$(chevron-right)'),
+            item: i
+        }));
     }
 }
 

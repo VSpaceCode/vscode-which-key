@@ -1,8 +1,7 @@
-import { BindingItem, toCommands } from "./config/bindingItem";
 import { CommandRelay } from "./commandRelay";
+import { BindingItem, toCommands } from "./config/bindingItem";
 import { Commands } from "./constants";
 import { RepeaterMenuItem, showRepeaterMenu } from "./menu/repeaterMenu";
-import { WhichKeyMenuItem } from "./menu/whichKeyMenuItem";
 import { StatusBar } from "./statusBar";
 import { executeCommands } from "./utils";
 
@@ -13,22 +12,22 @@ function shouldIgnore(item: BindingItem): boolean {
 }
 
 class WhichKeyRepeaterEntry {
-    private path: WhichKeyMenuItem[];
+    private path: BindingItem[];
 
-    constructor(path: WhichKeyMenuItem[]) {
+    constructor(path: BindingItem[]) {
         this.path = [...path];
+    }
+
+    get item(): BindingItem {
+        return this.path[this.path.length - 1];
     }
 
     get pathKey(): string {
         return this.path.map(p => p.key).toString();
     }
 
-    get item(): WhichKeyMenuItem {
-        return this.path[this.path.length - 1];
-    }
-
-    get uiPath(): string {
-        return this.path.slice(0, -1).map(p => p.name).join("$(chevron-right)");
+    get basePathNames(): string[] {
+        return this.path.slice(0, -1).map(p => p.name);
     }
 
     get shouldIgnore(): boolean {
@@ -58,7 +57,7 @@ export class WhichKeyRepeater {
         return this.cache.length;
     }
 
-    public record(path: WhichKeyMenuItem[]): void {
+    public record(path: BindingItem[]): void {
         const newEntry = new WhichKeyRepeaterEntry(path);
         if (newEntry.shouldIgnore) {
             return;
@@ -108,9 +107,7 @@ export class WhichKeyRepeater {
             const menuItem: RepeaterMenuItem = {
                 key: key.toString(),
                 name: entry.item.name,
-                label: key.toString(),
-                description: entry.item.name,
-                detail: entry.uiPath,
+                basePathNames: entry.basePathNames,
                 accept: this.repeatAction.bind(this, entry.pathKey),
             };
             return menuItem;

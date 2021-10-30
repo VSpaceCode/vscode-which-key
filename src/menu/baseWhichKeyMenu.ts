@@ -3,8 +3,12 @@ import { CommandRelay, KeybindingArgs } from "../commandRelay";
 import { DispatchQueue } from "../dispatchQueue";
 import { ComparisonResult, Version } from "../version";
 
-export interface BaseWhichKeyMenuItem extends QuickPickItem {
+export interface BaseWhichKeyMenuItem {
     key: string;
+}
+
+export interface BaseWhichKeyQuickPickItem<T extends BaseWhichKeyMenuItem> extends QuickPickItem {
+    item: T;
 }
 
 export interface BaseWhichKeyMenuState<T extends BaseWhichKeyMenuItem> {
@@ -20,7 +24,7 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
     private _acceptQueue: DispatchQueue<T>;
     private _valueQueue: DispatchQueue<string>;
 
-    private _qp: QuickPick<T>;
+    private _qp: QuickPick<BaseWhichKeyQuickPickItem<T>>;
     private _when?: string;
     private _lastValue: string;
     private _expectHiding: boolean;
@@ -49,7 +53,7 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
             title: undefined,
         };
 
-        this._qp = window.createQuickPick<T>();
+        this._qp = window.createQuickPick<BaseWhichKeyQuickPickItem<T>>();
         this._onDidShowEmitter = new EventEmitter<void>();
         this._onDidHideEmitter = new EventEmitter<void>();
         this._onDisposeEmitter = new EventEmitter<void>();
@@ -146,8 +150,8 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
 
     private handleDidAccept(): void {
         if (this._qp.activeItems.length > 0) {
-            const item = this._qp.activeItems[0];
-            this._acceptQueue.push(item);
+            const qpItem = this._qp.activeItems[0];
+            this._acceptQueue.push(qpItem.item);
         }
     }
 
@@ -256,6 +260,16 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
         Promise<OptionalBaseWhichKeyMenuState<T>>;
 
     /**
+     * Handles the rendering of an menu item.
+     *
+     * This is primarily used to control which, what, how menu items should
+     * be shown in the forms of QuickPickItem.
+     * @param items The menu items to render.
+     */
+    protected abstract handleRender(items: T[]):
+        BaseWhichKeyQuickPickItem<T>[]
+
+    /**
      * Updates the menu base on the state supplied.
      * @param state The state used to update the menu.
      */
@@ -268,8 +282,7 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
             this._qp.busy = true;
             setTimeout(() => {
                 this._qp.busy = false;
-                // TODO: Add transform to support display hiding.
-                this._qp.items = state.items;
+                this._qp.items = this.handleRender(state.items);
             }, state.delay);
         }
     }
