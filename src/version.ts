@@ -46,7 +46,7 @@ export class Version {
     }
 }
 
-export enum ComparisonResult {
+export const enum ComparisonResult {
     Older = -1,
     Same = 0,
     Newer = 1
