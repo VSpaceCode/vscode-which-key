@@ -1,6 +1,8 @@
 import { commands, workspace } from "vscode";
 import { CharCode } from "./charCode";
 
+export const nameof = <T>(name: keyof T) => name;
+
 export function setContext(key: string, value: any): Thenable<unknown> {
     return commands.executeCommand("setContext", key, value);
 }

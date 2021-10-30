@@ -243,7 +243,7 @@ export default class WhichKeyCommand {
         this.repeater.clear();
     }
 
-    show(): Promise<void> {
+    show(): void {
         const delay = getConfig<number>(Configs.Delay) ?? 0;
         const showIcons = getConfig<boolean>(Configs.ShowIcons) ?? true;
         const config = {
@@ -252,7 +252,7 @@ export default class WhichKeyCommand {
             showIcons,
             title: this.config?.title
         };
-        return showWhichKeyMenu(this.statusBar, this.cmdRelay, this.repeater, config);
+        showWhichKeyMenu(this.statusBar, this.cmdRelay, this.repeater, config);
     }
 
     showPreviousActions(): Promise<void> {
@@ -263,10 +263,10 @@ export default class WhichKeyCommand {
         return this.repeater.repeatLastAction();
     }
 
-    static show(bindings: BindingItem[], statusBar: StatusBar, cmdRelay: CommandRelay): Promise<void> {
+    static show(bindings: BindingItem[], statusBar: StatusBar, cmdRelay: CommandRelay): void {
         const delay = getConfig<number>(Configs.Delay) ?? 0;
         const showIcons = getConfig<boolean>(Configs.ShowIcons) ?? true;
         const config = { bindings, delay, showIcons };
-        return showWhichKeyMenu(statusBar, cmdRelay, undefined, config);
+        showWhichKeyMenu(statusBar, cmdRelay, undefined, config);
     }
 }

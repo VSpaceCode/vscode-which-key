@@ -1,52 +1,320 @@
-import { QuickPickItem, window } from "vscode";
+import { Disposable, Event, EventEmitter, QuickPick, QuickPickItem, version, window } from "vscode";
 import { CommandRelay, KeybindingArgs } from "../commandRelay";
-import { Condition } from "../config/condition";
-import { BaseMenu } from "./baseMenu";
+import { DispatchQueue } from "../dispatchQueue";
+import { ComparisonResult, Version } from "../version";
 
 export interface BaseWhichKeyMenuItem extends QuickPickItem {
     key: string;
-    name: string;
 }
 
-export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> extends BaseMenu<T> {
-    /**
-     * This used to stored the last when condition from the key listener
-     */
-    private when?: string;
+export interface BaseWhichKeyMenuState<T extends BaseWhichKeyMenuItem> {
+    title: string | undefined,
+    delay: number,
+    showMenu: boolean,
+    items: T[]
+}
+
+export type OptionalBaseWhichKeyMenuState<T extends BaseWhichKeyMenuItem> = BaseWhichKeyMenuState<T> | undefined;
+
+export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implements Disposable {
+    private _acceptQueue: DispatchQueue<T>;
+    private _valueQueue: DispatchQueue<string>;
+
+    private _qp: QuickPick<T>;
+    private _when?: string;
+    private _lastValue: string;
+    private _expectHiding: boolean;
+    private _state: BaseWhichKeyMenuState<T>
+    private _timeoutId?: NodeJS.Timeout;
+    private _disposables: Disposable[];
+
+    private _onDidShowEmitter: EventEmitter<void>;
+    private _onDidHideEmitter: EventEmitter<void>;
+    private _onDisposeEmitter: EventEmitter<void>;
+
+    onDidResolve?: () => any;
+    onDidReject?: (reason?: any) => any;
 
     constructor(cmdRelay: CommandRelay) {
-        super();
-        this.disposables.push(
-            cmdRelay.onDidKeyPressed(this.onDidKeyPressed, this)
-        );
-    }
+        this._acceptQueue = new DispatchQueue(this.handleAcceptanceDispatch.bind(this));
+        this._valueQueue = new DispatchQueue(this.handleValueDispatch.bind(this));
+        this._lastValue = "";
+        this._expectHiding = false;
 
-    protected get condition(): Condition {
-        const languageId = window.activeTextEditor?.document.languageId;
-        return {
-            when: this.when,
-            languageId
+        // Setup initial state
+        this._state = {
+            delay: 0,
+            items: [],
+            showMenu: false,
+            title: undefined,
         };
+
+        this._qp = window.createQuickPick<T>();
+        this._onDidShowEmitter = new EventEmitter<void>();
+        this._onDidHideEmitter = new EventEmitter<void>();
+        this._onDisposeEmitter = new EventEmitter<void>();
+
+        // setup on change value
+        this._disposables = [
+            this._onDidShowEmitter,
+            this._onDidHideEmitter,
+            this._onDisposeEmitter,
+            cmdRelay.onDidKeyPressed(this.handleDidKeyPressed, this),
+            this._qp.onDidAccept(this.handleDidAccept, this),
+            this._qp.onDidChangeValue(this.handleDidChangeValue, this),
+            this._qp.onDidHide(this.handleDidHide, this),
+            this._qp,
+        ];
+
     }
 
-    protected async onDidKeyPressed(value: KeybindingArgs): Promise<void> {
-        await this.setValue(this.quickPick.value + value.key);
-        await this.onDidChangeValue(this.quickPick.value, value.when);
-    }
+    /**
+     * If this is true, setting `this.value` should call `this.handleDidChangeValue` to maintain backward compatibility.
+     * 
+     * vscode 1.57+ changed API so setting QuickPick will trigger onDidChangeValue.
+     * See https://github.com/microsoft/vscode/issues/122939.
+     * 
+     */
+    private static shouldTriggerDidChangeValueOnSet =
+        Version.parse(version).compare(new Version(1, 57, 0)) == ComparisonResult.Older;
 
-    protected async onDidChangeValue(value: string, when?: string): Promise<void> {
-        this.when = when;
-
-        const chosenItem = this.items.find(i => i.key === value);
-        const hasSeq = this.items.find(i => value.startsWith(i.key));
-        if (hasSeq) {
-            if (chosenItem) {
-                await this.accept(chosenItem);
-            }
-        } else {
-            await this.onItemNotMatch(value);
+    /**
+     * Set the value of the QuicPick that's backward compatible.
+     * 
+     * Note: This will call `this.handleDidChangeValue` either via
+     * QuickPick's `onDidChangeValue` or manual call for backward compatibility.
+     */
+    set value(val: string) {
+        this._qp.value = val;
+        if (BaseWhichKeyMenu.shouldTriggerDidChangeValueOnSet) {
+            // Trigger handler manually to maintain backward compatibility.
+            this.handleDidChangeValue(val);
         }
     }
 
-    protected abstract onItemNotMatch(value: string): Thenable<unknown>;
+    get value() {
+        return this._qp.value;
+    }
+
+    get when() {
+        return this._when;
+    }
+
+    get state() {
+        return this._state;
+    }
+
+    get onDidShow(): Event<void> {
+        return this._onDidShowEmitter.event;
+    }
+
+    get onDidHide(): Event<void> {
+        return this._onDidHideEmitter.event;
+    }
+
+    get onDispose(): Event<void> {
+        return this._onDisposeEmitter.event;
+    }
+
+    private handleDidKeyPressed(arg: KeybindingArgs): void {
+        // Enqueue directly instead of setting value like
+        // `this.key = this._qp.value + arg.key`
+        // because QuickPick might lump key together
+        // and send only one combined event especially when
+        // the keys are set programmatically.
+        //
+        // For example:
+        // ```
+        // menu.show();
+        // cmdRelay.triggerKey('m');
+        // cmdRelay.triggerKey('x');
+        // ```
+        // or trigger via vscode vim re-mapper
+        // ```
+        // {
+        //     "before": [","],
+        //     "commands": [
+        //         "whichkey.show",
+        //         {"command": "whichkey.triggerKey", "args": "m"},
+        //         {"command": "whichkey.triggerKey", "args": "x"}
+        //     ],
+        // }
+        // ```
+        this._valueQueue.push(arg.key);
+        this._when = arg.when;
+    }
+
+    private handleDidAccept(): void {
+        if (this._qp.activeItems.length > 0) {
+            const item = this._qp.activeItems[0];
+            this._acceptQueue.push(item);
+        }
+    }
+
+    private handleDidChangeValue(value: string): void {
+        const last = this._lastValue;
+
+        // Not handling the unchanged value
+        if (value === last) {
+            return;
+        }
+
+        // Prevent character deletion
+        if (value.length > 0 && value.length < last.length) {
+            // This set will triggered another onDidChangeValue
+            this.value = last;
+            return;
+        }
+
+        // Set _lastValue before correct the value for the queue
+        this._lastValue = value;
+
+        // Correct input value while it's processing in the queue
+        // before pushing to queue.
+        //
+        // For example, an extra key is pressing while waiting on hiding when handling.
+        // [last] Example input value -> Corrected value
+        // [""] "a" -> "a"
+        // ["a"] "ab" -> "b"
+        // ["ab"] "abC-c" -> "C-c"
+        if (value.startsWith(last)) {
+            value = value.substr(last.length);
+        }
+
+        // QuickPick's onDidChangeValue wouldn't wait on async function,
+        // so push input to a queue to handle all changes sequentially to
+        // prevent race condition on key change when one input is still
+        // processing (mostly when waiting on hiding).
+        this._valueQueue.push(value);
+    }
+
+    private handleDidHide(): void {
+        // Fire event _onDidHideEmitter before dispose
+        // So hide event will be sent before dispose.
+        this._onDidHideEmitter.fire();
+
+        if (!this._expectHiding) {
+            this.dispose();
+        }
+        this._expectHiding = false;
+    }
+
+    private clearDelay(): void {
+        // Clear timeout can take undefined
+        clearTimeout(this._timeoutId!);
+        this._timeoutId = undefined;
+    }
+
+    private async handleValueDispatch(key: string): Promise<void> {
+        if (key.length > 0) {
+            const item = this._state.items.find(i => i.key === key);
+            if (item) {
+                await this.handleAcceptanceDispatch(item);
+            } else {
+                await this.handleMismatchDispatch(key);
+            }
+        }
+    }
+
+    private handleAcceptanceDispatch(item: T): Promise<void> {
+        return this.handleDispatch(this.handleAccept(item));
+    }
+
+    private handleMismatchDispatch(key: string): Promise<void> {
+        return this.handleDispatch(this.handleMismatch(key));
+    }
+
+    private async handleDispatch(
+        nextState: Promise<OptionalBaseWhichKeyMenuState<T>>
+    ): Promise<void> {
+        try {
+            const update = await nextState;
+            if (update) {
+                this.value = "";
+                this.update(update);
+                this.show();
+            } else {
+                this.resolve();
+            }
+        } catch (e) {
+            this.reject(e);
+        }
+    }
+
+    /**
+     * Handles an accepted item from either input or UI selection.
+     * @param item The item begin accepted.
+     */
+    protected abstract handleAccept(item: T):
+        Promise<OptionalBaseWhichKeyMenuState<T>>;
+
+    /**
+     * Handles when no item matches the input.
+     * @param key the key that was entered.
+     */
+    protected abstract handleMismatch(key: string):
+        Promise<OptionalBaseWhichKeyMenuState<T>>;
+
+    /**
+     * Updates the menu base on the state supplied.
+     * @param state The state used to update the menu.
+     */
+    update(state: BaseWhichKeyMenuState<T>): void {
+        this.clearDelay();
+        this._qp.title = state.title;
+        this._state = state;
+
+        if (state.showMenu) {
+            this._qp.busy = true;
+            setTimeout(() => {
+                this._qp.busy = false;
+                // TODO: Add transform to support display hiding.
+                this._qp.items = state.items;
+            }, state.delay);
+        }
+    }
+
+    private resolve(): void {
+        this.onDidResolve?.();
+        this.dispose();
+    }
+
+    private reject(e: any): void {
+        this.onDidReject?.(e);
+        this.dispose();
+    }
+
+    hide(): Promise<void> {
+        return new Promise<void>(r => {
+            this._expectHiding = true;
+            // Needs to wait onDidHide because
+            // https://github.com/microsoft/vscode/issues/135747
+            const disposable = this._qp.onDidHide(() => {
+                this._expectHiding = false;
+                disposable.dispose();
+                r();
+            });
+            this._qp.hide();
+        });
+    }
+
+    show(): void {
+        this._qp.show();
+        this._onDidShowEmitter.fire();
+    }
+
+    dispose(): void {
+        this.clearDelay();
+        this._valueQueue.clear();
+        this._acceptQueue.clear();
+
+        this._onDisposeEmitter.fire();
+        for (const d of this._disposables) {
+            d.dispose();
+        }
+
+        // Call onDidResolve once again in case dispose
+        // was not called from resolve or reject.
+        this.onDidResolve?.();
+    }
 }

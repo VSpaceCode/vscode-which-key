@@ -1,39 +1,48 @@
 import { CommandRelay } from "../commandRelay";
 import { StatusBar } from "../statusBar";
-import { BaseWhichKeyMenu, BaseWhichKeyMenuItem } from "./baseWhichKeyMenu";
+import { specializeBindingKey } from "../utils";
+import { BaseWhichKeyMenu, BaseWhichKeyMenuItem, OptionalBaseWhichKeyMenuState } from "./baseWhichKeyMenu";
 
 export interface RepeaterMenuItem extends BaseWhichKeyMenuItem {
+    name: string,
     accept: () => Thenable<unknown>;
 }
 
+type OptionalRepeatMenuState = OptionalBaseWhichKeyMenuState<RepeaterMenuItem>;
+
 class RepeaterMenu extends BaseWhichKeyMenu<RepeaterMenuItem> {
-    private statusBar: StatusBar;
+    private _statusBar: StatusBar;
 
     constructor(statusBar: StatusBar, cmdRelay: CommandRelay) {
         super(cmdRelay);
-        this.statusBar = statusBar;
+        this._statusBar = statusBar;
     }
 
-    protected async onItemNotMatch(value: string): Promise<void> {
-        await this.hide();
-        this.statusBar.setErrorMessage(`${value} is undefined`);
-        this.resolve();
-    }
-
-    protected async handleAcceptance(item: RepeaterMenuItem): Promise<void> {
-        this.statusBar.hide();
+    protected override async handleAccept(item: RepeaterMenuItem):
+        Promise<OptionalRepeatMenuState> {
+        this._statusBar.hide();
 
         await this.hide();
         await item.accept();
-        this.resolve();
+        return undefined;
+    }
+
+    protected override async handleMismatch(key: string): Promise<OptionalRepeatMenuState> {
+        const msg = `${specializeBindingKey(key)} is undefined`;
+        this._statusBar.setErrorMessage(msg);
+        return undefined;
     }
 }
 
 export function showRepeaterMenu(statusBar: StatusBar, cmdRelay: CommandRelay, items: RepeaterMenuItem[], title?: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         const menu = new RepeaterMenu(statusBar, cmdRelay);
-        menu.title = title;
-        menu.items = items;
+        menu.update({
+            title,
+            items: items,
+            delay: 0,
+            showMenu: true
+        });
         menu.onDidResolve = resolve;
         menu.onDidReject = reject;
         menu.show();

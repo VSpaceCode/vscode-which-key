@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Reimplement which-key to improve key handling robustness.
+
 ## [0.9.3] - 2021-09-17
 
 ### Added
@@ -23,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix an issue where using vim to call `whichkey.show` without any params failed
+- Fix an issue where using vim to call `whichkey.show` without any params failed.
 
 ### Changed
 
