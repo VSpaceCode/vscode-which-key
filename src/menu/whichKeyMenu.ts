@@ -1,32 +1,44 @@
 import { Disposable, window } from "vscode";
 import { CommandRelay } from "../commandRelay";
-import { toCommands } from "../config/bindingItem";
-import { Condition } from "../config/condition";
+import { ActionType, BindingItem, toCommands } from "../config/bindingItem";
+import { Condition, evalCondition, getCondition } from "../config/condition";
 import { WhichKeyMenuConfig } from "../config/menuConfig";
 import { ContextKey } from "../constants";
 import { StatusBar } from "../statusBar";
 import { executeCommands, setContext, specializeBindingKey } from "../utils";
 import { WhichKeyRepeater } from "../whichKeyRepeater";
-import { BaseWhichKeyMenu, OptionalBaseWhichKeyMenuState } from "./baseWhichKeyMenu";
+import { BaseWhichKeyMenu, BaseWhichKeyQuickPickItem, OptionalBaseWhichKeyMenuState } from "./baseWhichKeyMenu";
 import { showDescBindMenu } from "./descBindMenu";
 import { createDescBindItems } from "./descBindMenuItem";
-import { WhichKeyMenuItem } from "./whichKeyMenuItem";
 
-type OptionalWhichKeyMenuState = OptionalBaseWhichKeyMenuState<WhichKeyMenuItem>;
+type OptionalWhichKeyMenuState = OptionalBaseWhichKeyMenuState<BindingItem>;
 
-class WhichKeyMenu extends BaseWhichKeyMenu<WhichKeyMenuItem> {
-    private _itemHistory: WhichKeyMenuItem[];
+function evalBindingCondition(item?: BindingItem, condition?: Condition): BindingItem | undefined {
+    while (item && item.type === ActionType.Conditional) {
+        // Search the condition first. If no matches, find the first empty condition as else
+        item = findBindingWithCondition(item.bindings, condition) ?? findBindingWithCondition(item.bindings, undefined);
+    }
+    return item;
+}
+
+function findBindingWithCondition(bindings?: BindingItem[], condition?: Condition): BindingItem | undefined {
+    return bindings?.find(i => evalCondition(getCondition(i.key), condition));
+}
+
+class WhichKeyMenu extends BaseWhichKeyMenu<BindingItem> {
+    private _itemHistory: BindingItem[];
     private __disposables: Disposable[];
 
     private _statusBar: StatusBar;
     private _repeater?: WhichKeyRepeater;
-    private _delay: number;
 
-    constructor(statusBar: StatusBar, cmdRelay: CommandRelay, repeater?: WhichKeyRepeater, delay = 0) {
+    showIcon = true;
+    delay = 0;
+
+    constructor(statusBar: StatusBar, cmdRelay: CommandRelay, repeater?: WhichKeyRepeater) {
         super(cmdRelay);
         this._statusBar = statusBar;
         this._repeater = repeater;
-        this._delay = delay;
 
         this._itemHistory = [];
         this.__disposables = [
@@ -49,11 +61,12 @@ class WhichKeyMenu extends BaseWhichKeyMenu<WhichKeyMenuItem> {
         return showDescBindMenu(items, "Search Keybindings");
     }
 
-    protected override async handleAccept(item: WhichKeyMenuItem) {
+    protected override async handleAccept(item: BindingItem):
+        Promise<OptionalWhichKeyMenuState> {
         this._itemHistory.push(item);
         this._statusBar.hide();
 
-        const result = item.evalCondition(this.condition);
+        const result = evalBindingCondition(item, this.condition);
         if (!result) {
             this._statusBar.setErrorMessage("No condition matched");
             return undefined;
@@ -72,7 +85,7 @@ class WhichKeyMenu extends BaseWhichKeyMenu<WhichKeyMenuItem> {
             return {
                 title: item.name,
                 items,
-                delay: this._delay,
+                delay: this.delay,
                 showMenu: true,
             };
         } else {
@@ -85,6 +98,19 @@ class WhichKeyMenu extends BaseWhichKeyMenu<WhichKeyMenuItem> {
         const keyCombo = this.toHistoricalKeysString(key);
         this._statusBar.setErrorMessage(`${keyCombo} is undefined`);
         return undefined;
+    }
+
+    protected override handleRender(items: BindingItem[]):
+        BaseWhichKeyQuickPickItem<BindingItem>[] {
+        return items.map(i => {
+            const icon = (this.showIcon && i.icon && i.icon.length > 0)
+                ? `$(${i.icon})   ` : "";
+            return {
+                label: specializeBindingKey(i.key),
+                description: `\t${icon}${i.name}`,
+                item: i,
+            };
+        });
     }
 
     private toHistoricalKeysString(currentKey?: string): string {
@@ -107,9 +133,11 @@ class WhichKeyMenu extends BaseWhichKeyMenu<WhichKeyMenuItem> {
 }
 
 export function showWhichKeyMenu(statusBar: StatusBar, cmdRelay: CommandRelay, repeater: WhichKeyRepeater | undefined, config: WhichKeyMenuConfig) {
-    const menu = new WhichKeyMenu(statusBar, cmdRelay, repeater, config.delay);
+    const menu = new WhichKeyMenu(statusBar, cmdRelay, repeater);
+    menu.delay = config.delay;
+    menu.showIcon = config.showIcons;
     menu.update({
-        items: config.bindings.map(b => new WhichKeyMenuItem(b, config.showIcons)),
+        items: config.bindings,
         title: config.title,
         delay: config.delay,
         showMenu: true,

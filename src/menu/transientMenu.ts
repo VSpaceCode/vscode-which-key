@@ -1,18 +1,19 @@
 import { Disposable } from "vscode";
 import { CommandRelay } from "../commandRelay";
-import { toCommands } from "../config/bindingItem";
+import { toCommands, TransientBindingItem } from "../config/bindingItem";
 import { MaybeConfig, resolveMaybeConfig, TransientMenuConfig } from "../config/menuConfig";
 import { Configs, ContextKey } from "../constants";
 import { StatusBar } from "../statusBar";
 import { executeCommands, getConfig, setContext, specializeBindingKey } from "../utils";
-import { BaseWhichKeyMenu, OptionalBaseWhichKeyMenuState } from "./baseWhichKeyMenu";
-import { TransientMenuItem } from "./transientMenuItem";
+import { BaseWhichKeyMenu, BaseWhichKeyQuickPickItem, OptionalBaseWhichKeyMenuState } from "./baseWhichKeyMenu";
 
-type OptionalTransientMenuState = OptionalBaseWhichKeyMenuState<TransientMenuItem>;
+type OptionalTransientMenuState = OptionalBaseWhichKeyMenuState<TransientBindingItem>;
 
-class TransientMenu extends BaseWhichKeyMenu<TransientMenuItem> {
+class TransientMenu extends BaseWhichKeyMenu<TransientBindingItem> {
     private _statusBar: StatusBar;
     private __disposables: Disposable[];
+
+    showIcon = true;
 
     constructor(statusBar: StatusBar, cmdRelay: CommandRelay) {
         super(cmdRelay);
@@ -24,7 +25,7 @@ class TransientMenu extends BaseWhichKeyMenu<TransientMenuItem> {
         ];
     }
 
-    protected override async handleAccept(item: TransientMenuItem):
+    protected override async handleAccept(item: TransientBindingItem):
         Promise<OptionalTransientMenuState> {
         await this.hide();
         const { commands, args } = toCommands(item);
@@ -35,8 +36,22 @@ class TransientMenu extends BaseWhichKeyMenu<TransientMenuItem> {
 
     protected override async handleMismatch(key: string):
         Promise<OptionalTransientMenuState> {
-        this._statusBar.setErrorMessage(`${specializeBindingKey(key ?? 'key')} is undefined`);
+        const msg = `${specializeBindingKey(key)} is undefined`;
+        this._statusBar.setErrorMessage(msg);
         return undefined;
+    }
+
+    protected override handleRender(items: TransientBindingItem[]):
+        BaseWhichKeyQuickPickItem<TransientBindingItem>[] {
+        return items.map(i => {
+            const icon = (this.showIcon && i.icon && i.icon.length > 0)
+                ? `$(${i.icon})   ` : "";
+            return {
+                label: specializeBindingKey(i.key),
+                description: `\t${icon}${i.name}`,
+                item: i,
+            };
+        });
     }
 
     override dispose() {
@@ -58,17 +73,17 @@ class TransientMenu extends BaseWhichKeyMenu<TransientMenuItem> {
 
 export function showTransientMenu(statusBar: StatusBar, cmdRelay: CommandRelay, config: MaybeConfig<TransientMenuConfig>): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        const menu = new TransientMenu(statusBar, cmdRelay);
         const menuConfig = resolveMaybeConfig(config);
-        const showIcons = menuConfig?.showIcons ?? getConfig<boolean>(Configs.ShowIcons) ?? true;
+        const menu = new TransientMenu(statusBar, cmdRelay);
+        menu.showIcon = menuConfig?.showIcons ?? getConfig<boolean>(Configs.ShowIcons) ?? true;
+        menu.onDidResolve = resolve;
+        menu.onDidReject = reject;
         menu.update({
             title: menuConfig?.title,
-            items: menuConfig?.bindings.map(b => new TransientMenuItem(b, showIcons)) ?? [],
+            items: menuConfig?.bindings ?? [],
             delay: 0,
             showMenu: true
         });
-        menu.onDidResolve = resolve;
-        menu.onDidReject = reject;
         menu.show();
     });
 }
