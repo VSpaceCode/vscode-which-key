@@ -1,6 +1,6 @@
 import { Disposable, window } from "vscode";
 import { CommandRelay } from "../commandRelay";
-import { ActionType, BindingItem, toCommands } from "../config/bindingItem";
+import { ActionType, BindingItem, DisplayOption, toCommands } from "../config/bindingItem";
 import { Condition, evalCondition, getCondition } from "../config/condition";
 import { WhichKeyMenuConfig } from "../config/menuConfig";
 import { ContextKey } from "../constants";
@@ -102,15 +102,17 @@ class WhichKeyMenu extends BaseWhichKeyMenu<BindingItem> {
 
     protected override handleRender(items: BindingItem[]):
         BaseWhichKeyQuickPickItem<BindingItem>[] {
-        return items.map(i => {
-            const icon = (this.showIcon && i.icon && i.icon.length > 0)
-                ? `$(${i.icon})   ` : "";
-            return {
-                label: specializeBindingKey(i.key),
-                description: `\t${icon}${i.name}`,
-                item: i,
-            };
-        });
+        return items
+            .filter(i => i.display !== DisplayOption.Hidden)
+            .map(i => {
+                const icon = (this.showIcon && i.icon && i.icon.length > 0)
+                    ? `$(${i.icon})   ` : "";
+                return {
+                    label: specializeBindingKey(i.key),
+                    description: `\t${icon}${i.name}`,
+                    item: i,
+                };
+            });
     }
 
     private toHistoricalKeysString(currentKey?: string): string {
