@@ -6,6 +6,10 @@ export const enum ActionType {
     Conditional = "conditional",
 }
 
+export const enum DisplayOption {
+    Hidden = "hidden",
+}
+
 export interface CommandItem {
     command?: string;
     commands?: string[];
@@ -16,6 +20,7 @@ export interface BindingItem extends CommandItem {
     key: string;
     name: string;
     icon?: string;
+    display?: DisplayOption;
     type: ActionType;
     bindings?: BindingItem[];
 }
@@ -25,6 +30,7 @@ export interface OverrideBindingItem extends CommandItem {
     position?: number;
     name?: string;
     icon?: string;
+    display?: DisplayOption;
     type?: ActionType;
     bindings?: BindingItem[];
 }
@@ -33,6 +39,7 @@ export interface TransientBindingItem extends CommandItem {
     key: string;
     name: string;
     icon?: string;
+    display?: DisplayOption;
     exit?: boolean;
 }
 

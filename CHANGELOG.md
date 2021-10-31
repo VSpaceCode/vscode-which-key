@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Support `display: hidden` in BindingItem and TransientBindingItem (#51).
+
 ### Changed
 
 - Reimplement which-key to improve key handling robustness.

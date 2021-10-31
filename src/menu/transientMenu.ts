@@ -1,6 +1,6 @@
 import { Disposable } from "vscode";
 import { CommandRelay } from "../commandRelay";
-import { toCommands, TransientBindingItem } from "../config/bindingItem";
+import { DisplayOption, toCommands, TransientBindingItem } from "../config/bindingItem";
 import { MaybeConfig, resolveMaybeConfig, TransientMenuConfig } from "../config/menuConfig";
 import { Configs, ContextKey } from "../constants";
 import { StatusBar } from "../statusBar";
@@ -43,15 +43,17 @@ class TransientMenu extends BaseWhichKeyMenu<TransientBindingItem> {
 
     protected override handleRender(items: TransientBindingItem[]):
         BaseWhichKeyQuickPickItem<TransientBindingItem>[] {
-        return items.map(i => {
-            const icon = (this.showIcon && i.icon && i.icon.length > 0)
-                ? `$(${i.icon})   ` : "";
-            return {
-                label: specializeBindingKey(i.key),
-                description: `\t${icon}${i.name}`,
-                item: i,
-            };
-        });
+        return items
+            .filter(i => i.display !== DisplayOption.Hidden)
+            .map(i => {
+                const icon = (this.showIcon && i.icon && i.icon.length > 0)
+                    ? `$(${i.icon})   ` : "";
+                return {
+                    label: specializeBindingKey(i.key),
+                    description: `\t${icon}${i.name}`,
+                    item: i,
+                };
+            });
     }
 
     override dispose() {

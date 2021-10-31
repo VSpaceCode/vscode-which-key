@@ -45,6 +45,7 @@ function convertOverride(key: string, o: OverrideBindingItem): BindingItem {
             key: key,
             name: o.name,
             icon: o.icon,
+            display: o.display,
             type: o.type,
             command: o.command,
             commands: o.commands,
@@ -133,6 +134,7 @@ function convertToTransientBinding(item: BindingItem): TransientBindingItem[] {
                     key: b.key,
                     name: b.name,
                     icon: b.icon,
+                    display: b.display,
                     ...toCommands(b)
                 });
             } else if (b.type === ActionType.Bindings) {
@@ -140,6 +142,7 @@ function convertToTransientBinding(item: BindingItem): TransientBindingItem[] {
                     key: b.key,
                     name: b.name,
                     icon: b.icon,
+                    display: b.display,
                     command: Commands.Show,
                     args: b.bindings,
                     exit: true,
@@ -149,6 +152,7 @@ function convertToTransientBinding(item: BindingItem): TransientBindingItem[] {
                     key: b.key,
                     name: b.name,
                     icon: b.icon,
+                    display: b.display,
                     command: Commands.ShowTransient,
                     args: {
                         title: item.name,
@@ -177,6 +181,7 @@ function migrateTransient(item: BindingItem): BindingItem {
             key: item.key,
             name: item.name,
             icon: item.icon,
+            display: item.display,
             type: ActionType.Commands,
             commands,
             args,
