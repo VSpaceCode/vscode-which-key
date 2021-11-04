@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Reimplement which-key to improve key handling robustness.
+- Change error on status bar to be more prominent
 
 ## [0.9.3] - 2021-09-17
 
