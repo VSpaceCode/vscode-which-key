@@ -28,7 +28,7 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
     private _when?: string;
     private _lastValue: string;
     private _expectHiding: boolean;
-    private _state: BaseWhichKeyMenuState<T>
+    private _state: BaseWhichKeyMenuState<T>;
     private _timeoutId?: NodeJS.Timeout;
     private _disposables: Disposable[];
 
