@@ -1,14 +1,14 @@
 import { QuickPickItem } from "vscode";
 import { BindingItem, toCommands } from "../config/bindingItem";
 import { getCondition } from "../config/condition";
-import { specializeBindingKey } from "../utils";
+import { toFullWidthSpecializedKey } from "../utils";
 
 function pathToMenuLabel(path: BindingItem[]): string {
     return path
         // Filter all the condition key so we will not show something like
         // languageId:markdown
         .filter(item => !getCondition(item.key))
-        .map(item => specializeBindingKey(item.key))
+        .map(item => toFullWidthSpecializedKey(item.key))
         .join(" ");
 }
 
@@ -16,12 +16,12 @@ function pathToMenuDetail(path: BindingItem[]): string {
     return path.map(p => p.name).join("$(chevron-right)");
 }
 
-function conversion(i: BindingItem, path: BindingItem[] = []): DescBindMenuItem {
-    const newPath = path.concat(i);
+function conversion(i: BindingItem, prefixPath: BindingItem[] = []): DescBindMenuItem {
+    const newPath = prefixPath.concat(i);
 
     const item: DescBindMenuItem = {
         label: pathToMenuLabel(newPath),
-        detail: pathToMenuDetail(path),
+        detail: pathToMenuDetail(prefixPath),
         description: i.name,
     };
     if (i.bindings) {

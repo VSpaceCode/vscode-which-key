@@ -5,7 +5,7 @@ import { Condition, evalCondition, getCondition } from "../config/condition";
 import { WhichKeyMenuConfig } from "../config/menuConfig";
 import { ContextKey } from "../constants";
 import { StatusBar } from "../statusBar";
-import { executeCommands, setContext, specializeBindingKey } from "../utils";
+import { executeCommands, setContext, toFullWidthKey, toFullWidthSpecializedKey, toSpecializedKey } from "../utils";
 import { WhichKeyRepeater } from "../whichKeyRepeater";
 import { BaseWhichKeyMenu, BaseWhichKeyQuickPickItem, OptionalBaseWhichKeyMenuState } from "./baseWhichKeyMenu";
 import { showDescBindMenu } from "./descBindMenu";
@@ -102,17 +102,23 @@ class WhichKeyMenu extends BaseWhichKeyMenu<BindingItem> {
 
     protected override handleRender(items: BindingItem[]):
         BaseWhichKeyQuickPickItem<BindingItem>[] {
-        return items
-            .filter(i => i.display !== DisplayOption.Hidden)
-            .map(i => {
-                const icon = (this.showIcon && i.icon && i.icon.length > 0)
-                    ? `$(${i.icon})   ` : "";
-                return {
-                    label: specializeBindingKey(i.key),
-                    description: `\t${icon}${i.name}`,
-                    item: i,
-                };
-            });
+        items = items.filter(i => i.display !== DisplayOption.Hidden);
+        const max = items.reduce(
+            (acc, val) => acc > val.key.length ? acc : val.key.length,
+            0
+        );
+
+        return items.map(i => {
+            const icon = (this.showIcon && i.icon && i.icon.length > 0)
+                ? `$(${i.icon})   ` : "";
+            const label = toFullWidthSpecializedKey(i.key)
+                + toFullWidthKey(' '.repeat(max - i.key.length));
+            return {
+                label,
+                description: `\t${icon}${i.name}`,
+                item: i,
+            };
+        });
     }
 
     private toHistoricalKeysString(currentKey?: string): string {
@@ -120,7 +126,7 @@ class WhichKeyMenu extends BaseWhichKeyMenu<BindingItem> {
         if (currentKey) {
             keyCombo = keyCombo.concat(currentKey);
         }
-        return keyCombo.map(specializeBindingKey).join(' ');
+        return keyCombo.map(toSpecializedKey).join(' ');
     }
 
     override dispose() {

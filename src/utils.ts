@@ -45,19 +45,22 @@ export function getConfig<T>(section: string): T | undefined {
     return workspace.getConfiguration(filterSection).get<T>(lastSection);
 }
 
+export function pipe<T>(...fns: Array<(arg: T) => T>) {
+    return (x: T) => fns.reduce((v, f) => f(v), x);
+}
+
 // https://en.wikipedia.org/wiki/Halfwidth_and_Fullwidth_Forms_(Unicode_block)
 export function toFullWidthKey(s: string): string {
     let key = "";
     for (const symbol of s) {
         const codePoint = symbol.codePointAt(0);
-        if (s.length === 1 && codePoint && codePoint >= CharCode.Exclamation && codePoint <= CharCode.Tide) {
+        if (codePoint && codePoint >= CharCode.Exclamation && codePoint <= CharCode.Tide) {
             // Only replace single character string to full width
             // ASCII character into full width characters
             key += String.fromCodePoint(codePoint + 65248);
         } else if (codePoint === CharCode.Space) {
-            key += '␣';
-        } else if (codePoint === CharCode.Tab) {
-            key += '↹';
+            // Full width space character
+            key += '\u3000';
         } else {
             key += symbol;
         }
@@ -66,7 +69,7 @@ export function toFullWidthKey(s: string): string {
     return key;
 }
 
-export function specializeBindingKey(s: string): string {
+export function toSpecializedKey(s: string): string {
     let key = "";
     for (const symbol of s) {
         const codePoint = symbol.codePointAt(0);
@@ -83,3 +86,5 @@ export function specializeBindingKey(s: string): string {
 
     return key;
 }
+
+export const toFullWidthSpecializedKey = pipe(toSpecializedKey, toFullWidthKey);
