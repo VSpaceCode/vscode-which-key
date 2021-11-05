@@ -1,6 +1,6 @@
 import { CommandRelay } from "../commandRelay";
 import { StatusBar } from "../statusBar";
-import { specializeBindingKey } from "../utils";
+import { pipe, toFullWidthKey, toSpecializedKey } from "../utils";
 import { BaseWhichKeyMenu, BaseWhichKeyMenuItem, BaseWhichKeyQuickPickItem, OptionalBaseWhichKeyMenuState } from "./baseWhichKeyMenu";
 
 export interface RepeaterMenuItem extends BaseWhichKeyMenuItem {
@@ -29,14 +29,18 @@ class RepeaterMenu extends BaseWhichKeyMenu<RepeaterMenuItem> {
     }
 
     protected override async handleMismatch(key: string): Promise<OptionalRepeatMenuState> {
-        const msg = `${specializeBindingKey(key)} is undefined`;
+        const msg = `${toSpecializedKey(key)} is undefined`;
         this._statusBar.setErrorMessage(msg);
         return undefined;
     }
 
     protected override handleRender(items: RepeaterMenuItem[]): BaseWhichKeyQuickPickItem<RepeaterMenuItem>[] {
+        const max = items.reduce(
+            (acc, val) => acc > val.key.length ? acc : val.key.length,
+            0
+        );
         return items.map(i => ({
-            label: i.key,
+            label: pipe(toSpecializedKey, toFullWidthKey)(i.key) + toFullWidthKey(' '.repeat(max - i.key.length + 1)),
             description: i.name,
             detail: i.basePathNames.join('$(chevron-right)'),
             item: i

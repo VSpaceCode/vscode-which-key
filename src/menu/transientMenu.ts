@@ -4,7 +4,7 @@ import { DisplayOption, toCommands, TransientBindingItem } from "../config/bindi
 import { MaybeConfig, resolveMaybeConfig, TransientMenuConfig } from "../config/menuConfig";
 import { Configs, ContextKey } from "../constants";
 import { StatusBar } from "../statusBar";
-import { executeCommands, getConfig, setContext, specializeBindingKey } from "../utils";
+import { executeCommands, getConfig, pipe, setContext, toFullWidthKey, toSpecializedKey } from "../utils";
 import { BaseWhichKeyMenu, BaseWhichKeyQuickPickItem, OptionalBaseWhichKeyMenuState } from "./baseWhichKeyMenu";
 
 type OptionalTransientMenuState = OptionalBaseWhichKeyMenuState<TransientBindingItem>;
@@ -36,24 +36,30 @@ class TransientMenu extends BaseWhichKeyMenu<TransientBindingItem> {
 
     protected override async handleMismatch(key: string):
         Promise<OptionalTransientMenuState> {
-        const msg = `${specializeBindingKey(key)} is undefined`;
+        const msg = `${toSpecializedKey(key)} is undefined`;
         this._statusBar.setErrorMessage(msg);
         return undefined;
     }
 
     protected override handleRender(items: TransientBindingItem[]):
         BaseWhichKeyQuickPickItem<TransientBindingItem>[] {
-        return items
-            .filter(i => i.display !== DisplayOption.Hidden)
-            .map(i => {
-                const icon = (this.showIcon && i.icon && i.icon.length > 0)
-                    ? `$(${i.icon})   ` : "";
-                return {
-                    label: specializeBindingKey(i.key),
-                    description: `\t${icon}${i.name}`,
-                    item: i,
-                };
-            });
+        items = items.filter(i => i.display !== DisplayOption.Hidden);
+        const max = items.reduce(
+            (acc, val) => acc > val.key.length ? acc : val.key.length,
+            0
+        );
+
+        return items.map(i => {
+            const icon = (this.showIcon && i.icon && i.icon.length > 0)
+                ? `$(${i.icon})   ` : "";
+            const label = pipe(toSpecializedKey, toFullWidthKey)(i.key)
+                + toFullWidthKey(' '.repeat(max - i.key.length + 1));
+            return {
+                label,
+                description: `${icon}${i.name}`,
+                item: i,
+            };
+        });
     }
 
     override dispose() {

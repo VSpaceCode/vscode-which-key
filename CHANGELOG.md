@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Use full width key to render keys on the menu for bette alignment.
+
 ## [0.10.0] - 2021-11-03
 
 ### Added
