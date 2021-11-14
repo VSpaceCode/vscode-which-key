@@ -232,18 +232,21 @@
 						"default": true
 					},
 					"whichkey.sortOrder": {
-						"type": "string",
-						"default": "none",
-						"enum": [
-							"none",
-							"alphabetically",
-							"nonNumberFirst"
-						],
-						"enumDescriptions": [
-							"Menu items are not sorted.",
-							"Menu items are sorted in alphabetical order.",
-							"Menu items are sorted in alphabetical order with non-number first."
-						],
+						"type": "array",
+						"default": [],
+						"items": {
+							"type": "string",
+							"enum": [
+								"alphabetically",
+								"nonNumberFirst",
+								"lowercaseFirst"
+							],
+							"enumDescriptions": [
+								"Menu items are sorted in alphabetical order.",
+								"Menu items are sorted with non-number first.",
+								"Menu items are sorted with lowercase first."
+							]
+						},
 						"markdownDescription": "Controls the sorting order of the which-key menu items."
 					},
 					"whichkey.bindings": {

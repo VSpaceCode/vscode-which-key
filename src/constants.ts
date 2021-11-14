@@ -1,11 +1,11 @@
 export const extensionId = 'VSpaceCode.whichkey';
 export const contributePrefix = 'whichkey';
 export enum ConfigKey {
-	Delay = "delay",
-	ShowIcons = "showIcons",
-	SortOrder = "sortOrder",
-	Bindings = "bindings",
-	Overrides = "bindingOverrides",
+	Delay = 'delay',
+	ShowIcons = 'showIcons',
+	SortOrder = 'sortOrder',
+	Bindings = 'bindings',
+	Overrides = 'bindingOverrides',
 }
 export enum CommandKey {
 	Show = 'show',
@@ -19,16 +19,17 @@ export enum CommandKey {
 	OpenFile = 'openFile',
 }
 
-export enum SortOrder {
+export enum SortOrderItem {
 	None = 'none',
 	Alphabetically = 'alphabetically',
 	NonNumberFirst = 'nonNumberFirst',
+	LowercaseFirst = 'lowercaseFirst',
 }
 
 export enum ContextKey {
 	Active = 'whichkeyActive',
 	Visible = 'whichkeyVisible',
-	TransientVisible = 'transientVisible'
+	TransientVisible = 'transientVisible',
 }
 
 export const Configs = {

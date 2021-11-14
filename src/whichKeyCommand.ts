@@ -3,7 +3,7 @@ import { CommandRelay } from "./commandRelay";
 import { ActionType, BindingItem, OverrideBindingItem, toCommands, TransientBindingItem } from "./config/bindingItem";
 import { isConditionKeyEqual } from "./config/condition";
 import { WhichKeyConfig } from "./config/whichKeyConfig";
-import { Commands, Configs, SortOrder } from "./constants";
+import { Commands, Configs, SortOrderItem } from "./constants";
 import { showWhichKeyMenu } from "./menu/whichKeyMenu";
 import { StatusBar } from "./statusBar";
 import { getConfig } from "./utils";
@@ -99,26 +99,37 @@ function overrideBindingItems(items: BindingItem[], overrides: OverrideBindingIt
 }
 
 // in place sort
-function sortBindingsItems(items: BindingItem[] | undefined, order: SortOrder): void {
-    if (!items || order === SortOrder.None) {
+function sortBindingsItems(items: BindingItem[] | undefined, order: SortOrderItem[]): void {
+    if (!items || order === []) {
         return;
     }
+    const alphabetically = order.includes(SortOrderItem.Alphabetically);
+    const nonNumberFirst = order.includes(SortOrderItem.NonNumberFirst);
+    const lowercaseFirst = order.includes(SortOrderItem.LowercaseFirst);
 
-    if (order === SortOrder.Alphabetically) {
-        items.sort((a, b) => a.key.localeCompare(b.key));
-    } else if (order === SortOrder.NonNumberFirst) {
-        items.sort((a, b) => {
+    items.sort((a, b) => {
+        if (nonNumberFirst) {
             const regex = /^[0-9]/;
             const aStartsWithNumber = regex.test(a.key);
             const bStartsWithNumber = regex.test(b.key);
             if (aStartsWithNumber !== bStartsWithNumber) {
                 // Sort non-number first
                 return aStartsWithNumber ? 1 : -1;
-            } else {
-                return a.key.localeCompare(b.key);
             }
-        });
-    }
+        }
+        if (lowercaseFirst) {
+            const regex = /^[A-Z]/;
+            const aStartsWithUppercase = regex.test(a.key);
+            const bStartsWithUppercase = regex.test(b.key);
+            if (aStartsWithUppercase !== bStartsWithUppercase) {
+                // Sort lowercase first
+                return aStartsWithUppercase ? 1: -1;
+            }
+        }
+
+        return alphabetically ? a.key.localeCompare(b.key) : 0;
+    });
+
     for (const item of items) {
         sortBindingsItems(item.bindings, order);
     }
@@ -209,7 +220,7 @@ function getCanonicalConfig(c: WhichKeyConfig): BindingItem[] {
         overrideBindingItems(bindings, overrides);
     }
 
-    const sortOrder = getConfig<SortOrder>(Configs.SortOrder) ?? SortOrder.None;
+    const sortOrder = getConfig<SortOrderItem[]>(Configs.SortOrder) ?? [];
     sortBindingsItems(bindings, sortOrder);
 
     return migrateBindings(bindings);
