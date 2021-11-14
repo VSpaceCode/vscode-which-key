@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Use full width character to render keys on the menu for better alignment.
 
+### Fixed
+
+- Fix an issue where previous menu items are still getting rendered when delay is over.
+
 ## [0.10.0] - 2021-11-03
 
 ### Added

@@ -280,7 +280,7 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
 
         if (state.showMenu) {
             this._qp.busy = true;
-            setTimeout(() => {
+            this._timeoutId = setTimeout(() => {
                 this._qp.busy = false;
                 this._qp.items = this.handleRender(state.items);
             }, state.delay);
