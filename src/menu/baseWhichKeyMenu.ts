@@ -1,4 +1,4 @@
-import { Disposable, Event, EventEmitter, QuickPick, QuickPickItem, version, window } from "vscode";
+import { Disposable, Event, EventEmitter, QuickInputButton, QuickPick, QuickPickItem, version, window } from "vscode";
 import { CommandRelay, KeybindingArgs } from "../commandRelay";
 import { DispatchQueue } from "../dispatchQueue";
 import { ComparisonResult, Version } from "../version";
@@ -12,10 +12,11 @@ export interface BaseWhichKeyQuickPickItem<T extends BaseWhichKeyMenuItem> exten
 }
 
 export interface BaseWhichKeyMenuState<T extends BaseWhichKeyMenuItem> {
-    title: string | undefined,
+    title?: string,
+    items: T[]
     delay: number,
     showMenu: boolean,
-    items: T[]
+    buttons?: QuickInputButton[],
 }
 
 export type OptionalBaseWhichKeyMenuState<T extends BaseWhichKeyMenuItem> = BaseWhichKeyMenuState<T> | undefined;
@@ -49,8 +50,7 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
         this._state = {
             delay: 0,
             items: [],
-            showMenu: false,
-            title: undefined,
+            showMenu: false
         };
 
         this._qp = window.createQuickPick<BaseWhichKeyQuickPickItem<T>>();
@@ -114,6 +114,10 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
 
     get onDidHide(): Event<void> {
         return this._onDidHideEmitter.event;
+    }
+
+    get onDidTriggerButton(): Event<QuickInputButton> {
+        return this._qp.onDidTriggerButton;
     }
 
     get onDispose(): Event<void> {

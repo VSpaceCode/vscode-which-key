@@ -1,4 +1,4 @@
-import { Disposable, window } from "vscode";
+import { Disposable, QuickInputButton, ThemeIcon, window } from "vscode";
 import { CommandRelay } from "../commandRelay";
 import { ActionType, BindingItem, DisplayOption, toCommands } from "../config/bindingItem";
 import { Condition, evalCondition, getCondition } from "../config/condition";
@@ -7,7 +7,7 @@ import { ContextKey } from "../constants";
 import { StatusBar } from "../statusBar";
 import { executeCommands, setContext, toFullWidthKey, toFullWidthSpecializedKey, toSpecializedKey } from "../utils";
 import { WhichKeyRepeater } from "../whichKeyRepeater";
-import { BaseWhichKeyMenu, BaseWhichKeyQuickPickItem, OptionalBaseWhichKeyMenuState } from "./baseWhichKeyMenu";
+import { BaseWhichKeyMenu, BaseWhichKeyMenuState, BaseWhichKeyQuickPickItem, OptionalBaseWhichKeyMenuState } from "./baseWhichKeyMenu";
 import { showDescBindMenu } from "./descBindMenu";
 import { createDescBindItems } from "./descBindMenuItem";
 
@@ -33,7 +33,7 @@ class WhichKeyMenu extends BaseWhichKeyMenu<BindingItem> {
     private _statusBar: StatusBar;
     private _repeater?: WhichKeyRepeater;
 
-    showIcon = true;
+    showIcons = true;
     delay = 0;
 
     constructor(statusBar: StatusBar, cmdRelay: CommandRelay, repeater?: WhichKeyRepeater) {
@@ -46,10 +46,23 @@ class WhichKeyMenu extends BaseWhichKeyMenu<BindingItem> {
         this.__disposables = [
             cmdRelay.onDidSearchBindings(this.handleDidSearchBindings, this),
             cmdRelay.onDidUndoKey(this.handleDidUndoKey, this),
+            this.onDidTriggerButton(this.handleDidTriggerButton, this),
             this.onDidHide(() => setContext(ContextKey.Visible, false)),
             this.onDidShow(() => setContext(ContextKey.Visible, true))
         ];
     }
+
+    static SearchBindingButton: QuickInputButton = {
+        iconPath: new ThemeIcon('search'),
+        tooltip: 'Search keybindings'
+    };
+
+    static UndoKeyButton: QuickInputButton = {
+        iconPath: new ThemeIcon('arrow-left'),
+        tooltip: 'Undo key'
+    };
+
+    private static NonRootMenuButtons = [this.UndoKeyButton, this.SearchBindingButton];
 
     private get condition(): Condition {
         const languageId = window.activeTextEditor?.document.languageId;
@@ -78,6 +91,17 @@ class WhichKeyMenu extends BaseWhichKeyMenu<BindingItem> {
         }
     }
 
+    private handleDidTriggerButton(button: QuickInputButton) {
+        switch (button) {
+            case WhichKeyMenu.UndoKeyButton:
+                this.handleDidUndoKey();
+                break;
+            case WhichKeyMenu.SearchBindingButton:
+                this.handleDidSearchBindings();
+                break;
+        }
+    }
+
     protected override async handleAccept(item: BindingItem):
         Promise<OptionalWhichKeyMenuState> {
         this._itemHistory.push(item);
@@ -100,10 +124,11 @@ class WhichKeyMenu extends BaseWhichKeyMenu<BindingItem> {
             this._statusBar.setPlainMessage(this.toHistoricalKeysString() + "-", 0);
             const items = result.bindings;
             return {
-                title: item.name,
                 items,
+                title: item.name,
                 delay: this.delay,
                 showMenu: true,
+                buttons: WhichKeyMenu.NonRootMenuButtons,
             };
         } else {
             return undefined;
@@ -126,7 +151,7 @@ class WhichKeyMenu extends BaseWhichKeyMenu<BindingItem> {
         );
 
         return items.map(i => {
-            const icon = (this.showIcon && i.icon && i.icon.length > 0)
+            const icon = (this.showIcons && i.icon && i.icon.length > 0)
                 ? `$(${i.icon})   ` : "";
             const label = toFullWidthSpecializedKey(i.key)
                 + toFullWidthKey(' '.repeat(max - i.key.length));
@@ -165,12 +190,13 @@ class WhichKeyMenu extends BaseWhichKeyMenu<BindingItem> {
 export function showWhichKeyMenu(statusBar: StatusBar, cmdRelay: CommandRelay, repeater: WhichKeyRepeater | undefined, config: WhichKeyMenuConfig) {
     const menu = new WhichKeyMenu(statusBar, cmdRelay, repeater);
     menu.delay = config.delay;
-    menu.showIcon = config.showIcons;
+    menu.showIcons = config.showIcons;
     menu.update({
         items: config.bindings,
         title: config.title,
         delay: config.delay,
         showMenu: true,
+        buttons: [WhichKeyMenu.SearchBindingButton]
     });
 
     // Explicitly not wait for the whole menu to resolve
