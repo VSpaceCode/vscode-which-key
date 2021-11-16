@@ -276,6 +276,16 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
     update(state: BaseWhichKeyMenuState<T>): void {
         this.clearDelay();
         this._qp.title = state.title;
+        this._qp.buttons = state.buttons ?? [];
+        // Need clear the current rendered menu items
+        // when user click the back button with delay
+        // so we won't show the old menu items while the menu is
+        // waiting to be displayed on delay.
+        //
+        // It worked without clearing for non-back button is because
+        // the menu items has been filtered when the key was entered.
+        // See https://github.com/microsoft/vscode/issues/137279
+        this._qp.items = [];
         this._state = state;
 
         if (state.showMenu) {

@@ -26,6 +26,7 @@ function findBindingWithCondition(bindings?: BindingItem[], condition?: Conditio
 }
 
 class WhichKeyMenu extends BaseWhichKeyMenu<BindingItem> {
+    private _stateHistory: BaseWhichKeyMenuState<BindingItem>[];
     private _itemHistory: BindingItem[];
     private __disposables: Disposable[];
 
@@ -40,9 +41,11 @@ class WhichKeyMenu extends BaseWhichKeyMenu<BindingItem> {
         this._statusBar = statusBar;
         this._repeater = repeater;
 
+        this._stateHistory = [];
         this._itemHistory = [];
         this.__disposables = [
             cmdRelay.onDidSearchBindings(this.handleDidSearchBindings, this),
+            cmdRelay.onDidUndoKey(this.handleDidUndoKey, this),
             this.onDidHide(() => setContext(ContextKey.Visible, false)),
             this.onDidShow(() => setContext(ContextKey.Visible, true))
         ];
@@ -59,6 +62,20 @@ class WhichKeyMenu extends BaseWhichKeyMenu<BindingItem> {
     private handleDidSearchBindings(): Promise<void> {
         const items = createDescBindItems(this.state.items, this._itemHistory);
         return showDescBindMenu(items, "Search Keybindings");
+    }
+
+    private handleDidUndoKey() {
+        const length = this._stateHistory.length;
+        if (length > 1) {
+            // Splice the last two elements which are
+            // -2: The state we are restoring
+            // -1: The current state
+            const [restore] = this._stateHistory.splice(length - 2);
+            this._itemHistory.pop();
+            this.value = "";
+            this.update(restore);
+            this.show();
+        }
     }
 
     protected override async handleAccept(item: BindingItem):
@@ -127,6 +144,11 @@ class WhichKeyMenu extends BaseWhichKeyMenu<BindingItem> {
             keyCombo = keyCombo.concat(currentKey);
         }
         return keyCombo.map(toSpecializedKey).join(' ');
+    }
+
+    override update(state: BaseWhichKeyMenuState<BindingItem>): void {
+        this._stateHistory.push(state);
+        super.update(state);
     }
 
     override dispose() {

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add command (`whichkey.undoKey`) to undo entered key.
+
 ### Changed
 
 - Use full width character to render keys on the menu for better alignment.

@@ -23,6 +23,7 @@ export function activate(context: ExtensionContext): void {
 
     context.subscriptions.push(
         commands.registerCommand(Commands.Trigger, cmdRelay.triggerKey, cmdRelay),
+        commands.registerCommand(Commands.UndoKey, cmdRelay.undoKey, cmdRelay),
         commands.registerCommand(Commands.Register, registry.register, registry),
         commands.registerCommand(Commands.Show, registry.show, registry),
         commands.registerCommand(Commands.SearchBindings, cmdRelay.searchBindings, cmdRelay),
