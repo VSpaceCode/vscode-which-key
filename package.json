@@ -236,13 +236,19 @@
 						"default": "none",
 						"enum": [
 							"none",
+							"custom",
+							"customNonNumberFirst",
+							"typeThenCustom",
 							"alphabetically",
 							"nonNumberFirst"
 						],
-						"enumDescriptions": [
+						"markdownEnumDescriptions": [
 							"Menu items are not sorted.",
-							"Menu items are sorted in alphabetical order.",
-							"Menu items are sorted in alphabetical order with non-number first."
+							"Menu items are sorted by the key in the following 'categories' then by a custom order within each 'category'.\nThe category order:\n1. Single key (a, z, SPC, TAB, etc)\n2. Function key (f11, F11, etc)\n3. Modifier key (C-z, etc)\n4. Others\n\n For the non-function key, the sort order of each character of the key:\n1. SPC\n2. Non-printable characters\n3. DEL\n4. ASCII symbols\n5. Number\n6. a-z\n7. A-Z\n8. Non-ASCII\n\n For function key, bindings will be sorted by the numeric order (e.g. F1, F2, F11, 12).",
+							"Menu items are sorted by bindings with non-number key first then by custom order.",
+							"Menu items are sorted by the binding type first then by custom order.",
+							"Menu items are sorted by the key in alphabetical order.",
+							"Menu items are sorted by bindings with non-number key first then by alphabetical order."
 						],
 						"markdownDescription": "Controls the sorting order of the which-key menu items."
 					},

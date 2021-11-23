@@ -11,6 +11,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add command (`whichkey.undoKey`) to undo entered key.
 - Add menu buttons to which key menu.
+- Added three additional sorting options
+  - `custom`:
+    Menu items are sorted by the key in the following 'categories'
+    then by a custom order within each 'category'.
+
+    The category order:
+    1. Single key (a, z, SPC, TAB, etc)
+    2. Function key (f11, F11, etc)
+    3. Modifier key (C-z, etc)
+    4. Others
+
+    For the non-function key, the sort order of each character of the key:
+    1. SPC
+    2. Non-printable characters
+    3. DEL
+    4. ASCII symbols
+    5. Number
+    6. a-z
+    7. A-Z
+    8. Non-ASCII
+    For function key, bindings will be sorted by the numeric order (e.g. F1, F2, F11, 12).
+
+  - `customNonNumberFirst`:
+    Menu items are sorted by bindings with non-number key first then by custom order.
+
+  - `typeThenCustom`:
+    Menu items are sorted by the binding type first then by custom order.
 
 ### Changed
 
