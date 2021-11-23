@@ -7,6 +7,7 @@ export interface WhichKeyMenuConfig {
     title?: string;
     delay: number;
     showIcons: boolean;
+    showButtons: boolean;
     bindings: BindingItem[];
 }
 

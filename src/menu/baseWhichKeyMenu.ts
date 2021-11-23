@@ -40,6 +40,8 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
     onDidResolve?: () => any;
     onDidReject?: (reason?: any) => any;
 
+    showButtons = true;
+
     constructor(cmdRelay: CommandRelay) {
         this._acceptQueue = new DispatchQueue(this.handleAcceptanceDispatch.bind(this));
         this._valueQueue = new DispatchQueue(this.handleValueDispatch.bind(this));
@@ -280,7 +282,7 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
     update(state: BaseWhichKeyMenuState<T>): void {
         this.clearDelay();
         this._qp.title = state.title;
-        this._qp.buttons = state.buttons ?? [];
+        this._qp.buttons = this.showButtons ? state.buttons ?? [] : [];
         // Need clear the current rendered menu items
         // when user click the back button with delay
         // so we won't show the old menu items while the menu is

@@ -3,6 +3,7 @@ export const contributePrefix = 'whichkey';
 export enum ConfigKey {
 	Delay = "delay",
 	ShowIcons = "showIcons",
+	ShowButtons = "showButtons",
 	SortOrder = "sortOrder",
 	Bindings = "bindings",
 	Overrides = "bindingOverrides",
@@ -38,6 +39,7 @@ export enum ContextKey {
 export const Configs = {
 	Delay: `${contributePrefix}.${ConfigKey.Delay}`,
 	ShowIcons: `${contributePrefix}.${ConfigKey.ShowIcons}`,
+	ShowButtons: `${contributePrefix}.${ConfigKey.ShowButtons}`,
 	SortOrder: `${contributePrefix}.${ConfigKey.SortOrder}`,
 	Bindings: `${contributePrefix}.${ConfigKey.Bindings}`,
 	Overrides: `${contributePrefix}.${ConfigKey.Overrides}`,

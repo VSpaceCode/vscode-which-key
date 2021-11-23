@@ -251,10 +251,12 @@ export default class WhichKeyCommand {
     show(): void {
         const delay = getConfig<number>(Configs.Delay) ?? 0;
         const showIcons = getConfig<boolean>(Configs.ShowIcons) ?? true;
+        const showButtons = getConfig<boolean>(Configs.ShowButtons) ?? true;
         const config = {
             bindings: this.bindingItems!,
             delay,
             showIcons,
+            showButtons,
             title: this.config?.title
         };
         showWhichKeyMenu(this.statusBar, this.cmdRelay, this.repeater, config);
@@ -271,7 +273,8 @@ export default class WhichKeyCommand {
     static show(bindings: BindingItem[], statusBar: StatusBar, cmdRelay: CommandRelay): void {
         const delay = getConfig<number>(Configs.Delay) ?? 0;
         const showIcons = getConfig<boolean>(Configs.ShowIcons) ?? true;
-        const config = { bindings, delay, showIcons };
+        const showButtons = getConfig<boolean>(Configs.ShowButtons) ?? true;
+        const config = { bindings, delay, showIcons, showButtons };
         showWhichKeyMenu(statusBar, cmdRelay, undefined, config);
     }
 }

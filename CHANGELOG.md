@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add command (`whichkey.undoKey`) to undo entered key.
-- Add menu buttons to which key menu.
-- Added three additional sorting options
+- Add menu buttons to which key menu (Use `whichkey.showButtons` in config to turn on/off).
+- Add three additional sorting options
   - `custom`:
     Menu items are sorted by the key in the following 'categories'
     then by a custom order within each 'category'.

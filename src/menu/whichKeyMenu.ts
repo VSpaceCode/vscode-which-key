@@ -191,6 +191,7 @@ export function showWhichKeyMenu(statusBar: StatusBar, cmdRelay: CommandRelay, r
     const menu = new WhichKeyMenu(statusBar, cmdRelay, repeater);
     menu.delay = config.delay;
     menu.showIcons = config.showIcons;
+    menu.showButtons = config.showButtons;
     menu.update({
         items: config.bindings,
         title: config.title,

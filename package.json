@@ -228,7 +228,12 @@
 					},
 					"whichkey.showIcons": {
 						"type": "boolean",
-						"markdownDescription": "Controls whether to show or hide icons in which-key menu.",
+						"markdownDescription": "Controls whether to show or hide icons in the which-key menu.",
+						"default": true
+					},
+					"whichkey.showButtons": {
+						"type": "boolean",
+						"markdownDescription": "Controls whether to show or hide buttons in the which-key menu.",
 						"default": true
 					},
 					"whichkey.sortOrder": {

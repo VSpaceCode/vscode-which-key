@@ -24,6 +24,7 @@ suite("WhichKeyMenu", function () {
 		const config: WhichKeyMenuConfig = {
 			delay: 0,
 			showIcons: false,
+			showButtons: false,
 			title: "Test",
 			bindings: [
 				{
@@ -60,6 +61,7 @@ suite("WhichKeyMenu", function () {
 		const config: WhichKeyMenuConfig = {
 			delay: 0,
 			showIcons: false,
+			showButtons: false,
 			title: "Test",
 			bindings: [
 				{
