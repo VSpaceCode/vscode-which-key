@@ -22,6 +22,9 @@ export enum CommandKey {
 
 export enum SortOrder {
 	None = 'none',
+	Custom = 'custom',
+	CustomNonNumberFirst = 'customNonNumberFirst',
+	TypeThenCustom = 'typeThenCustom',
 	Alphabetically = 'alphabetically',
 	NonNumberFirst = 'nonNumberFirst',
 }
