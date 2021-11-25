@@ -1,6 +1,6 @@
 import { CommandRelay } from "../commandRelay";
 import { StatusBar } from "../statusBar";
-import { pipe, toFullWidthKey, toSpecializedKey } from "../utils";
+import { toFullWidthKey, toFullWidthSpecializedKey, toSpecializedKey } from "../utils";
 import { BaseWhichKeyMenu, BaseWhichKeyMenuItem, BaseWhichKeyQuickPickItem, OptionalBaseWhichKeyMenuState } from "./baseWhichKeyMenu";
 
 export interface RepeaterMenuItem extends BaseWhichKeyMenuItem {
@@ -40,8 +40,8 @@ class RepeaterMenu extends BaseWhichKeyMenu<RepeaterMenuItem> {
             0
         );
         return items.map(i => ({
-            label: pipe(toSpecializedKey, toFullWidthKey)(i.key) + toFullWidthKey(' '.repeat(max - i.key.length) + '\t'),
-            description: i.name,
+            label: toFullWidthSpecializedKey(i.key) + toFullWidthKey(' '.repeat(max - i.key.length)),
+            description: `\t${i.name}`,
             detail: i.basePathNames.join('$(chevron-right)'),
             item: i
         }));

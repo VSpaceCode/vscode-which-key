@@ -4,7 +4,7 @@ import { DisplayOption, toCommands, TransientBindingItem } from "../config/bindi
 import { MaybeConfig, resolveMaybeConfig, TransientMenuConfig } from "../config/menuConfig";
 import { Configs, ContextKey } from "../constants";
 import { StatusBar } from "../statusBar";
-import { executeCommands, getConfig, pipe, setContext, toFullWidthKey, toFullWidthSpecializedKey, toSpecializedKey } from "../utils";
+import { executeCommands, getConfig, pipe, setContext, toFullWidthKey, toSpecializedKey } from "../utils";
 import { BaseWhichKeyMenu, BaseWhichKeyQuickPickItem, OptionalBaseWhichKeyMenuState } from "./baseWhichKeyMenu";
 
 type OptionalTransientMenuState = OptionalBaseWhichKeyMenuState<TransientBindingItem>;
@@ -36,7 +36,7 @@ class TransientMenu extends BaseWhichKeyMenu<TransientBindingItem> {
 
     protected override async handleMismatch(key: string):
         Promise<OptionalTransientMenuState> {
-        const msg = `${toFullWidthSpecializedKey(key)} is undefined`;
+        const msg = `${toSpecializedKey(key)} is undefined`;
         this._statusBar.setErrorMessage(msg);
         return undefined;
     }
