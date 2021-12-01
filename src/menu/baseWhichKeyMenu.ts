@@ -150,8 +150,8 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
         //     ],
         // }
         // ```
-        this._valueQueue.push(arg.key);
         this._when = arg.when;
+        this._valueQueue.push(arg.key);
     }
 
     private handleDidAccept(): void {

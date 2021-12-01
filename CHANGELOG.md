@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix an issue where `when` in conditional bindings couldn't be evaluated since v0.10.0. ([VSpaceCode/#256](https://github.com/VSpaceCode/VSpaceCode/issues/256))
+
 ## [0.11.0] - 2021-11-29
 
 ### Added
