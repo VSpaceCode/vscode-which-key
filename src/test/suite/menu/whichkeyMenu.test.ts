@@ -25,6 +25,7 @@ suite("WhichKeyMenu", function () {
 			delay: 0,
 			showIcons: false,
 			showButtons: false,
+			useFullWidthCharacters: false,
 			title: "Test",
 			bindings: [
 				{
@@ -62,6 +63,7 @@ suite("WhichKeyMenu", function () {
 			delay: 0,
 			showIcons: false,
 			showButtons: false,
+			useFullWidthCharacters: false,
 			title: "Test",
 			bindings: [
 				{

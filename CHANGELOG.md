@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add (`whichkey.useFullWidthCharacters`) to control whether to use full width characters as key in the which-key menu.
+
 ## [0.11.1] - 2021-11-30
 
 ### Fixed

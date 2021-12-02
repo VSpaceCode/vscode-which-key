@@ -236,6 +236,11 @@
 						"markdownDescription": "Controls whether to show or hide buttons in the which-key menu.",
 						"default": true
 					},
+					"whichkey.useFullWidthCharacters": {
+						"type": "boolean",
+						"markdownDescription": "Controls whether to use full width characters as key in the which-key menu.",
+						"default": false
+					},
 					"whichkey.sortOrder": {
 						"type": "string",
 						"default": "none",

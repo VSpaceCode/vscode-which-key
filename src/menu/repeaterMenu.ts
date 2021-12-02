@@ -9,10 +9,18 @@ export interface RepeaterMenuItem extends BaseWhichKeyMenuItem {
     accept: () => Thenable<unknown>;
 }
 
+export interface RepeaterMenuConfig {
+    title?: string;
+    useFullWidthCharacters: boolean;
+    items: RepeaterMenuItem[];
+}
+
 type OptionalRepeatMenuState = OptionalBaseWhichKeyMenuState<RepeaterMenuItem>;
 
 class RepeaterMenu extends BaseWhichKeyMenu<RepeaterMenuItem> {
     private _statusBar: StatusBar;
+
+    useFullWidthCharacters = false;
 
     constructor(statusBar: StatusBar, cmdRelay: CommandRelay) {
         super(cmdRelay);
@@ -39,21 +47,27 @@ class RepeaterMenu extends BaseWhichKeyMenu<RepeaterMenuItem> {
             (acc, val) => acc > val.key.length ? acc : val.key.length,
             0
         );
-        return items.map(i => ({
-            label: toFullWidthSpecializedKey(i.key) + toFullWidthKey(' '.repeat(max - i.key.length)),
-            description: `\t${i.name}`,
-            detail: i.basePathNames.join('$(chevron-right)'),
-            item: i
-        }));
+        return items.map(i => {
+            const label = this.useFullWidthCharacters
+                ? toFullWidthSpecializedKey(i.key) + toFullWidthKey(' '.repeat(max - i.key.length))
+                : toSpecializedKey(i.key);
+            return {
+                label,
+                description: `\t${i.name}`,
+                detail: i.basePathNames.join('$(chevron-right)'),
+                item: i
+            };
+        });
     }
 }
 
-export function showRepeaterMenu(statusBar: StatusBar, cmdRelay: CommandRelay, items: RepeaterMenuItem[], title?: string): Promise<void> {
+export function showRepeaterMenu(statusBar: StatusBar, cmdRelay: CommandRelay, config: RepeaterMenuConfig): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         const menu = new RepeaterMenu(statusBar, cmdRelay);
+        menu.useFullWidthCharacters = config.useFullWidthCharacters;
         menu.update({
-            title,
-            items: items,
+            title: config.title,
+            items: config.items,
             delay: 0,
             showMenu: true
         });

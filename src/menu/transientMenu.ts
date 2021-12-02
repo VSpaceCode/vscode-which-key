@@ -4,7 +4,7 @@ import { DisplayOption, toCommands, TransientBindingItem } from "../config/bindi
 import { MaybeConfig, resolveMaybeConfig, TransientMenuConfig } from "../config/menuConfig";
 import { Configs, ContextKey } from "../constants";
 import { StatusBar } from "../statusBar";
-import { executeCommands, getConfig, pipe, setContext, toFullWidthKey, toSpecializedKey } from "../utils";
+import { executeCommands, getConfig, setContext, toFullWidthKey, toFullWidthSpecializedKey, toSpecializedKey } from "../utils";
 import { BaseWhichKeyMenu, BaseWhichKeyQuickPickItem, OptionalBaseWhichKeyMenuState } from "./baseWhichKeyMenu";
 
 type OptionalTransientMenuState = OptionalBaseWhichKeyMenuState<TransientBindingItem>;
@@ -14,6 +14,7 @@ class TransientMenu extends BaseWhichKeyMenu<TransientBindingItem> {
     private __disposables: Disposable[];
 
     showIcon = true;
+    useFullWidthCharacters = false;
 
     constructor(statusBar: StatusBar, cmdRelay: CommandRelay) {
         super(cmdRelay);
@@ -52,11 +53,12 @@ class TransientMenu extends BaseWhichKeyMenu<TransientBindingItem> {
         return items.map(i => {
             const icon = (this.showIcon && i.icon && i.icon.length > 0)
                 ? `$(${i.icon})   ` : "";
-            const label = pipe(toSpecializedKey, toFullWidthKey)(i.key)
-                + toFullWidthKey(' '.repeat(max - i.key.length)) + '\t';
+            const label = this.useFullWidthCharacters
+                ? toFullWidthSpecializedKey(i.key) + toFullWidthKey(' '.repeat(max - i.key.length))
+                : toSpecializedKey(i.key);
             return {
                 label,
-                description: `${icon}${i.name}`,
+                description: `\t${icon}${i.name}`,
                 item: i,
             };
         });
@@ -84,6 +86,7 @@ export function showTransientMenu(statusBar: StatusBar, cmdRelay: CommandRelay, 
         const menuConfig = resolveMaybeConfig(config);
         const menu = new TransientMenu(statusBar, cmdRelay);
         menu.showIcon = menuConfig?.showIcons ?? getConfig<boolean>(Configs.ShowIcons) ?? true;
+        menu.useFullWidthCharacters = menuConfig?.useFullWidthCharacters ?? getConfig<boolean>(Configs.UseFullWidthCharacters) ?? false;
         menu.onDidResolve = resolve;
         menu.onDidReject = reject;
         menu.update({

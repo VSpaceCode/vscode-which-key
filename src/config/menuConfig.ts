@@ -8,12 +8,14 @@ export interface WhichKeyMenuConfig {
     delay: number;
     showIcons: boolean;
     showButtons: boolean;
+    useFullWidthCharacters: boolean;
     bindings: BindingItem[];
 }
 
 export interface TransientMenuConfig {
     title?: string;
     showIcons?: boolean;
+    useFullWidthCharacters?: boolean;
     bindings: TransientBindingItem[];
 }
 

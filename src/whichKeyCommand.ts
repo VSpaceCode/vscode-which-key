@@ -252,11 +252,13 @@ export default class WhichKeyCommand {
         const delay = getConfig<number>(Configs.Delay) ?? 0;
         const showIcons = getConfig<boolean>(Configs.ShowIcons) ?? true;
         const showButtons = getConfig<boolean>(Configs.ShowButtons) ?? true;
+        const useFullWidthCharacters = getConfig<boolean>(Configs.UseFullWidthCharacters) ?? false;
         const config = {
             bindings: this.bindingItems!,
             delay,
             showIcons,
             showButtons,
+            useFullWidthCharacters,
             title: this.config?.title
         };
         showWhichKeyMenu(this.statusBar, this.cmdRelay, this.repeater, config);
@@ -274,7 +276,8 @@ export default class WhichKeyCommand {
         const delay = getConfig<number>(Configs.Delay) ?? 0;
         const showIcons = getConfig<boolean>(Configs.ShowIcons) ?? true;
         const showButtons = getConfig<boolean>(Configs.ShowButtons) ?? true;
-        const config = { bindings, delay, showIcons, showButtons };
+        const useFullWidthCharacters = getConfig<boolean>(Configs.UseFullWidthCharacters) ?? false;
+        const config = { bindings, delay, showIcons, showButtons, useFullWidthCharacters };
         showWhichKeyMenu(statusBar, cmdRelay, undefined, config);
     }
 }

@@ -1,9 +1,9 @@
 import { CommandRelay } from "./commandRelay";
 import { BindingItem, toCommands } from "./config/bindingItem";
-import { Commands } from "./constants";
+import { Commands, Configs } from "./constants";
 import { RepeaterMenuItem, showRepeaterMenu } from "./menu/repeaterMenu";
 import { StatusBar } from "./statusBar";
-import { executeCommands } from "./utils";
+import { executeCommands, getConfig } from "./utils";
 
 function shouldIgnore(item: BindingItem): boolean {
     const cmds = toCommands(item).commands;
@@ -94,7 +94,12 @@ export class WhichKeyRepeater {
     }
 
     public show(): Promise<void> {
-        return showRepeaterMenu(this.statusBar, this.cmdRelay, this.createMenuItems(), "Repeat previous actions");
+        const config = {
+            title:  "Repeat previous actions",
+            items: this.createMenuItems(),
+            useFullWidthCharacters: getConfig<boolean>(Configs.UseFullWidthCharacters) ?? false
+        };
+        return showRepeaterMenu(this.statusBar, this.cmdRelay, config);
     }
 
     public clear(): void {

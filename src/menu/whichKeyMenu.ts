@@ -33,6 +33,7 @@ class WhichKeyMenu extends BaseWhichKeyMenu<BindingItem> {
     private _statusBar: StatusBar;
     private _repeater?: WhichKeyRepeater;
 
+    useFullWidthCharacters = false;
     showIcons = true;
     delay = 0;
 
@@ -153,8 +154,9 @@ class WhichKeyMenu extends BaseWhichKeyMenu<BindingItem> {
         return items.map(i => {
             const icon = (this.showIcons && i.icon && i.icon.length > 0)
                 ? `$(${i.icon})   ` : "";
-            const label = toFullWidthSpecializedKey(i.key)
-                + toFullWidthKey(' '.repeat(max - i.key.length));
+            const label = this.useFullWidthCharacters
+                ? toFullWidthSpecializedKey(i.key) + toFullWidthKey(' '.repeat(max - i.key.length))
+                : toSpecializedKey(i.key);
             return {
                 label,
                 description: `\t${icon}${i.name}`,
@@ -192,6 +194,7 @@ export function showWhichKeyMenu(statusBar: StatusBar, cmdRelay: CommandRelay, r
     menu.delay = config.delay;
     menu.showIcons = config.showIcons;
     menu.showButtons = config.showButtons;
+    menu.useFullWidthCharacters = config.useFullWidthCharacters;
     menu.update({
         items: config.bindings,
         title: config.title,
