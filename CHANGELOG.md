@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.3] - 2021-12-19
+
 ### Fixed
 
 - Fix the issue where the new sort options are not effective.
