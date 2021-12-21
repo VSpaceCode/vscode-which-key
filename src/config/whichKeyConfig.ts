@@ -1,25 +1,36 @@
-import { Configs } from "../constants";
+import { Configs } from '../constants';
 
 type ConfigSections = [string, string];
 
 export interface WhichKeyConfig {
     bindings: string;
     overrides?: string;
+    overridesArray?: string;
     title?: string;
 }
 
 function isString(x: any): x is string {
-    return typeof x === "string";
+    return typeof x === 'string';
 }
 
 function isConfigSections(x: any): x is ConfigSections {
-    return x && Array.isArray(x) && x.length === 2 && isString(x[0]) && isString(x[1]);
+    return (
+        x &&
+        Array.isArray(x) &&
+        x.length === 2 &&
+        isString(x[0]) &&
+        isString(x[1])
+    );
 }
 
 function isWhichKeyConfig(config: any): config is WhichKeyConfig {
-    return (config.bindings && isString(config.bindings)) &&
+    return (
+        config.bindings &&
+        isString(config.bindings) &&
         (!config.overrides || isString(config.overrides)) &&
-        (!config.title || isString(config.title));
+        (!config.overridesArray || isString(config.overridesArray)) &&
+        (!config.title || isString(config.title))
+    );
 }
 
 function getFullSection(sections: ConfigSections): string {
@@ -27,12 +38,15 @@ function getFullSection(sections: ConfigSections): string {
 }
 
 export function toWhichKeyConfig(o: any): WhichKeyConfig | undefined {
-    if (typeof o === "object") {
+    if (typeof o === 'object') {
         if (o.bindings && isConfigSections(o.bindings)) {
             o.bindings = getFullSection(o.bindings);
         }
         if (o.overrides && isConfigSections(o.overrides)) {
             o.overrides = getFullSection(o.overrides);
+        }
+        if (o.overridesArray && isConfigSections(o.overridesArray)) {
+            o.overridesArray = getFullSection(o.overridesArray);
         }
         if (isWhichKeyConfig(o)) {
             return o;
@@ -43,5 +57,6 @@ export function toWhichKeyConfig(o: any): WhichKeyConfig | undefined {
 
 export const defaultWhichKeyConfig: WhichKeyConfig = {
     bindings: Configs.Bindings,
-    overrides: Configs.Overrides
+    overrides: Configs.Overrides,
+    overridesArray: Configs.OverridesArray,
 };
