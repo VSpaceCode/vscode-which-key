@@ -1,4 +1,10 @@
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+    tags-ignore:
+      - '**'
+  pull_request:
 
 name: Build Extension
 jobs:
@@ -11,7 +17,7 @@ jobs:
       - name: Set up node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 12
+          node-version: 14
 
       - name: Install dependencies
         uses: bahmutov/npm-install@v1
