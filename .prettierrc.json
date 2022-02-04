@@ -1,0 +1,6 @@
+{
+  "tabWidth": 4,
+  "useTabs": false,
+  "singleQuote": false,
+  "overrides": [{ "files": "*.json", "options": { "tabWidth": 2 } }]
+}
