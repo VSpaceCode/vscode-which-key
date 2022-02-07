@@ -4,4 +4,5 @@ node_modules/
 .vscode-test/
 .vscode-test-web/
 
-*.vsix
+yarn.lock
+package-lock.json
