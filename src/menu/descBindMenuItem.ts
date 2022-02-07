@@ -4,19 +4,24 @@ import { getCondition } from "../config/condition";
 import { toFullWidthSpecializedKey } from "../utils";
 
 function pathToMenuLabel(path: BindingItem[]): string {
-    return path
-        // Filter all the condition key so we will not show something like
-        // languageId:markdown
-        .filter(item => !getCondition(item.key))
-        .map(item => toFullWidthSpecializedKey(item.key))
-        .join(" ");
+    return (
+        path
+            // Filter all the condition key so we will not show something like
+            // languageId:markdown
+            .filter((item) => !getCondition(item.key))
+            .map((item) => toFullWidthSpecializedKey(item.key))
+            .join(" ")
+    );
 }
 
 function pathToMenuDetail(path: BindingItem[]): string {
-    return path.map(p => p.name).join("$(chevron-right)");
+    return path.map((p) => p.name).join("$(chevron-right)");
 }
 
-function conversion(i: BindingItem, prefixPath: BindingItem[] = []): DescBindMenuItem {
+function conversion(
+    i: BindingItem,
+    prefixPath: BindingItem[] = []
+): DescBindMenuItem {
     const newPath = prefixPath.concat(i);
 
     const item: DescBindMenuItem = {
@@ -41,12 +46,15 @@ export interface DescBindMenuItem extends QuickPickItem {
     items?: DescBindMenuItem[];
 }
 
-export function createDescBindItems(items: readonly BindingItem[], path: BindingItem[] = []): DescBindMenuItem[] {
+export function createDescBindItems(
+    items: readonly BindingItem[],
+    path: BindingItem[] = []
+): DescBindMenuItem[] {
     const curr: DescBindMenuItem[] = [];
     const next: DescBindMenuItem[] = [];
 
     for (const i of items) {
-        path = path.filter(p => p.bindings);
+        path = path.filter((p) => p.bindings);
         const menuItem = conversion(i, path);
         curr.push(menuItem);
         if (menuItem.items) {

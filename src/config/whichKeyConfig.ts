@@ -13,13 +13,22 @@ function isString(x: any): x is string {
 }
 
 function isConfigSections(x: any): x is ConfigSections {
-    return x && Array.isArray(x) && x.length === 2 && isString(x[0]) && isString(x[1]);
+    return (
+        x &&
+        Array.isArray(x) &&
+        x.length === 2 &&
+        isString(x[0]) &&
+        isString(x[1])
+    );
 }
 
 function isWhichKeyConfig(config: any): config is WhichKeyConfig {
-    return (config.bindings && isString(config.bindings)) &&
+    return (
+        config.bindings &&
+        isString(config.bindings) &&
         (!config.overrides || isString(config.overrides)) &&
-        (!config.title || isString(config.title));
+        (!config.title || isString(config.title))
+    );
 }
 
 function getFullSection(sections: ConfigSections): string {
@@ -43,5 +52,5 @@ export function toWhichKeyConfig(o: any): WhichKeyConfig | undefined {
 
 export const defaultWhichKeyConfig: WhichKeyConfig = {
     bindings: Configs.Bindings,
-    overrides: Configs.Overrides
+    overrides: Configs.Overrides,
 };

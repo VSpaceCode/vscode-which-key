@@ -23,11 +23,11 @@ class WhichKeyRepeaterEntry {
     }
 
     get pathKey(): string {
-        return this.path.map(p => p.key).toString();
+        return this.path.map((p) => p.key).toString();
     }
 
     get basePathNames(): string[] {
-        return this.path.slice(0, -1).map(p => p.name);
+        return this.path.slice(0, -1).map((p) => p.name);
     }
 
     get shouldIgnore(): boolean {
@@ -45,7 +45,10 @@ export class WhichKeyRepeater {
      */
     private cache: WhichKeyRepeaterEntry[];
 
-    public constructor(private statusBar: StatusBar, private cmdRelay: CommandRelay) {
+    public constructor(
+        private statusBar: StatusBar,
+        private cmdRelay: CommandRelay
+    ) {
         this.cache = [];
     }
 
@@ -64,7 +67,7 @@ export class WhichKeyRepeater {
         }
 
         const pathKey = newEntry.pathKey;
-        const idx = this.cache.findIndex(c => c.pathKey === pathKey);
+        const idx = this.cache.findIndex((c) => c.pathKey === pathKey);
         if (idx >= 0) {
             // If found, remove element
             this.cache.splice(idx, 1);
@@ -89,15 +92,16 @@ export class WhichKeyRepeater {
     }
 
     private repeatAction(pathKey: string): Promise<void> {
-        const idx = this.cache.findIndex(c => c.pathKey === pathKey);
+        const idx = this.cache.findIndex((c) => c.pathKey === pathKey);
         return this.repeatLastAction(idx);
     }
 
     public show(): Promise<void> {
         const config = {
-            title:  "Repeat previous actions",
+            title: "Repeat previous actions",
             items: this.createMenuItems(),
-            useFullWidthCharacters: getConfig<boolean>(Configs.UseFullWidthCharacters) ?? false
+            useFullWidthCharacters:
+                getConfig<boolean>(Configs.UseFullWidthCharacters) ?? false,
         };
         return showRepeaterMenu(this.statusBar, this.cmdRelay, config);
     }

@@ -1,9 +1,9 @@
-import * as assert from 'assert';
-import * as vscode from 'vscode';
-import { extensionId } from '../../constants';
+import * as assert from "assert";
+import * as vscode from "vscode";
+import { extensionId } from "../../constants";
 
-suite('Extension Test Suite', () => {
-    vscode.window.showInformationMessage('Start all tests.');
+suite("Extension Test Suite", () => {
+    vscode.window.showInformationMessage("Start all tests.");
 
     test("whichkey can be activated", async function () {
         this.timeout(1 * 60 * 1000);
@@ -12,7 +12,7 @@ suite('Extension Test Suite', () => {
             await extension.activate();
             assert.ok(extension.isActive);
         } else {
-            assert.fail('Extension is not available');
+            assert.fail("Extension is not available");
         }
     });
 });

@@ -20,7 +20,7 @@ export interface TransientMenuConfig {
 }
 
 export function resolveMaybeConfig<T>(b?: MaybeConfig<T>): T | undefined {
-    if (typeof b === 'string') {
+    if (typeof b === "string") {
         return getConfig<T>(b);
     } else {
         return b;

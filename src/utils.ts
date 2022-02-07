@@ -20,7 +20,10 @@ export function executeCommand(cmd: string, args: any): Thenable<unknown> {
     }
 }
 
-export async function executeCommands(cmds: string[], args: any): Promise<void> {
+export async function executeCommands(
+    cmds: string[],
+    args: any
+): Promise<void> {
     for (let i = 0; i < cmds.length; i++) {
         const cmd = cmds[i];
         const arg = args?.[i];
@@ -36,7 +39,7 @@ export function getConfig<T>(section: string): T | undefined {
     // Get the minimal scope
     let filterSection: string | undefined = undefined;
     let lastSection: string = section;
-    const idx = section.lastIndexOf('.');
+    const idx = section.lastIndexOf(".");
     if (idx !== -1) {
         filterSection = section.substring(0, idx);
         lastSection = section.substring(idx + 1);
@@ -54,13 +57,17 @@ export function toFullWidthKey(s: string): string {
     let key = "";
     for (const symbol of s) {
         const codePoint = symbol.codePointAt(0);
-        if (codePoint && codePoint >= CharCode.Exclamation && codePoint <= CharCode.Tide) {
+        if (
+            codePoint &&
+            codePoint >= CharCode.Exclamation &&
+            codePoint <= CharCode.Tide
+        ) {
             // Only replace single character string to full width
             // ASCII character into full width characters
             key += String.fromCodePoint(codePoint + 65248);
         } else if (codePoint === CharCode.Space) {
             // Full width space character
-            key += '\u3000';
+            key += "\u3000";
         } else {
             key += symbol;
         }
@@ -75,10 +82,10 @@ export function toSpecializedKey(s: string): string {
         const codePoint = symbol.codePointAt(0);
         if (codePoint === CharCode.Space) {
             // Space
-            key += '␣';
+            key += "␣";
         } else if (codePoint === CharCode.Tab) {
             // tab
-            key += '↹';
+            key += "↹";
         } else {
             key += symbol;
         }

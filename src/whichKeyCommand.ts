@@ -1,7 +1,13 @@
 import { Disposable, workspace } from "vscode";
 import { getSortComparer } from "./bindingComparer";
 import { CommandRelay } from "./commandRelay";
-import { ActionType, BindingItem, OverrideBindingItem, toCommands, TransientBindingItem } from "./config/bindingItem";
+import {
+    ActionType,
+    BindingItem,
+    OverrideBindingItem,
+    toCommands,
+    TransientBindingItem,
+} from "./config/bindingItem";
 import { isConditionKeyEqual } from "./config/condition";
 import { WhichKeyConfig } from "./config/whichKeyConfig";
 import { Commands, Configs, SortOrder } from "./constants";
@@ -10,15 +16,25 @@ import { StatusBar } from "./statusBar";
 import { getConfig } from "./utils";
 import { WhichKeyRepeater } from "./whichKeyRepeater";
 
-function indexOfKey(bindingItems: BindingItem[] | undefined, key: string, isCondition = false): number {
+function indexOfKey(
+    bindingItems: BindingItem[] | undefined,
+    key: string,
+    isCondition = false
+): number {
     if (isCondition) {
-        return bindingItems?.findIndex(i => isConditionKeyEqual(i.key, key)) ?? -1;
+        return (
+            bindingItems?.findIndex((i) => isConditionKeyEqual(i.key, key)) ??
+            -1
+        );
     } else {
-        return bindingItems?.findIndex(i => i.key === key) ?? -1;
+        return bindingItems?.findIndex((i) => i.key === key) ?? -1;
     }
 }
 
-function findBindings(items: BindingItem[], keys: string[]): {
+function findBindings(
+    items: BindingItem[],
+    keys: string[]
+): {
     bindingItems: BindingItem[] | undefined;
     isCondition: boolean;
 } {
@@ -54,14 +70,18 @@ function convertOverride(key: string, o: OverrideBindingItem): BindingItem {
             bindings: o.bindings,
         };
     } else {
-        throw new Error('name or type of the override is undefined');
+        throw new Error("name or type of the override is undefined");
     }
 }
 
-function overrideBindingItems(items: BindingItem[], overrides: OverrideBindingItem[]): void {
+function overrideBindingItems(
+    items: BindingItem[],
+    overrides: OverrideBindingItem[]
+): void {
     for (const o of overrides) {
         try {
-            const keys = (typeof o.keys === 'string') ? o.keys.split('.') : o.keys;
+            const keys =
+                typeof o.keys === "string" ? o.keys.split(".") : o.keys;
             const { bindingItems, isCondition } = findBindings(items, keys);
 
             if (bindingItems !== undefined) {
@@ -99,7 +119,10 @@ function overrideBindingItems(items: BindingItem[], overrides: OverrideBindingIt
     }
 }
 
-function sortBindingsItems(items: BindingItem[] | undefined, comparer: ((a: BindingItem, b: BindingItem) => number) | undefined): void {
+function sortBindingsItems(
+    items: BindingItem[] | undefined,
+    comparer: ((a: BindingItem, b: BindingItem) => number) | undefined
+): void {
     if (!items || !comparer) {
         return;
     }
@@ -114,14 +137,16 @@ function convertToTransientBinding(item: BindingItem): TransientBindingItem[] {
     const transientBindings: TransientBindingItem[] = [];
     if (item.bindings) {
         for (const b of item.bindings) {
-            if (b.type === ActionType.Command
-                || b.type === ActionType.Commands) {
+            if (
+                b.type === ActionType.Command ||
+                b.type === ActionType.Commands
+            ) {
                 transientBindings.push({
                     key: b.key,
                     name: b.name,
                     icon: b.icon,
                     display: b.display,
-                    ...toCommands(b)
+                    ...toCommands(b),
                 });
             } else if (b.type === ActionType.Bindings) {
                 transientBindings.push({
@@ -147,7 +172,9 @@ function convertToTransientBinding(item: BindingItem): TransientBindingItem[] {
                     exit: true,
                 });
             } else {
-                console.error(`Type ${b.type} is not supported in convertToTransientBinding`);
+                console.error(
+                    `Type ${b.type} is not supported in convertToTransientBinding`
+                );
             }
         }
     }
@@ -219,15 +246,19 @@ export default class WhichKeyCommand {
         this.config = config;
 
         this.bindingItems = getCanonicalConfig(config);
-        this.onConfigChangeListener = workspace.onDidChangeConfiguration((e) => {
-            if (
-                e.affectsConfiguration(Configs.SortOrder) ||
-                e.affectsConfiguration(config.bindings) ||
-                (config.overrides && e.affectsConfiguration(config.overrides))
-            ) {
-                this.register(config);
-            }
-        }, this);
+        this.onConfigChangeListener = workspace.onDidChangeConfiguration(
+            (e) => {
+                if (
+                    e.affectsConfiguration(Configs.SortOrder) ||
+                    e.affectsConfiguration(config.bindings) ||
+                    (config.overrides &&
+                        e.affectsConfiguration(config.overrides))
+                ) {
+                    this.register(config);
+                }
+            },
+            this
+        );
     }
 
     unregister(): void {
@@ -239,14 +270,15 @@ export default class WhichKeyCommand {
         const delay = getConfig<number>(Configs.Delay) ?? 0;
         const showIcons = getConfig<boolean>(Configs.ShowIcons) ?? true;
         const showButtons = getConfig<boolean>(Configs.ShowButtons) ?? true;
-        const useFullWidthCharacters = getConfig<boolean>(Configs.UseFullWidthCharacters) ?? false;
+        const useFullWidthCharacters =
+            getConfig<boolean>(Configs.UseFullWidthCharacters) ?? false;
         const config = {
             bindings: this.bindingItems!,
             delay,
             showIcons,
             showButtons,
             useFullWidthCharacters,
-            title: this.config?.title
+            title: this.config?.title,
         };
         showWhichKeyMenu(this.statusBar, this.cmdRelay, this.repeater, config);
     }
@@ -259,12 +291,23 @@ export default class WhichKeyCommand {
         return this.repeater.repeatLastAction();
     }
 
-    static show(bindings: BindingItem[], statusBar: StatusBar, cmdRelay: CommandRelay): void {
+    static show(
+        bindings: BindingItem[],
+        statusBar: StatusBar,
+        cmdRelay: CommandRelay
+    ): void {
         const delay = getConfig<number>(Configs.Delay) ?? 0;
         const showIcons = getConfig<boolean>(Configs.ShowIcons) ?? true;
         const showButtons = getConfig<boolean>(Configs.ShowButtons) ?? true;
-        const useFullWidthCharacters = getConfig<boolean>(Configs.UseFullWidthCharacters) ?? false;
-        const config = { bindings, delay, showIcons, showButtons, useFullWidthCharacters };
+        const useFullWidthCharacters =
+            getConfig<boolean>(Configs.UseFullWidthCharacters) ?? false;
+        const config = {
+            bindings,
+            delay,
+            showIcons,
+            showButtons,
+            useFullWidthCharacters,
+        };
         showWhichKeyMenu(statusBar, cmdRelay, undefined, config);
     }
 }

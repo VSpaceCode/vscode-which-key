@@ -1,4 +1,13 @@
-import { Disposable, Event, EventEmitter, QuickInputButton, QuickPick, QuickPickItem, version, window } from "vscode";
+import {
+    Disposable,
+    Event,
+    EventEmitter,
+    QuickInputButton,
+    QuickPick,
+    QuickPickItem,
+    version,
+    window,
+} from "vscode";
 import { CommandRelay, KeybindingArgs } from "../commandRelay";
 import { DispatchQueue } from "../dispatchQueue";
 import { ComparisonResult, Version } from "../version";
@@ -7,21 +16,26 @@ export interface BaseWhichKeyMenuItem {
     key: string;
 }
 
-export interface BaseWhichKeyQuickPickItem<T extends BaseWhichKeyMenuItem> extends QuickPickItem {
+export interface BaseWhichKeyQuickPickItem<T extends BaseWhichKeyMenuItem>
+    extends QuickPickItem {
     item: T;
 }
 
 export interface BaseWhichKeyMenuState<T extends BaseWhichKeyMenuItem> {
-    title?: string,
-    items: T[]
-    delay: number,
-    showMenu: boolean,
-    buttons?: QuickInputButton[],
+    title?: string;
+    items: T[];
+    delay: number;
+    showMenu: boolean;
+    buttons?: QuickInputButton[];
 }
 
-export type OptionalBaseWhichKeyMenuState<T extends BaseWhichKeyMenuItem> = BaseWhichKeyMenuState<T> | undefined;
+export type OptionalBaseWhichKeyMenuState<T extends BaseWhichKeyMenuItem> =
+    | BaseWhichKeyMenuState<T>
+    | undefined;
 
-export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implements Disposable {
+export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem>
+    implements Disposable
+{
     private _acceptQueue: DispatchQueue<T>;
     private _valueQueue: DispatchQueue<string>;
 
@@ -43,8 +57,12 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
     showButtons = true;
 
     constructor(cmdRelay: CommandRelay) {
-        this._acceptQueue = new DispatchQueue(this.handleAcceptanceDispatch.bind(this));
-        this._valueQueue = new DispatchQueue(this.handleValueDispatch.bind(this));
+        this._acceptQueue = new DispatchQueue(
+            this.handleAcceptanceDispatch.bind(this)
+        );
+        this._valueQueue = new DispatchQueue(
+            this.handleValueDispatch.bind(this)
+        );
         this._lastValue = "";
         this._expectHiding = false;
 
@@ -52,7 +70,7 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
         this._state = {
             delay: 0,
             items: [],
-            showMenu: false
+            showMenu: false,
         };
 
         this._qp = window.createQuickPick<BaseWhichKeyQuickPickItem<T>>();
@@ -71,22 +89,22 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
             this._qp.onDidHide(this.handleDidHide, this),
             this._qp,
         ];
-
     }
 
     /**
      * If this is true, setting `this.value` should call `this.handleDidChangeValue` to maintain backward compatibility.
-     * 
+     *
      * vscode 1.57+ changed API so setting QuickPick will trigger onDidChangeValue.
      * See https://github.com/microsoft/vscode/issues/122939.
-     * 
+     *
      */
     private static shouldTriggerDidChangeValueOnSet =
-        Version.parse(version).compare(new Version(1, 57, 0)) == ComparisonResult.Older;
+        Version.parse(version).compare(new Version(1, 57, 0)) ==
+        ComparisonResult.Older;
 
     /**
      * Set the value of the QuicPick that's backward compatible.
-     * 
+     *
      * Note: This will call `this.handleDidChangeValue` either via
      * QuickPick's `onDidChangeValue` or manual call for backward compatibility.
      */
@@ -217,7 +235,7 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
 
     private async handleValueDispatch(key: string): Promise<void> {
         if (key.length > 0) {
-            const item = this._state.items.find(i => i.key === key);
+            const item = this._state.items.find((i) => i.key === key);
             if (item) {
                 await this.handleAcceptanceDispatch(item);
             } else {
@@ -255,15 +273,17 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
      * Handles an accepted item from either input or UI selection.
      * @param item The item begin accepted.
      */
-    protected abstract handleAccept(item: T):
-        Promise<OptionalBaseWhichKeyMenuState<T>>;
+    protected abstract handleAccept(
+        item: T
+    ): Promise<OptionalBaseWhichKeyMenuState<T>>;
 
     /**
      * Handles when no item matches the input.
      * @param key the key that was entered.
      */
-    protected abstract handleMismatch(key: string):
-        Promise<OptionalBaseWhichKeyMenuState<T>>;
+    protected abstract handleMismatch(
+        key: string
+    ): Promise<OptionalBaseWhichKeyMenuState<T>>;
 
     /**
      * Handles the rendering of an menu item.
@@ -272,8 +292,7 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
      * be shown in the forms of QuickPickItem.
      * @param items The menu items to render.
      */
-    protected abstract handleRender(items: T[]):
-        BaseWhichKeyQuickPickItem<T>[]
+    protected abstract handleRender(items: T[]): BaseWhichKeyQuickPickItem<T>[];
 
     /**
      * Updates the menu base on the state supplied.
@@ -314,7 +333,7 @@ export abstract class BaseWhichKeyMenu<T extends BaseWhichKeyMenuItem> implement
     }
 
     hide(): Promise<void> {
-        return new Promise<void>(r => {
+        return new Promise<void>((r) => {
             this._expectHiding = true;
             // Needs to wait onDidHide because
             // https://github.com/microsoft/vscode/issues/135747

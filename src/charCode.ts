@@ -72,5 +72,5 @@ export const enum CharCode {
     /**
      * The DEL character.
      */
-    Delete = 127
+    Delete = 127,
 }

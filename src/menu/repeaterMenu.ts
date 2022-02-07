@@ -1,11 +1,20 @@
 import { CommandRelay } from "../commandRelay";
 import { StatusBar } from "../statusBar";
-import { toFullWidthKey, toFullWidthSpecializedKey, toSpecializedKey } from "../utils";
-import { BaseWhichKeyMenu, BaseWhichKeyMenuItem, BaseWhichKeyQuickPickItem, OptionalBaseWhichKeyMenuState } from "./baseWhichKeyMenu";
+import {
+    toFullWidthKey,
+    toFullWidthSpecializedKey,
+    toSpecializedKey,
+} from "../utils";
+import {
+    BaseWhichKeyMenu,
+    BaseWhichKeyMenuItem,
+    BaseWhichKeyQuickPickItem,
+    OptionalBaseWhichKeyMenuState,
+} from "./baseWhichKeyMenu";
 
 export interface RepeaterMenuItem extends BaseWhichKeyMenuItem {
-    name: string,
-    basePathNames: string[],
+    name: string;
+    basePathNames: string[];
     accept: () => Thenable<unknown>;
 }
 
@@ -27,8 +36,9 @@ class RepeaterMenu extends BaseWhichKeyMenu<RepeaterMenuItem> {
         this._statusBar = statusBar;
     }
 
-    protected override async handleAccept(item: RepeaterMenuItem):
-        Promise<OptionalRepeatMenuState> {
+    protected override async handleAccept(
+        item: RepeaterMenuItem
+    ): Promise<OptionalRepeatMenuState> {
         this._statusBar.hide();
 
         await this.hide();
@@ -36,32 +46,41 @@ class RepeaterMenu extends BaseWhichKeyMenu<RepeaterMenuItem> {
         return undefined;
     }
 
-    protected override async handleMismatch(key: string): Promise<OptionalRepeatMenuState> {
+    protected override async handleMismatch(
+        key: string
+    ): Promise<OptionalRepeatMenuState> {
         const msg = `${toSpecializedKey(key)} is undefined`;
         this._statusBar.setErrorMessage(msg);
         return undefined;
     }
 
-    protected override handleRender(items: RepeaterMenuItem[]): BaseWhichKeyQuickPickItem<RepeaterMenuItem>[] {
+    protected override handleRender(
+        items: RepeaterMenuItem[]
+    ): BaseWhichKeyQuickPickItem<RepeaterMenuItem>[] {
         const max = items.reduce(
-            (acc, val) => acc > val.key.length ? acc : val.key.length,
+            (acc, val) => (acc > val.key.length ? acc : val.key.length),
             0
         );
-        return items.map(i => {
+        return items.map((i) => {
             const label = this.useFullWidthCharacters
-                ? toFullWidthSpecializedKey(i.key) + toFullWidthKey(' '.repeat(max - i.key.length))
+                ? toFullWidthSpecializedKey(i.key) +
+                  toFullWidthKey(" ".repeat(max - i.key.length))
                 : toSpecializedKey(i.key);
             return {
                 label,
                 description: `\t${i.name}`,
-                detail: i.basePathNames.join('$(chevron-right)'),
-                item: i
+                detail: i.basePathNames.join("$(chevron-right)"),
+                item: i,
             };
         });
     }
 }
 
-export function showRepeaterMenu(statusBar: StatusBar, cmdRelay: CommandRelay, config: RepeaterMenuConfig): Promise<void> {
+export function showRepeaterMenu(
+    statusBar: StatusBar,
+    cmdRelay: CommandRelay,
+    config: RepeaterMenuConfig
+): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         const menu = new RepeaterMenu(statusBar, cmdRelay);
         menu.useFullWidthCharacters = config.useFullWidthCharacters;
@@ -69,7 +88,7 @@ export function showRepeaterMenu(statusBar: StatusBar, cmdRelay: CommandRelay, c
             title: config.title,
             items: config.items,
             delay: 0,
-            showMenu: true
+            showMenu: true,
         });
         menu.onDidResolve = resolve;
         menu.onDidReject = reject;

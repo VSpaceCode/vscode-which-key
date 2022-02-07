@@ -2,8 +2,8 @@ import { Disposable, StatusBarItem, ThemeColor, window } from "vscode";
 
 export class StatusBar implements Disposable {
     static DEFAULT_TIMEOUT = 3000;
-    static ERROR_FG_COLOR = new ThemeColor('statusBarItem.errorForeground');
-    static ERROR_BG_COLOR = new ThemeColor('statusBarItem.errorBackground');
+    static ERROR_FG_COLOR = new ThemeColor("statusBarItem.errorForeground");
+    static ERROR_BG_COLOR = new ThemeColor("statusBarItem.errorBackground");
 
     private _timeout: number;
     private _isError: boolean;
@@ -30,7 +30,11 @@ export class StatusBar implements Disposable {
         this._timeout = ms;
     }
 
-    private _setMessage(text: string, isError: boolean, timeout?: number): void {
+    private _setMessage(
+        text: string,
+        isError: boolean,
+        timeout?: number
+    ): void {
         this.clearTimeout();
         const fgColor = isError ? StatusBar.ERROR_FG_COLOR : undefined;
         const bgColor = isError ? StatusBar.ERROR_BG_COLOR : undefined;

@@ -66,12 +66,14 @@ const nodeConfig = /** @type WebpackConfig */ {
             "test/runTest-web": "./src/test/runTest-web", // used to start the VS Code test runner (@vscode/test-web)
         },
         // create separate files for the test to be found by glob in code
-        ...glob.sync("./src/test/suite/**/*.test.ts")
-            .reduce((acc, curr) => ({
+        ...glob.sync("./src/test/suite/**/*.test.ts").reduce(
+            (acc, curr) => ({
                 ...acc,
                 // Remove `./src/` in front and `.ts` for key
-                [curr.substring(6, curr.length - 3)]: curr
-            }), {})
+                [curr.substring(6, curr.length - 3)]: curr,
+            }),
+            {}
+        ),
     },
     output: {
         filename: "[name].js",
@@ -98,8 +100,8 @@ const nodeConfig = /** @type WebpackConfig */ {
     externals: {
         vscode: "commonjs vscode", // ignored because it doesn't exist
         mocha: "commonjs mocha", // don't bundle
-        '@vscode/test-electron': "commonjs @vscode/test-electron", // don't bundle
-        '@vscode/test-web': "commonjs @vscode/test-web" // don't bundle
+        "@vscode/test-electron": "commonjs @vscode/test-electron", // don't bundle
+        "@vscode/test-web": "commonjs @vscode/test-web", // don't bundle
     },
     performance: {
         hints: false,

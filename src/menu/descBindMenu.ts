@@ -69,7 +69,7 @@ class DescBindMenu implements Disposable {
     }
 
     hide(): Promise<void> {
-        return new Promise<void>(r => {
+        return new Promise<void>((r) => {
             this._expectHiding = true;
             // Needs to wait onDidHide because
             // https://github.com/microsoft/vscode/issues/135747
@@ -97,7 +97,10 @@ class DescBindMenu implements Disposable {
     }
 }
 
-export function showDescBindMenu(items: DescBindMenuItem[], title?: string): Promise<void> {
+export function showDescBindMenu(
+    items: DescBindMenuItem[],
+    title?: string
+): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         const qp = window.createQuickPick<DescBindMenuItem>();
         qp.matchOnDescription = true;

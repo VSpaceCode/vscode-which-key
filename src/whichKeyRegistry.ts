@@ -3,7 +3,10 @@ import { toBindingItem } from "./config/bindingItem";
 import { CommandRelay } from "./commandRelay";
 import { StatusBar } from "./statusBar";
 import WhichKeyCommand from "./whichKeyCommand";
-import { defaultWhichKeyConfig, toWhichKeyConfig } from "./config/whichKeyConfig";
+import {
+    defaultWhichKeyConfig,
+    toWhichKeyConfig,
+} from "./config/whichKeyConfig";
 
 function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
     return value !== null && value !== undefined;
@@ -25,13 +28,16 @@ export class WhichKeyRegistry implements Disposable {
         if (config) {
             const key = config.bindings;
             if (!this.has(key)) {
-                this.registry[key] = new WhichKeyCommand(this.statusBar, this.cmdRelay);
+                this.registry[key] = new WhichKeyCommand(
+                    this.statusBar,
+                    this.cmdRelay
+                );
             }
 
             this.registry[key].register(config);
             return true;
         } else {
-            console.warn('Incorrect which-key config format.');
+            console.warn("Incorrect which-key config format.");
             return false;
         }
     }
@@ -40,8 +46,8 @@ export class WhichKeyRegistry implements Disposable {
         return section in this.registry;
     }
 
-    show(args: any):void {
-        if (typeof args === 'string') {
+    show(args: any): void {
+        if (typeof args === "string") {
             this.registry[args].show();
         } else if (Array.isArray(args) && args.length > 0) {
             // Vim call command with an array with length of 0
@@ -65,7 +71,7 @@ export class WhichKeyRegistry implements Disposable {
     }
 
     private getRegister(args: any): WhichKeyCommand {
-        if (typeof args === 'string') {
+        if (typeof args === "string") {
             return this.registry[args];
         } else {
             const key = defaultWhichKeyConfig.bindings;
@@ -74,7 +80,6 @@ export class WhichKeyRegistry implements Disposable {
             }
             return this.registry[key];
         }
-
     }
 
     unregister(section: string): void {

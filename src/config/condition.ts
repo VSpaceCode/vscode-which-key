@@ -17,21 +17,24 @@ export function getCondition(key?: string): Condition | undefined {
         if ("when" in r || "languageId" in r) {
             return {
                 when: r["when"],
-                languageId: r["languageId"]
+                languageId: r["languageId"],
             };
         }
     }
     return undefined;
 }
 
-export function evalCondition(stored?: Condition, evaluatee?: Condition): boolean {
+export function evalCondition(
+    stored?: Condition,
+    evaluatee?: Condition
+): boolean {
     if (evaluatee && stored) {
         let result = true;
         if (stored.when) {
-            result = result && (stored.when === evaluatee.when);
+            result = result && stored.when === evaluatee.when;
         }
         if (stored.languageId) {
-            result = result && (stored.languageId === evaluatee.languageId);
+            result = result && stored.languageId === evaluatee.languageId;
         }
         return result;
     }
@@ -39,11 +42,14 @@ export function evalCondition(stored?: Condition, evaluatee?: Condition): boolea
     return stored === evaluatee;
 }
 
-export function isConditionEqual(condition1?: Condition, condition2?: Condition): boolean {
+export function isConditionEqual(
+    condition1?: Condition,
+    condition2?: Condition
+): boolean {
     if (condition1 && condition2) {
         let result = true;
-        result = result && (condition1.when === condition2.when);
-        result = result && (condition1.languageId === condition2.languageId);
+        result = result && condition1.when === condition2.when;
+        result = result && condition1.languageId === condition2.languageId;
         return result;
     }
     // For if they are both undefined or null
