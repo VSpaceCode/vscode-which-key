@@ -717,6 +717,12 @@
                                         "command": "git.stage"
                                     },
                                     {
+                                        "key": "u",
+                                        "name": "Update",
+                                        "type": "command",
+                                        "command": "git.pull"
+                                    },
+                                    {
                                         "key": "U",
                                         "name": "Unstage",
                                         "type": "command",
