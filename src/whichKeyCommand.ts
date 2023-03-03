@@ -266,14 +266,25 @@ export default class WhichKeyCommand {
         this.repeater.clear();
     }
 
-    show(): void {
+    show(narrow: string[] = []): void {
         const delay = getConfig<number>(Configs.Delay) ?? 0;
         const showIcons = getConfig<boolean>(Configs.ShowIcons) ?? true;
         const showButtons = getConfig<boolean>(Configs.ShowButtons) ?? true;
         const useFullWidthCharacters =
             getConfig<boolean>(Configs.UseFullWidthCharacters) ?? false;
+        let bindings = this.bindingItems!;
+
+        for (let narrow_key of narrow) {
+            for (const binding of bindings) {
+                if (binding.key == narrow_key) {
+                    bindings = binding.bindings!;
+                    break;
+                }
+            }
+        }
+
         const config = {
-            bindings: this.bindingItems!,
+            bindings: bindings!,
             delay,
             showIcons,
             showButtons,

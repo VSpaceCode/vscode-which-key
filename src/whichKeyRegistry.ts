@@ -58,7 +58,11 @@ export class WhichKeyRegistry implements Disposable {
             if (!this.has(key)) {
                 this.register(defaultWhichKeyConfig);
             }
-            this.registry[key].show();
+            let narrow: string[] = [];
+            if ( args && typeof args.narrow === "string") {
+                narrow = args.narrow.split(" ");
+            }
+            this.registry[key].show(narrow);
         }
     }
 
