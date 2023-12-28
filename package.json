@@ -1036,27 +1036,27 @@
                                     },
                                     {
                                         "key": "h",
-                                        "name": "Move editor left",
+                                        "name": "Focus editor group left",
                                         "type": "command",
-                                        "command": "workbench.action.focusPreviousGroup"
+                                        "command": "workbench.action.focusLeftGroup"
                                     },
                                     {
                                         "key": "j",
-                                        "name": "Move editor down",
+                                        "name": "Focus editor group down",
                                         "type": "command",
                                         "command": "workbench.action.focusBelowGroup"
                                     },
                                     {
                                         "key": "k",
-                                        "name": "Move editor up",
+                                        "name": "Focus editor group up",
                                         "type": "command",
                                         "command": "workbench.action.focusAboveGroup"
                                     },
                                     {
                                         "key": "l",
-                                        "name": "Move editor right",
+                                        "name": "Focus editor group right",
                                         "type": "command",
-                                        "command": "workbench.action.focusNextGroup"
+                                        "command": "workbench.action.focusRightGroup"
                                     },
                                     {
                                         "key": "H",
