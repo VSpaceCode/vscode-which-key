@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.4] - 2024-01-07
+
+### Fixed
+
+-   Fix typos in focus editor group commands
+
 ## [0.11.3] - 2021-12-19
 
 ### Fixed
